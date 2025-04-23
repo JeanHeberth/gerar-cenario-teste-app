@@ -1,0 +1,43 @@
+<div class="container mt-4">
+  <!-- Botão para voltar -->
+  <div class="mb-3 text-end">
+    <a routerLink="/" class="btn btn-outline-secondary">
+      🔙 Voltar para criação
+    </a>
+  </div>
+
+  <h3 class="text-center mb-4">
+    🧾 Cenários Gerados
+  </h3>
+
+  <div *ngFor="let cenario of cenarios" class="card mb-3 shadow-sm border-primary">
+    <div class="card-body">
+      <!-- Título clicável -->
+      <h5 (click)="cenario.expanded = !cenario.expanded"
+          class="text-primary"
+          style="cursor: pointer;">
+        📄 {{ cenario.titulo }}
+      </h5>
+
+      <!-- Subtítulo fixo -->
+      <p class="text-muted mb-2">{{ cenario.regraDeNegocio }}</p>
+
+      <!-- Cenário expandido -->
+      <div *ngIf="cenario.expanded">
+        <label class="fw-bold">Cenário:</label>
+        <pre>{{ cenario.cenarioGerado }}</pre>
+      </div>
+
+      <!-- Botões de exportação -->
+      <div class="text-end mt-2">
+        <button (click)="exportar(cenario, 'doc')" class="btn btn-sm btn-outline-success me-2" title="Exportar para .doc">
+          📄 .doc
+        </button>
+        <button (click)="exportar(cenario, 'xlsx')" class="btn btn-sm btn-outline-info" title="Exportar para .xlsx">
+          📊 .xlsx
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
