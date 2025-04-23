@@ -1,34 +1,6 @@
-<div class="container">
-  <h1>Lista de Cenários de Teste</h1>
-
-  <!-- Card de Configuração do Jira -->
-  <div class="config-card">
-    <h2>Configuração do Jira / Zephyr Scale</h2>
-    <p>Preencha os campos abaixo para habilitar a exportação para o Jira.</p>
-    <div class="form-group">
-      <label for="jiraDomain">Domínio do Jira:</label>
-      <input type="text" id="jiraDomain" [(ngModel)]="jiraDomain" class="form-control" placeholder="https://seu-dominio.atlassian.net">
-    </div>
-    <div class="form-group">
-      <label for="jiraProjectId">ID do Projeto (pid):</label>
-      <input type="text" id="jiraProjectId" [(ngModel)]="jiraProjectId" class="form-control" placeholder="Ex: 10000">
-    </div>
-    <div class="form-group">
-      <label for="jiraTestCaseIssueTypeId">ID do Tipo de Issue "Test Case" (issuetype):</label>
-      <input type="text" id="jiraTestCaseIssueTypeId" [(ngModel)]="jiraTestCaseIssueTypeId" class="form-control" placeholder="Ex: 10003">
-    </div>
   </div>
-
-  <div *ngFor="let cenario of cenarios" class="cenario-card">
-    <h2>{{ cenario.titulo }}</h2>
-    <p><strong>Regra de Negócio:</strong> {{ cenario.regraDeNegocio }}</p>
-
-    <!-- Exportação -->
-    <div class="export-buttons d-flex gap-2 mt-3">
-      <button (click)="exportar(cenario, 'doc')" class="btn btn-outline-success" title="Exportar para .doc">📄 .doc</button>
-      <button (click)="exportar(cenario, 'xlsx')" class="btn btn-outline-info" title="Exportar para .xlsx">📊 .xlsx</button>
-      <button (click)="exportar(cenario, 'pdf')" class="btn btn-outline-danger" title="Exportar para .pdf">📊 .pdf</button>
-      <button (click)="exportar(cenario, 'jira')" class="btn btn-outline-primary" title="Criar issue no Jira">🧩 Jira</button>
+      </div>
+      </div>
     </div>
   </div>
 </div>

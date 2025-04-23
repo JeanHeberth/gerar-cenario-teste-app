@@ -3,23 +3,17 @@ import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {NgForOf, NgIf} from '@angular/common';
 import {Router} from '@angular/router';
-import {environment} from '../enviroment/enviroment.prd';
 
 @Component({
   selector: 'app-cenario',
   imports: [
     ReactiveFormsModule,
-    NgIf,
   ],
   templateUrl: './cenario.component.html',
-  standalone: true,
   styleUrl: './cenario.component.css'
 })
 export class CenarioComponent {
   form;
-  successMessage = '';
-  mostrarChat = false;
-
 
   loading = false;
   cenarioGerado: string | null = null;
@@ -27,35 +21,19 @@ export class CenarioComponent {
   constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
     this.form = this.fb.group({
       titulo: ['', Validators.required],
-      regraDeNegocio: ['', Validators.required]
     });
   }
 
   gerar() {
-    if (this.form.valid) {
-      this.loading = true;
-      const data = this.form.value;
+    this.loading = true;
 
-      this.http.post(`${environment.apiUrl}/cenario`, data).subscribe({
-        next: () => {
-          this.successMessage = '✅ Cenário gerado com sucesso!';
-          this.form.reset();
-          this.loading = false;
-
-          setTimeout(() => this.successMessage = '', 4000); // some após 4s
-        },
-        error: (err) => {
-          console.error('Erro ao gerar cenário:', err);
-          this.loading = false;
-        }
-      });
-    }
+        this.loading = false;
+      },
+        this.loading = false;
+      }
+    });
   }
 
-  irParaCenarios() {
     this.router.navigate(['/cenarios']);
   }
-
-
-
 }
