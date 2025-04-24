@@ -21,19 +21,32 @@ export class CenarioComponent {
   constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
     this.form = this.fb.group({
       titulo: ['', Validators.required],
+      regra: ['', Validators.required]
     });
   }
 
   gerar() {
+    if (this.form.invalid) return;
     this.loading = true;
+    this.cenarioGerado = null;
 
+    const {titulo, regra} = this.form.value;
+
+    this.http.post<any>('http://192.168.1.10:8088/cenario', {titulo, regraDeNegocio: regra}).subscribe({
+      next: res => {
+        this.cenarioGerado = res.cenarioGerado;
         this.loading = false;
+        this.form.reset(); // limpa os campos após gerar o cenário
       },
+      error: err => {
         this.loading = false;
+        this.cenarioGerado = 'Erro ao gerar cenário';
+        console.error(err);
       }
     });
   }
 
+  irParaCenariosAntigos() {
     this.router.navigate(['/cenarios']);
   }
 }

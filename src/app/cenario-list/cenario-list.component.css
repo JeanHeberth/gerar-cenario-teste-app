@@ -1,26 +1,41 @@
 .container {
+  max-width: 800px;
   margin: 0 auto;
 }
 
+h2 {
   font-weight: 600;
   text-align: center;
   color: #343a40;
 }
 
 .card {
+  border-left: 5px solid #0d6efd;
   transition: transform 0.2s ease;
   cursor: pointer;
 
+  &:hover {
     transform: scale(1.01);
   }
 
   .card-body {
     background-color: #f8f9fa;
-      font-size: 0.9rem;
+
+    h5 {
+      margin-bottom: 0.5rem;
+      color: #0d6efd;
     }
 
+    p {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    pre {
+      background-color: #ffffff;
       padding: 1rem;
       border-radius: 6px;
+      font-size: 0.95rem;
       border: 1px solid #dee2e6;
     }
   }

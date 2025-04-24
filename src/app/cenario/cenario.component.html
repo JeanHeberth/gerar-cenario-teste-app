@@ -1,3 +1,4 @@
+<!-- src/app/cenario-form.component.html -->
 <div class="container mt-4">
   <div class="card shadow">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -5,6 +6,8 @@
         <span class="me-2">🖊️</span>
         <strong>Gerador de Cenário de Teste</strong>
       </div>
+      <button class="btn btn-outline-light btn-sm" (click)="irParaCenariosAntigos()">
+        👀 Visualizar Cenários Antigos
       </button>
     </div>
     <div class="card-body">
@@ -22,6 +25,7 @@
         <div class="mb-3">
           <label class="form-label">Regra de Negócio</label>
           <textarea
+            formControlName="regra"
             rows="3"
             class="form-control"
             placeholder="Descreva a regra de negócio"
@@ -32,10 +36,14 @@
           <button
             type="submit"
             class="btn btn-success"
+            [disabled]="form.invalid || loading"
+          >
             🚀 Gerar Cenário
           </button>
         </div>
       </form>
     </div>
   </div>
+
+
 </div>
