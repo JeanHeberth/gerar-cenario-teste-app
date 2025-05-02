@@ -34,7 +34,7 @@ export class CenarioComponent {
       this.loading = true;
       const data = this.form.value;
 
-      this.http.post('http://192.168.1.10:8088/cenario', data).subscribe({
+      this.http.post('http://192.168.1.10:8089/cenario', data).subscribe({
         next: () => {
           this.successMessage = '✅ Cenário gerado com sucesso!';
           this.form.reset();
