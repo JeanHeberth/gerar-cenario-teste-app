@@ -11,6 +11,7 @@ import {Router} from '@angular/router';
     NgIf,
   ],
   templateUrl: './cenario.component.html',
+  standalone: true,
   styleUrl: './cenario.component.css'
 })
 export class CenarioComponent {
