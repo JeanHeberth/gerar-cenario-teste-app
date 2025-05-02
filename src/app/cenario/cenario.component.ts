@@ -8,6 +8,7 @@ import {Router} from '@angular/router';
   selector: 'app-cenario',
   imports: [
     ReactiveFormsModule,
+    NgIf,
   ],
   templateUrl: './cenario.component.html',
   standalone: true,
@@ -15,6 +16,8 @@ import {Router} from '@angular/router';
 })
 export class CenarioComponent {
   form;
+  successMessage = '';
+
 
   loading = false;
   cenarioGerado: string | null = null;
@@ -27,27 +30,28 @@ export class CenarioComponent {
   }
 
   gerar() {
-    if (this.form.invalid) return;
-    this.loading = true;
-    this.cenarioGerado = null;
+    if (this.form.valid) {
+      this.loading = true;
+      const data = this.form.value;
 
-    const {titulo, regra} = this.form.value;
+      this.http.post('http://192.168.1.10:8088/cenario', data).subscribe({
+        next: () => {
+          this.successMessage = '✅ Cenário gerado com sucesso!';
+          this.form.reset();
+          this.loading = false;
 
-    this.http.post<any>('http://192.168.1.10:8088/cenario', {titulo, regraDeNegocio: regra}).subscribe({
-      next: res => {
-        this.cenarioGerado = res.cenarioGerado;
-        this.loading = false;
-        this.form.reset(); // limpa os campos após gerar o cenário
-      },
-      error: err => {
-        this.loading = false;
-        this.cenarioGerado = 'Erro ao gerar cenário';
-        console.error(err);
-      }
-    });
+          setTimeout(() => this.successMessage = '', 4000); // some após 4s
+        },
+        error: (err) => {
+          console.error('Erro ao gerar cenário:', err);
+          this.loading = false;
+        }
+      });
+    }
   }
 
-  irParaCenariosAntigos() {
+  irParaCenarios() {
     this.router.navigate(['/cenarios']);
   }
+
 }
