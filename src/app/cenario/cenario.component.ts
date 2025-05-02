@@ -10,6 +10,7 @@ import {Router} from '@angular/router';
     ReactiveFormsModule,
   ],
   templateUrl: './cenario.component.html',
+  standalone: true,
   styleUrl: './cenario.component.css'
 })
 export class CenarioComponent {
