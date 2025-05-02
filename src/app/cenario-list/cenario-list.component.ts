@@ -19,8 +19,8 @@ export class CenarioListComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get<any[]>('http://192.168.1.10:8088/cenario').subscribe({
-      next: (res) => this.cenarios = res,
+    this.http.get<any[]>('http://192.168.1.4:8088/cenario').subscribe({
+      next: (res) => this.cenarios = res.reverse(),
       error: (err) => console.error('Erro ao buscar cenários:', err)
     });
   }
