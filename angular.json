@@ -27,6 +27,7 @@
               }
             ],
             "styles": [
+              "src/styles.css"
             ],
             "scripts": [],
             "server": "src/main.server.ts",
@@ -49,6 +50,7 @@
                   "maximumError": "8kB"
                 }
               ],
+              "outputHashing": "all"
             },
             "development": {
               "optimization": false,
