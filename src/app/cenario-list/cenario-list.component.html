@@ -1,5 +1,5 @@
 <div class="container mt-4">
-  <!-- Botão pequeno à direita -->
+  <!-- Título e botão Voltar -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="titulo-cenarios">
       🧾 Cenários Gerados
@@ -10,27 +10,31 @@
     </a>
   </div>
 
-  <div *ngFor="let cenario of cenarios" class="card" (click)="cenario.expanded = !cenario.expanded">
+  <!-- Um único card por conjunto (Título + Regra + Cenários agrupados) -->
+  <div *ngFor="let cenario of cenarios" class="card mb-4">
     <div class="card-body">
-      <h5>
+      <h5 class="card-title">
         📝 {{ cenario.titulo }}
       </h5>
-      <p>{{ cenario.regraDeNegocio }}</p>
+      <p class="text-muted">{{ cenario.regraDeNegocio }}</p>
 
-      <div *ngIf="cenario.expanded">
-        <label class="fw-bold">Cenário:</label>
-        <pre>{{ cenario.cenarioGerado }}</pre>
+      <div>
+        <label class="fw-bold">Cenários Gerados:</label>
+        <pre class="cenario-box">{{ cenario.cenarioGerado }}</pre>
       </div>
 
-      <div class="export-buttons">
+      <!-- Botões de exportação -->
+      <div class="export-buttons d-flex gap-2 mt-3">
         <button (click)="exportar(cenario, 'doc')" class="btn btn-outline-success" title="Exportar para .doc">
           📄 .doc
         </button>
         <button (click)="exportar(cenario, 'xlsx')" class="btn btn-outline-info" title="Exportar para .xlsx">
           📊 .xlsx
         </button>
+        <button (click)="exportar(cenario, 'pdf')" class="btn btn-outline-danger" title="Exportar para .pdf">
+          📊 .pdf
+        </button>
       </div>
     </div>
   </div>
-
 </div>
