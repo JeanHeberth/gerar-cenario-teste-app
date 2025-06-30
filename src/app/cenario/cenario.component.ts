@@ -26,7 +26,7 @@ export class CenarioComponent {
   constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
     this.form = this.fb.group({
       titulo: ['', Validators.required],
-      regra: ['', Validators.required]
+      regraDeNegocio: ['', Validators.required]
     });
   }
 
