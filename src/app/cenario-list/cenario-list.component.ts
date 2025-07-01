@@ -19,7 +19,7 @@ export class CenarioListComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get<any[]>('http://192.168.1.9:8089/cenario').subscribe({
+    this.http.get<any[]>('http://192.168.1.99:8089/cenario').subscribe({
       next: (res) => this.cenarios = res.reverse(),
       error: (err) => console.error('Erro ao buscar cenários:', err)
     });
@@ -45,16 +45,13 @@ export class CenarioListComponent implements OnInit {
   private exportarParaExcel(cenario: any): void {
     const titulo = cenario.titulo;
     const regra = cenario.regraDeNegocio;
+    const criterios = cenario.criteriosAceitacao;
 
-    const blocos = cenario.cenarioGerado
-      .split(/\n\s*\n/) // separa por 2 quebras de linha
-      .map((b: string) => b.trim())
-      .filter((b: string) => b.length > 0);
-
-    const dados = blocos.map((bloco: string) => ({
+    const dados = cenario.cenarios.map((c: string) => ({
       Título: titulo,
       'Regra de Negócio': regra,
-      Cenário: bloco
+      'Critérios de Aceitação': criterios,
+      Cenário: c
     }));
 
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dados);
@@ -66,55 +63,67 @@ export class CenarioListComponent implements OnInit {
     FileSaver.saveAs(blob, `${titulo.replace(/\s+/g, '_')}_cenarios.xlsx`);
   }
 
+
   // 📄 Exportar para Word (.doc)
   private exportarParaDoc(cenario: any): void {
+    const blocosCenarios = cenario.cenarios.map((c: string) => `<pre>${c}</pre>`).join('<br><br>');
+
     const conteudo = `
-      <h1>${cenario.titulo}</h1>
-      <p><strong>Regra de Negócio:</strong> ${cenario.regraDeNegocio}</p>
-      <pre>${cenario.cenarioGerado}</pre>
-    `;
+    <h1>${cenario.titulo}</h1>
+    <p><strong>Regra de Negócio:</strong> ${cenario.regraDeNegocio}</p>
+    <h3>Critérios de Aceitação:</h3>
+    <pre>${cenario.criteriosAceitacao}</pre>
+    <h3>Cenários de Teste:</h3>
+    ${blocosCenarios}
+  `;
 
     const blob = new Blob(['\ufeff' + conteudo], { type: 'application/msword' });
     FileSaver.saveAs(blob, `${cenario.titulo.replace(/\s+/g, '_')}.doc`);
   }
 
+
   // 🧾 Exportar para PDF (.pdf)
   private exportarParaPDF(cenario: any): void {
     const doc = new jsPDF();
-    const margemEsq = 15;
-    let alturaAtual = 20;
+    const margem = 15;
+    let altura = 20;
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
-    doc.text(cenario.titulo, margemEsq, alturaAtual);
+    doc.text(cenario.titulo, margem, altura);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
+    altura += 10;
 
-    alturaAtual += 10;
-    doc.text('Regra de Negócio:', margemEsq, alturaAtual);
-    alturaAtual += 8;
-
+    doc.text('Regra de Negócio:', margem, altura);
+    altura += 8;
     const regra = doc.splitTextToSize(cenario.regraDeNegocio, 180);
-    doc.text(regra, margemEsq, alturaAtual);
+    doc.text(regra, margem, altura);
 
-    alturaAtual += regra.length * 7 + 10;
-    doc.text('Cenários:', margemEsq, alturaAtual);
-    alturaAtual += 8;
+    altura += regra.length * 7 + 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Critérios de Aceitação:', margem, altura);
+    altura += 8;
 
-    const blocos = cenario.cenarioGerado
-      .split(/\n\s*\n/)
-      .map((b: string) => b.trim())
-      .filter((b: string) => b.length > 0);
+    const criterios = doc.splitTextToSize(cenario.criteriosAceitacao, 180);
+    doc.setFont('helvetica', 'normal');
+    doc.text(criterios, margem, altura);
 
-    for (const bloco of blocos) {
+    altura += criterios.length * 7 + 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Cenários:', margem, altura);
+    altura += 8;
+
+    doc.setFont('helvetica', 'normal');
+    for (const bloco of cenario.cenarios) {
       const linhas = doc.splitTextToSize(bloco, 180);
-      if (alturaAtual + linhas.length * 7 > 280) {
+      if (altura + linhas.length * 7 > 280) {
         doc.addPage();
-        alturaAtual = 20;
+        altura = 20;
       }
-      doc.text(linhas, margemEsq, alturaAtual);
-      alturaAtual += linhas.length * 7 + 10;
+      doc.text(linhas, margem, altura);
+      altura += linhas.length * 7 + 10;
     }
 
     doc.save(`${cenario.titulo.replace(/\s+/g, '_')}.pdf`);
