@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-cenario-list',
@@ -16,7 +17,8 @@ import jsPDF from 'jspdf';
 export class CenarioListComponent implements OnInit {
   cenarios: any[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+  }
 
   ngOnInit(): void {
     this.http.get<any[]>('http://192.168.1.99:8089/cenario').subscribe({
@@ -45,12 +47,10 @@ export class CenarioListComponent implements OnInit {
   private exportarParaExcel(cenario: any): void {
     const titulo = cenario.titulo;
     const regra = cenario.regraDeNegocio;
-    const criterios = cenario.criteriosAceitacao;
 
     const dados = cenario.cenarios.map((c: string) => ({
       Título: titulo,
       'Regra de Negócio': regra,
-      'Critérios de Aceitação': criterios,
       Cenário: c
     }));
 
@@ -58,8 +58,8 @@ export class CenarioListComponent implements OnInit {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Cenarios');
 
-    const buffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([buffer], { type: 'application/octet-stream' });
+    const buffer: any = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
+    const blob = new Blob([buffer], {type: 'application/octet-stream'});
     FileSaver.saveAs(blob, `${titulo.replace(/\s+/g, '_')}_cenarios.xlsx`);
   }
 
@@ -77,7 +77,7 @@ export class CenarioListComponent implements OnInit {
     ${blocosCenarios}
   `;
 
-    const blob = new Blob(['\ufeff' + conteudo], { type: 'application/msword' });
+    const blob = new Blob(['\ufeff' + conteudo], {type: 'application/msword'});
     FileSaver.saveAs(blob, `${cenario.titulo.replace(/\s+/g, '_')}.doc`);
   }
 
@@ -88,44 +88,25 @@ export class CenarioListComponent implements OnInit {
     const margem = 15;
     let altura = 20;
 
+    // Cenários
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.text(cenario.titulo, margem, altura);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    altura += 10;
-
-    doc.text('Regra de Negócio:', margem, altura);
-    altura += 8;
-    const regra = doc.splitTextToSize(cenario.regraDeNegocio, 180);
-    doc.text(regra, margem, altura);
-
-    altura += regra.length * 7 + 10;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Critérios de Aceitação:', margem, altura);
-    altura += 8;
-
-    const criterios = doc.splitTextToSize(cenario.criteriosAceitacao, 180);
-    doc.setFont('helvetica', 'normal');
-    doc.text(criterios, margem, altura);
-
-    altura += criterios.length * 7 + 10;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Cenários:', margem, altura);
-    altura += 8;
-
     doc.setFont('helvetica', 'normal');
     for (const bloco of cenario.cenarios) {
       const linhas = doc.splitTextToSize(bloco, 180);
+
+      // Quebra de página, se necessário
       if (altura + linhas.length * 7 > 280) {
         doc.addPage();
         altura = 20;
       }
+
       doc.text(linhas, margem, altura);
       altura += linhas.length * 7 + 10;
     }
 
-    doc.save(`${cenario.titulo.replace(/\s+/g, '_')}.pdf`);
+    // Nome do arquivo limpo
+    const nomeArquivo = cenario.titulo.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_');
+    doc.save(`${nomeArquivo}.pdf`);
   }
+
 }
