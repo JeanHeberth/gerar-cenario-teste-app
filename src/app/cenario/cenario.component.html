@@ -35,8 +35,7 @@
           <button
             type="submit"
             class="btn btn-success"
-            [disabled]="form.invalid || loading"
-          >
+            [disabled]="form.invalid || loading">
             🚀 Gerar Cenário
           </button>
         </div>
@@ -48,20 +47,4 @@
       </div>
     </div>
   </div>
-
-  <!-- Botão flutuante -->
-  <div class="chat-fab" (click)="mostrarChat = !mostrarChat">
-    💬
-  </div>
-
-  <!-- Chat embutido -->
-  <div class="chat-container" *ngIf="mostrarChat">
-    <iframe
-      src="https://astra.datastax.com/langflow/605a2b2b-fb1f-4886-a8d4-01021ebda04a/flow/a4291ec5-2297-41d6-8ac4-643072d6a337"
-      frameborder="0"
-      width="100%"
-      height="100%">
-    </iframe>
-  </div>
-
 </div>
