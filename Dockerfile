@@ -1,11 +1,18 @@
-# Etapa 1: build da aplicação Angular
-FROM node:22-alpine AS build
+# Etapa de build
+FROM node:20-alpine AS build
 WORKDIR /app
-COPY . .
-RUN npm install && npm run build
 
-# Etapa 2: imagem leve com NGINX
-FROM nginx:alpine
-COPY --from=build /app/dist/gerar-cenario-teste-app/ /usr/share/nginx/html
+# Copia os arquivos do projeto
+COPY . .
+
+# Instala dependências
+RUN npm install
+
+# Gera build padrão (sem depender de ambientes)
+RUN npm run build
+
+# Etapa final: usar Nginx para servir o conteúdo
+FROM nginx:stable-alpine
+COPY --from=build /app/dist/gerar-cenario-teste-app /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
