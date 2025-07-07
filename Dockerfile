@@ -1,31 +1,27 @@
-# Etapa de build (constrói app e servidor SSR)
+# Etapa de build
 FROM node:20-alpine AS build
 
-# Define diretório de trabalho
 WORKDIR /app
-
-# Copia arquivos do projeto
 COPY . .
 
-# Instala dependências
+# Instala as dependências
 RUN npm install
 
-# Constrói a aplicação e o servidor SSR
-RUN npm run build:ssr
+# Build de produção Angular (sem SSR)
+RUN npm run build --configuration production
 
-# Etapa de produção com Node.js
-FROM node:20-alpine
+# Etapa de produção (servidor nginx)
+FROM nginx:stable-alpine
 
-# Define diretório de trabalho
-WORKDIR /app
+# Copia os arquivos gerados para o diretório público do nginx
+COPY --from=build /app/dist/gerar-cenario-teste-app /usr/share/nginx/html
 
-# Copia dist e dependências do build
-COPY --from=build /app/dist /app/dist
-COPY --from=build /app/node_modules /app/node_modules
-COPY --from=build /app/package.json .
+# Remove configuração default do nginx (opcional)
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Expõe a porta usada pelo SSR
-EXPOSE 4000
+# Adiciona uma nova configuração básica (opcional)
+RUN echo 'server { listen 80; server_name localhost; root /usr/share/nginx/html; index index.html; location / { try_files $uri $uri/ /index.html; } }' > /etc/nginx/conf.d/default.conf
 
-# Comando para iniciar o servidor SSR
-CMD ["node", "dist/gerar-cenario-teste-app/server/main.js"]
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
