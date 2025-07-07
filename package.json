@@ -4,10 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0 --port 4200",
-    "build": "ng build",
+    "build:ssr": "ng build && ng run gerar-cenario-teste-app:server",
+    "serve:ssr": "node dist/gerar-cenario-teste-app/server/main.js",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:gerar-cenario-teste-app": "node dist/gerar-cenario-teste-app/server/server.mjs"
+    "test": "ng test"
   },
   "private": true,
   "dependencies": {
