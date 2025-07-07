@@ -29,6 +29,7 @@
           <button (click)="exportar(cenario, 'doc')" class="btn btn-outline-success" title="Exportar para .doc">📄 .doc</button>
           <button (click)="exportar(cenario, 'xlsx')" class="btn btn-outline-info" title="Exportar para .xlsx">📊 .xlsx</button>
           <button (click)="exportar(cenario, 'pdf')" class="btn btn-outline-danger" title="Exportar para .pdf">📊 .pdf</button>
+          <a [href]="getJiraUrl(cenario)" target="_blank" class="btn btn-outline-primary" title="Criar issue no Jira">🧩 Jira</a>
         </div>
       </div>
     </div>

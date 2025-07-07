@@ -21,11 +21,20 @@ export class CenarioListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.http.get<any[]>('http://192.168.1.99:8089/cenario').subscribe({
+    this.http.get<any[]>('http://192.168.0.198:8089/cenario').subscribe({
       next: (res) => this.cenarios = res.reverse(),
       error: (err) => console.error('Erro ao buscar cenários:', err)
     });
   }
+
+  getJiraUrl(cenario: any): string {
+    const summary = encodeURIComponent(cenario.titulo);
+    const description = encodeURIComponent(
+      `Regra de Negócio: ${cenario.regraDeNegocio}\n\nCritérios:\n${cenario.criteriosAceitacao}\n\nCenários:\n${cenario.cenarios.join('\n')}`
+    );
+    return `https://SEU_DOMINIO_JIRA/secure/CreateIssueDetails!init.jspa?pid=10000&issuetype=10001&summary=${summary}&description=${description}`;
+  }
+
 
   exportar(cenario: any, formato: string) {
     switch (formato) {
