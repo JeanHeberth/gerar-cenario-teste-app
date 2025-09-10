@@ -102,26 +102,31 @@ export class CenarioListComponent implements OnInit {
   }
 
 
-  // 📄 Exportar para Word (.doc) com prevenção de duplicidade
+  // 📄 Exportar para Word (.doc) com Estilo Profissional para QE
   private exportarParaDoc(cenario: any): void {
     const criteriosAdicionados = new Set<string>();
+
+    // Processa os Critérios de Aceitação, mantendo a formatação com <pre>
     const criteriosHtml = cenario.criteriosAceitacao.split('\n').map((linha: string) => {
       const linhaLimpa = linha.replace(/\*/g, '').trim();
       if (linhaLimpa) {
         criteriosAdicionados.add(linhaLimpa);
-        return `<pre>${linhaLimpa}</pre>`;
+        return linhaLimpa;
       }
-      return '';
-    }).join('');
+      return null;
+    }).filter(Boolean).join('\n');
 
+    // Processa os Cenários de Teste
     const blocosHtml = cenario.cenarios.map((bloco: string) => {
       let textoLimpo = bloco.replace(/\*/g, '').trim();
       if (!textoLimpo || criteriosAdicionados.has(textoLimpo)) {
-        return ''; // Pula o bloco se for vazio ou já adicionado como critério
+        return ''; // Pula blocos vazios ou já adicionados
       }
       if (textoLimpo.startsWith('####')) {
+        // Título de seção dentro dos cenários
         return `<h3>${textoLimpo.replace(/####/g, '').trim()}</h3>`;
       }
+      // Cenário de teste, mantendo a formatação com <pre>
       return `<pre>${textoLimpo}</pre>`;
     }).join('');
 
@@ -131,20 +136,56 @@ export class CenarioListComponent implements OnInit {
         <head>
           <meta charset="UTF-8">
           <style>
-            body { font-family: Arial, sans-serif; color: #333; }
-            h1 { color: #000; }
-            h3 { color: #222; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-top: 1.2em; }
-            p { margin-bottom: 0.5em; }
-            pre { white-space: pre-wrap; font-family: Arial, sans-serif; color: #333; margin: 0; padding: 0; }
-            .meta-info { font-weight: bold; }
+            body {
+              font-family: Calibri, Arial, sans-serif;
+              font-size: 12pt;
+              color: #000000;
+              line-height: 1.4;
+            }
+            h1 {
+              font-size: 22pt;
+              font-weight: bold;
+              text-align: center;
+              margin-bottom: 1.5em;
+            }
+            h2 {
+              font-size: 16pt;
+              font-weight: bold;
+              border-bottom: 2px solid #000000;
+              padding-bottom: 4px;
+              margin-top: 1.5em;
+              margin-bottom: 1em;
+            }
+            h3 {
+              font-size: 14pt;
+              font-weight: bold;
+              border-bottom: 1px solid #cccccc;
+              padding-bottom: 3px;
+              margin-top: 1.5em;
+              margin-bottom: 0.8em;
+            }
+            p {
+              margin-bottom: 1em;
+            }
+            pre {
+              white-space: pre-wrap;
+              font-family: Calibri, Arial, sans-serif;
+              font-size: 12pt;
+              margin: 0;
+              padding: 0;
+            }
           </style>
         </head>
         <body>
           <h1>${cenario.titulo}</h1>
-          <p><span class="meta-info">Regra de Negócio:</span> ${cenario.regraDeNegocio}</p>
-          <h3>Critérios de Aceitação:</h3>
-          ${criteriosHtml}
-          <h3>Cenários de Teste:</h3>
+
+          <h2>Regra de Negócio</h2>
+          <p>${cenario.regraDeNegocio}</p>
+
+          <h2>Critérios de Aceitação</h2>
+          <pre>${criteriosHtml}</pre>
+
+          <h2>Cenários de Teste</h2>
           ${blocosHtml}
         </body>
       </html>
