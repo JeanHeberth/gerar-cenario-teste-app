@@ -1,0 +1,139 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+h3 {
+  font-weight: 600;
+  text-align: center;
+  color: #343a40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background-color: #fff;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.card-body {
+  padding: 0;
+}
+
+h5 {
+  margin-bottom: 0.25rem;
+  color: #0d6efd;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+p {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.voltar-btn {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  line-height: 1.1;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: fit-content;
+}
+
+/* Cenário agrupado */
+.cenario-box {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  white-space: pre-wrap;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+/* Scroll mais suave no bloco de cenários longos */
+.cenario-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cenario-box::-webkit-scrollbar-thumb {
+  background-color: #adb5bd;
+  border-radius: 4px;
+}
+
+/* Botões de exportação */
+.export-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+.btn {
+  border-radius: 20px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.text-end > .btn-sm {
+  font-size: 0.875rem;
+  padding: 4px 10px;
+  border-radius: 6px !important;
+  line-height: 1;
+  height: auto;
+}
+
+.criterios-box {
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  padding: 1rem;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+  font-family: monospace;
+}
+
+.cenario-box {
+  background-color: #f8f9fa;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+  font-family: monospace;
+}
+
+.cenario-item {
+  border: none;
+  padding: 0.5rem 0;
+}
