@@ -3,6 +3,7 @@ import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {NgForOf, NgIf} from '@angular/common';
 import {Router} from '@angular/router';
+import {environment} from '../enviroments/enviroment.prod';
 
 @Component({
   selector: 'app-cenario',
@@ -35,7 +36,7 @@ export class CenarioComponent {
       this.loading = true;
       const data = this.form.value;
 
-      this.http.post('http://192.168.0.198:8089/cenario', data).subscribe({
+      this.http.post(`${environment.apiUrl}/cenario`, data).subscribe({
         next: () => {
           this.successMessage = '✅ Cenário gerado com sucesso!';
           this.form.reset();

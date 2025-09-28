@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import {environment} from '../enviroments/enviroment.prod';
 
 @Component({
   selector: 'app-cenario-list',
@@ -21,7 +21,7 @@ export class CenarioListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.http.get<any[]>('http://192.168.0.198:8089/cenario').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/cenario`).subscribe({
       next: (res) => this.cenarios = res.reverse(),
       error: (err) => console.error('Erro ao buscar cenários:', err)
     });
