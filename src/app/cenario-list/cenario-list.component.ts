@@ -2,41 +2,77 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms'; // Importe o FormsModule
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import jsPDF from 'jspdf';
-import { DOC_EXPORT_STYLES } from './doc-export.styles'; // Importa os estilos
+import { DOC_EXPORT_STYLES } from './doc-export.styles';
+import {environment} from '../enviroment/enviroment.prd'; // Importa os estilos
 
 @Component({
   selector: 'app-cenario-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule], // Adicione o FormsModule aqui
   templateUrl: './cenario-list.component.html',
   styleUrls: ['./cenario-list.component.css']
 })
 export class CenarioListComponent implements OnInit {
   cenarios: any[] = [];
+  // Propriedades para a configuração do Jira
+  jiraDomain: string = 'https://jeanheberth19.atlassian.net';
+  jiraProjectId: string = '';
+  jiraTestCaseIssueTypeId: string = '';
 
   constructor(private http: HttpClient) {
   }
 
   ngOnInit(): void {
-    this.http.get<any[]>('http://192.168.0.144:8089/cenario').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/cenario`).subscribe({
       next: (res) => this.cenarios = res.reverse(),
       error: (err) => console.error('Erro ao buscar cenários:', err)
     });
   }
 
   getJiraUrl(cenario: any): string {
+    // Validação para garantir que os campos de configuração foram preenchidos
+    if (!this.jiraDomain || !this.jiraProjectId || !this.jiraTestCaseIssueTypeId) {
+      alert('Por favor, preencha as configurações do Jira (Domínio, ID do Projeto e ID do Tipo de Issue) antes de exportar.');
+      return '#'; // Retorna um link inválido para não fazer nada
+    }
+
     const summary = encodeURIComponent(cenario.titulo);
-    const description = encodeURIComponent(
-      `Regra de Negócio: ${cenario.regraDeNegocio}\n\nCritérios:\n${cenario.criteriosAceitacao}\n\nCenários:\n${cenario.cenarios.join('\n')}`
-    );
-    return `https://SEU_DOMINIO_JIRA/secure/CreateIssueDetails!init.jspa?pid=10000&issuetype=10001&summary=${summary}&description=${description}`;
+
+    // Formata a descrição para o Jira Markup
+    const regraDeNegocio = `h2. Regra de Negócio\n${cenario.regraDeNegocio}\n\n`;
+
+    const criterios = `h2. Critérios de Aceitação\n${
+      cenario.criteriosAceitacao.split('\n')
+        .map((linha: string) => linha.replace(/\*/g, '').trim())
+        .filter(Boolean)
+        .map((linha: string) => `* ${linha}`)
+        .join('\n')
+    }\n\n`;
+
+    // Formata os cenários como passos de teste para fácil cópia no Zephyr Scale
+    const testSteps = `h2. Passos do Teste (Copiar para o Test Script do Zephyr)\n{panel:title=Script de Teste}\n${
+      cenario.cenarios.map((bloco: string) => {
+        const textoLimpo = bloco.replace(/\*/g, '').trim();
+        if (!textoLimpo) return '';
+        if (textoLimpo.startsWith('####')) {
+          return `\n*${textoLimpo.replace(/####/g, '').trim()}*\n`; // Título de seção em negrito
+        }
+        // Formata cada linha como um passo numerado
+        return textoLimpo.split('\n').map(l => l.trim()).filter(Boolean).map(l => `# ${l}`).join('\n');
+      }).join('\n\n')
+    }\n{panel}`;
+
+    const description = encodeURIComponent(`${regraDeNegocio}${criterios}${testSteps}`);
+
+    return `${this.jiraDomain}/secure/CreateIssueDetails!init.jspa?pid=${this.jiraProjectId}&issuetype=${this.jiraTestCaseIssueTypeId}&summary=${summary}&description=${description}`;
   }
 
 
-  exportar(cenario: any, formato: string) {
+  exportar(cenario: any, formato:string) {
     switch (formato) {
       case 'xlsx':
         this.exportarParaExcel(cenario);
@@ -46,6 +82,12 @@ export class CenarioListComponent implements OnInit {
         break;
       case 'pdf':
         this.exportarParaPDF(cenario);
+        break;
+      case 'jira':
+        const url = this.getJiraUrl(cenario);
+        if (url !== '#') {
+          window.open(url, '_blank');
+        }
         break;
       default:
         console.warn(`Formato não suportado: ${formato}`);
