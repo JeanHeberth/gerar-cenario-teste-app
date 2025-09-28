@@ -6,7 +6,8 @@ import { FormsModule } from '@angular/forms'; // Importe o FormsModule
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import jsPDF from 'jspdf';
-import { DOC_EXPORT_STYLES } from './doc-export.styles'; // Importa os estilos
+import { DOC_EXPORT_STYLES } from './doc-export.styles';
+import {environment} from '../enviroment/enviroment.prd'; // Importa os estilos
 
 @Component({
   selector: 'app-cenario-list',
@@ -26,7 +27,7 @@ export class CenarioListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.http.get<any[]>('http://192.168.0.144:8089/cenario').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/cenario`).subscribe({
       next: (res) => this.cenarios = res.reverse(),
       error: (err) => console.error('Erro ao buscar cenários:', err)
     });
