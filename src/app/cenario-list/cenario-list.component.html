@@ -1,23 +1,29 @@
 <div class="container">
-  <h1>Lista de Cenários de Teste</h1>
 
-  <!-- Card de Configuração do Jira -->
-  <div class="config-card">
-    <h2>Configuração do Jira / Zephyr Scale</h2>
-    <p>Preencha os campos abaixo para habilitar a exportação para o Jira.</p>
-    <div class="form-group">
-      <label for="jiraDomain">Domínio do Jira:</label>
-      <input type="text" id="jiraDomain" [(ngModel)]="jiraDomain" class="form-control" placeholder="https://seu-dominio.atlassian.net">
-    </div>
-    <div class="form-group">
-      <label for="jiraProjectId">ID do Projeto (pid):</label>
-      <input type="text" id="jiraProjectId" [(ngModel)]="jiraProjectId" class="form-control" placeholder="Ex: 10000">
-    </div>
-    <div class="form-group">
-      <label for="jiraTestCaseIssueTypeId">ID do Tipo de Issue "Test Case" (issuetype):</label>
-      <input type="text" id="jiraTestCaseIssueTypeId" [(ngModel)]="jiraTestCaseIssueTypeId" class="form-control" placeholder="Ex: 10003">
-    </div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Lista de Cenários de Teste</h1>
+    <button class="btn btn-primary btn-sm" (click)="irParaCriacao()">
+      ➕ Novo Cenário
+    </button>
   </div>
+
+<!--  &lt;!&ndash; Card de Configuração do Jira &ndash;&gt;-->
+<!--  <div class="config-card">-->
+<!--    <h2>Configuração do Jira / Zephyr Scale</h2>-->
+<!--    <p>Preencha os campos abaixo para habilitar a exportação para o Jira.</p>-->
+<!--    <div class="form-group">-->
+<!--      <label for="jiraDomain">Domínio do Jira:</label>-->
+<!--      <input type="text" id="jiraDomain" [(ngModel)]="jiraDomain" class="form-control" placeholder="https://seu-dominio.atlassian.net">-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--      <label for="jiraProjectId">ID do Projeto (pid):</label>-->
+<!--      <input type="text" id="jiraProjectId" [(ngModel)]="jiraProjectId" class="form-control" placeholder="Ex: 10000">-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--      <label for="jiraTestCaseIssueTypeId">ID do Tipo de Issue "Test Case" (issuetype):</label>-->
+<!--      <input type="text" id="jiraTestCaseIssueTypeId" [(ngModel)]="jiraTestCaseIssueTypeId" class="form-control" placeholder="Ex: 10003">-->
+<!--    </div>-->
+<!--  </div>-->
 
   <div *ngFor="let cenario of cenarios" class="cenario-card">
     <h2>{{ cenario.titulo }}</h2>

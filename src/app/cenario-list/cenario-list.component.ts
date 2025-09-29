@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import { FormsModule } from '@angular/forms'; // Importe o FormsModule
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
@@ -23,7 +23,7 @@ export class CenarioListComponent implements OnInit {
   jiraProjectId: string = '';
   jiraTestCaseIssueTypeId: string = '';
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
   }
 
   ngOnInit(): void {
@@ -32,6 +32,11 @@ export class CenarioListComponent implements OnInit {
       error: (err) => console.error('Erro ao buscar cenários:', err)
     });
   }
+
+  irParaCriacao(): void {
+    this.router.navigate(['/']);
+  }
+
 
   getJiraUrl(cenario: any): string {
     // Validação para garantir que os campos de configuração foram preenchidos
