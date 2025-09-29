@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import {Router, RouterModule} from '@angular/router';
+import { FormsModule } from '@angular/forms'; // Importe o FormsModule
+
 import { RouterModule } from '@angular/router';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
@@ -17,7 +20,7 @@ import {environment} from '../enviroments/enviroment.prod';
 export class CenarioListComponent implements OnInit {
   cenarios: any[] = [];
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
   }
 
   ngOnInit(): void {
@@ -26,6 +29,11 @@ export class CenarioListComponent implements OnInit {
       error: (err) => console.error('Erro ao buscar cenários:', err)
     });
   }
+
+  irParaCriacao(): void {
+    this.router.navigate(['/']);
+  }
+
 
   getJiraUrl(cenario: any): string {
     const summary = encodeURIComponent(cenario.titulo);
