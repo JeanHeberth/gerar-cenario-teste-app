@@ -51,7 +51,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/cenario-testes-app/"   <-- adicionei aqui
+              "baseHref": "/cenario-testes-app/"
             },
             "development": {
               "optimization": false,
