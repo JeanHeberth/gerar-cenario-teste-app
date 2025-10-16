@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://192.168.0.11:9999/criar-cenario-testes'
+  // apiUrl: 'http://100.83.72.100:9999/criar-cenario-testes'
+  apiUrl: 'http://localhost:8089'
 };
