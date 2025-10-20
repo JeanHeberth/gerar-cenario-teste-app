@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HttpClient} from '@angular/common/http';
 import {Router, RouterModule} from '@angular/router';
-import { FormsModule } from '@angular/forms'; // Importe o FormsModule
+import {FormsModule} from '@angular/forms'; // Importe o FormsModule
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import jsPDF from 'jspdf';
-import { DOC_EXPORT_STYLES } from './doc-export.styles';
+import {DOC_EXPORT_STYLES} from './doc-export.styles';
 import {environment} from '../enviroment/enviroment.prd'; // Importa os estilos
 
 @Component({
@@ -77,7 +77,7 @@ export class CenarioListComponent implements OnInit {
   }
 
 
-  exportar(cenario: any, formato:string) {
+  exportar(cenario: any, formato: string) {
     switch (formato) {
       case 'xlsx':
         this.exportarParaExcel(cenario);
@@ -98,54 +98,137 @@ export class CenarioListComponent implements OnInit {
         console.warn(`Formato não suportado: ${formato}`);
     }
   }
+
   // 📊 Exportar para Excel com prevenção de duplicidade
-  private exportarParaExcel(cenario: any): void {
-    const data: any[][] = [];
-    const criteriosAdicionados = new Set<string>();
+  // 📊 Exportar para Excel (com estilo, sem quebrar SSR)
+  private async exportarParaExcel(cenario: any): Promise<void> {
+    // Import dinâmico — só carrega no navegador
+    const XLSX = await import('xlsx-js-style');
+    const cabecalho = [
+      'Nome',
+      'Objetivo',
+      'Precondição',
+      'Passo-a-Passo',
+      'Resultado Esperado',
+      'Componente',
+      'Rótulos',
+      'Propósito',
+      'Pasta',
+      'Proprietário',
+      'Cobertura (Issues)',
+      'Status'
+    ];
 
-    // Adiciona Título e Regra de Negócio
-    data.push(['Título', cenario.titulo]);
-    data.push(['Regra de Negócio', cenario.regraDeNegocio]);
-    data.push([]); // Linha em branco
+    const linhas: any[][] = [cabecalho];
+    const tituloCenario = cenario.titulo || '';
 
-    // Adiciona Critérios de Aceitação e os armazena para evitar duplicidade
-    data.push(['Critérios de Aceitação']);
-    cenario.criteriosAceitacao.split('\n').forEach((linha: string) => {
-      const linhaLimpa = linha.replace(/\*/g, '').trim();
-      if (linhaLimpa) {
-        criteriosAdicionados.add(linhaLimpa);
-        data.push(['', linhaLimpa]);
-      }
+    // Divide o JSON em blocos individuais de cenário
+    const blocos = (cenario.cenarios?.[0] || '')
+      .split(/\n---\n/)
+      .map((b: string) => b.trim())
+      .filter((b: string) => b.length > 0);
+
+    blocos.forEach((bloco: string) => {
+      const nome = (bloco.match(/Nome:\s*(.*)/i)?.[1] || '').trim();
+      const objetivo = (bloco.match(/Objetivo:\s*([\s\S]*?)(?=\nPrecondição:|$)/i)?.[1] || '').trim();
+      const precondicao = (bloco.match(/Precondição:\s*([\s\S]*?)(?=\nScript de Teste \(Passo-a-Passo\):|$)/i)?.[1] || '').trim();
+
+      // 🔹 Passo-a-passo formatado com ícone e quebra de linha
+      let passoAPasso = (
+        bloco.match(/Script de Teste \(Passo-a-Passo\):\s*([\s\S]*?)(?=\nScript de Teste \(Passo-a-Passo\) - Resultado:|$)/i)?.[1] || ''
+      ).trim()
+        .replace(/Dado que/g, '💡 Dado que')
+        .replace(/\s+(E|Quando)\s+/g, '\n$1 ')
+        .replace(/,\s*Quando/g, ',\nQuando');
+
+      // 🔹 Resultado esperado formatado
+      let resultadoEsperado = (
+        bloco.match(/Script de Teste \(Passo-a-Passo\) - Resultado:\s*([\s\S]*?)(?=\nComponente:|Rótulos:|Propósito:|Pasta:|Proprietário:|Cobertura:|Status:|$)/i)?.[1] || ''
+      ).trim()
+        .replace(/Então/g, '✅ Então')
+        .replace(/\s+(E|E não|E o sistema|E o novo|E não executa)/gi, '\n$1 ')
+        .replace(/,\s*E/g, ',\nE');
+
+      const componente = (bloco.match(/Componente:\s*(.*)/i)?.[1] || '').trim();
+      const rotulos = (bloco.match(/Rótulos:\s*(.*)/i)?.[1] || '').trim();
+      const proposito = (bloco.match(/Propósito:\s*([\s\S]*?)(?=\nPasta:|$)/i)?.[1] || '').trim();
+      const pasta = (bloco.match(/Pasta:\s*(.*)/i)?.[1] || '').trim();
+      const proprietario = (bloco.match(/Proprietário:\s*(.*)/i)?.[1] || '').trim();
+      const cobertura = (bloco.match(/Cobertura:\s*(.*)/i)?.[1] || '').trim();
+      const status = (bloco.match(/Status:\s*(.*)/i)?.[1] || '').trim();
+
+      linhas.push([
+        nome,
+        objetivo,
+        precondicao,
+        passoAPasso,
+        resultadoEsperado,
+        componente,
+        rotulos,
+        proposito,
+        pasta,
+        proprietario,
+        cobertura,
+        status
+      ]);
     });
-    data.push([]); // Linha em branco
 
-    // Adiciona Cenários de Teste, pulando os que já foram adicionados como critérios
-    data.push(['Cenários de Teste']);
-    cenario.cenarios.forEach((bloco: string) => {
-      const textoLimpo = bloco.replace(/\*/g, '').trim();
-      if (textoLimpo && !criteriosAdicionados.has(textoLimpo)) {
-        if (textoLimpo.startsWith('####')) {
-          data.push([]); // Espaço antes do título
-          data.push([textoLimpo.replace(/####/g, '').trim()]);
-        } else {
-          textoLimpo.split('\n').forEach((linha: string) => {
-            if (linha.trim() && !criteriosAdicionados.has(linha.trim())) {
-              data.push(['', linha.trim()]);
-            }
-          });
-        }
+    // Cria a planilha
+    const ws: any = XLSX.utils.aoa_to_sheet(linhas);
+
+    // 🎨 Estilos visuais
+    const borderStyle = {
+      top: { style: 'thin', color: { rgb: '000000' } },
+      bottom: { style: 'thin', color: { rgb: '000000' } },
+      left: { style: 'thin', color: { rgb: '000000' } },
+      right: { style: 'thin', color: { rgb: '000000' } }
+    };
+
+    const headerStyle = {
+      font: { bold: true, sz: 14, color: { rgb: '000000' } },
+      alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+      fill: { fgColor: { rgb: 'D9D9D9' } },
+      border: borderStyle
+    };
+
+    const cellStyle = {
+      font: { sz: 14 },
+      alignment: { vertical: 'top', wrapText: true },
+      border: borderStyle
+    };
+
+    // Aplica estilo a cada célula
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!ws[cellRef]) continue;
+        ws[cellRef].s = R === 0 ? headerStyle : cellStyle;
       }
+    }
+
+    // Largura e altura automáticas
+    ws['!cols'] = [
+      { wch: 40 }, { wch: 45 }, { wch: 40 },
+      { wch: 70 }, { wch: 70 },
+      { wch: 35 }, { wch: 30 }, { wch: 35 },
+      { wch: 45 }, { wch: 30 }, { wch: 25 }, { wch: 25 }
+    ];
+
+    ws['!rows'] = linhas.map((linha, i) => {
+      const text = (linha[3] || linha[4] || '').toString();
+      const breaks = (text.match(/\n/g) || []).length;
+      return { hpt: 25 + breaks * 12 };
     });
 
-    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(data);
-    ws['!cols'] = [{ wch: 30 }, { wch: 100 }];
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Cenário');
+    // 📘 Cria o workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Cenários');
 
-    const buffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([buffer], { type: 'application/octet-stream' });
-    const nomeArquivo = cenario.titulo.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_');
-    FileSaver.saveAs(blob, `${nomeArquivo}.xlsx`);
+    const nomeArquivo = tituloCenario.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_');
+    FileSaver.saveAs(blob, `${nomeArquivo}_ZephyrScale.xlsx`);
   }
 
 
@@ -201,7 +284,7 @@ export class CenarioListComponent implements OnInit {
       </html>
     `;
 
-    const blob = new Blob(['\ufeff' + conteudo], { type: 'application/msword' });
+    const blob = new Blob(['\ufeff' + conteudo], {type: 'application/msword'});
     FileSaver.saveAs(blob, `${cenario.titulo.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_')}.doc`);
   }
 
@@ -240,7 +323,7 @@ export class CenarioListComponent implements OnInit {
     doc.setFontSize(18);
     doc.setTextColor(0);
     const tituloLinhas = doc.splitTextToSize(cenario.titulo, larguraMaxima);
-    doc.text(tituloLinhas, doc.internal.pageSize.getWidth() / 2, altura, { align: 'center' });
+    doc.text(tituloLinhas, doc.internal.pageSize.getWidth() / 2, altura, {align: 'center'});
     altura += tituloLinhas.length * 8 + 15;
 
     // Processamento de Critérios e Cenários
