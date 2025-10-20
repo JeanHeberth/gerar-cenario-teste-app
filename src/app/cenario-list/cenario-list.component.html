@@ -29,12 +29,39 @@
     <h2>{{ cenario.titulo }}</h2>
     <p><strong>Regra de Negócio:</strong> {{ cenario.regraDeNegocio }}</p>
 
-    <!-- Exportação -->
-    <div class="export-buttons d-flex gap-2 mt-3">
-      <button (click)="exportar(cenario, 'doc')" class="btn btn-outline-success" title="Exportar para .doc">📄 .doc</button>
-      <button (click)="exportar(cenario, 'xlsx')" class="btn btn-outline-info" title="Exportar para .xlsx">📊 .xlsx</button>
-      <button (click)="exportar(cenario, 'pdf')" class="btn btn-outline-danger" title="Exportar para .pdf">📊 .pdf</button>
-      <button (click)="exportar(cenario, 'jira')" class="btn btn-outline-primary" title="Criar issue no Jira">🧩 Jira</button>
+<div class="container mt-4">
+  <!-- Cabeçalho -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="titulo-cenarios">🧾 Cenários Gerados</h3>
+    <a routerLink="/" class="btn btn-outline-secondary voltar-btn">🔙 Voltar para criação</a>
+  </div>
+
+  <!-- Lista de cenários -->
+  <div *ngFor="let cenario of cenarios" class="card mb-4" (click)="cenario.expanded = !cenario.expanded">
+    <!-- Cabeçalho sempre visível -->
+    <div class="card-body">
+      <h5 class="card-title mb-1">{{ cenario.titulo }}</h5>
+      <small class="text-muted">{{ cenario.regraDeNegocio }}</small>
+
+      <!-- Conteúdo oculto até clicar -->
+      <div *ngIf="cenario.expanded" class="mt-3">
+        <!-- Cenários -->
+        <div>
+          <label class="fw-bold">Cenários de Teste:</label>
+          <ul class="list-group list-group-flush">
+            <li *ngFor="let c of cenario.cenarios" class="list-group-item cenario-item">
+              <pre class="cenario-box">{{ c }}</pre>
+            </li>
+          </ul>
+        </div>
+        <!-- Exportação -->
+        <div class="export-buttons d-flex gap-2 mt-3">
+          <button (click)="exportar(cenario, 'doc')" class="btn btn-outline-success" title="Exportar para .doc">📄 .doc</button>
+          <button (click)="exportar(cenario, 'xlsx')" class="btn btn-outline-info" title="Exportar para .xlsx">📊 .xlsx</button>
+          <button (click)="exportar(cenario, 'pdf')" class="btn btn-outline-danger" title="Exportar para .pdf">📊 .pdf</button>
+          <a [href]="getJiraUrl(cenario)" target="_blank" class="btn btn-outline-primary" title="Criar issue no Jira">🧩 Jira</a>
+        </div>
+      </div>
     </div>
   </div>
 </div>

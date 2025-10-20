@@ -3,7 +3,7 @@ import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {NgForOf, NgIf} from '@angular/common';
 import {Router} from '@angular/router';
-import {environment} from '../enviroment/enviroment.prd';
+import {environment} from '../enviroments/enviroment.prod';
 
 @Component({
   selector: 'app-cenario',
