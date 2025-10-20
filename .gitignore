@@ -20,7 +20,7 @@ yarn-error.log
 .settings/
 *.sublime-workspace
 .git-config.json
-
+.git-config.json
 # Visual Studio Code
 .vscode/*
 !.vscode/settings.json

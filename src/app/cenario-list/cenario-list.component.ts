@@ -1,13 +1,14 @@
-import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {HttpClient} from '@angular/common/http';
-import {Router, RouterModule} from '@angular/router';
+import {DOC_EXPORT_STYLES} from './doc-export.styles';
+import {environment} from '../enviroment/enviroment.prd'; // Importa os estilos
 import {FormsModule} from '@angular/forms'; // Importe o FormsModule
+
+import {Router, RouterModule} from '@angular/router';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import jsPDF from 'jspdf';
-import {DOC_EXPORT_STYLES} from './doc-export.styles';
-import {environment} from '../enviroment/enviroment.prd'; // Importa os estilos
+import {HttpClient} from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-cenario-list',
@@ -178,22 +179,22 @@ export class CenarioListComponent implements OnInit {
 
     // 🎨 Estilos visuais
     const borderStyle = {
-      top: { style: 'thin', color: { rgb: '000000' } },
-      bottom: { style: 'thin', color: { rgb: '000000' } },
-      left: { style: 'thin', color: { rgb: '000000' } },
-      right: { style: 'thin', color: { rgb: '000000' } }
+      top: {style: 'thin', color: {rgb: '000000'}},
+      bottom: {style: 'thin', color: {rgb: '000000'}},
+      left: {style: 'thin', color: {rgb: '000000'}},
+      right: {style: 'thin', color: {rgb: '000000'}}
     };
 
     const headerStyle = {
-      font: { bold: true, sz: 14, color: { rgb: '000000' } },
-      alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-      fill: { fgColor: { rgb: 'D9D9D9' } },
+      font: {bold: true, sz: 14, color: {rgb: '000000'}},
+      alignment: {horizontal: 'center', vertical: 'center', wrapText: true},
+      fill: {fgColor: {rgb: 'D9D9D9'}},
       border: borderStyle
     };
 
     const cellStyle = {
-      font: { sz: 14 },
-      alignment: { vertical: 'top', wrapText: true },
+      font: {sz: 14},
+      alignment: {vertical: 'top', wrapText: true},
       border: borderStyle
     };
 
@@ -201,7 +202,7 @@ export class CenarioListComponent implements OnInit {
     const range = XLSX.utils.decode_range(ws['!ref']);
     for (let R = range.s.r; R <= range.e.r; ++R) {
       for (let C = range.s.c; C <= range.e.c; ++C) {
-        const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+        const cellRef = XLSX.utils.encode_cell({r: R, c: C});
         if (!ws[cellRef]) continue;
         ws[cellRef].s = R === 0 ? headerStyle : cellStyle;
       }
@@ -209,24 +210,24 @@ export class CenarioListComponent implements OnInit {
 
     // Largura e altura automáticas
     ws['!cols'] = [
-      { wch: 40 }, { wch: 45 }, { wch: 40 },
-      { wch: 70 }, { wch: 70 },
-      { wch: 35 }, { wch: 30 }, { wch: 35 },
-      { wch: 45 }, { wch: 30 }, { wch: 25 }, { wch: 25 }
+      {wch: 40}, {wch: 45}, {wch: 40},
+      {wch: 70}, {wch: 70},
+      {wch: 35}, {wch: 30}, {wch: 35},
+      {wch: 45}, {wch: 30}, {wch: 25}, {wch: 25}
     ];
 
     ws['!rows'] = linhas.map((linha, i) => {
       const text = (linha[3] || linha[4] || '').toString();
       const breaks = (text.match(/\n/g) || []).length;
-      return { hpt: 25 + breaks * 12 };
+      return {hpt: 25 + breaks * 12};
     });
 
     // 📘 Cria o workbook
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Cenários');
 
-    const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([buffer], { type: 'application/octet-stream' });
+    const buffer = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
+    const blob = new Blob([buffer], {type: 'application/octet-stream'});
     const nomeArquivo = tituloCenario.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_');
     FileSaver.saveAs(blob, `${nomeArquivo}_ZephyrScale.xlsx`);
   }
