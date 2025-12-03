@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import * as FileSaver from 'file-saver';
+import * as XLSX from 'xlsx-js-style';
 import jsPDF from 'jspdf';
 import { DOC_EXPORT_STYLES } from './doc-export.styles';
 import { environment } from '../enviroment/enviroment.prd';
@@ -16,9 +17,7 @@ import { environment } from '../enviroment/enviroment.prd';
   styleUrls: ['./cenario-list.component.css']
 })
 export class CenarioListComponent implements OnInit {
-
   cenarios: any[] = [];
-
   jiraDomain: string = 'https://jeanheberth19.atlassian.net';
   jiraProjectId: string = '';
   jiraTestCaseIssueTypeId: string = '';
@@ -27,7 +26,7 @@ export class CenarioListComponent implements OnInit {
 
   ngOnInit(): void {
     this.http.get<any[]>(`${environment.apiUrl}/cenario`).subscribe({
-      next: (res) => this.cenarios = res.reverse(),
+      next: (res) => (this.cenarios = res.reverse()),
       error: (err) => console.error('Erro ao buscar cenários:', err)
     });
   }
@@ -36,66 +35,75 @@ export class CenarioListComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  // ======================================================
-  // 🔵 EXPORTAÇÃO PARA EXCEL (com estilo e campos fixos)
-  // ======================================================
-  async exportarParaExcel(cenario: any): Promise<void> {
+  exportar(cenario: any, formato: string) {
+    switch (formato) {
+      case 'xlsx':
+        this.exportarParaExcel(cenario);
+        break;
+      case 'doc':
+        this.exportarParaDoc(cenario);
+        break;
+      case 'pdf':
+        this.exportarParaPDF(cenario);
+        break;
+      default:
+        console.warn(`Formato não suportado: ${formato}`);
+    }
+  }
 
-    const XLSX = await import('xlsx-js-style');
-
+  // 📊 Exportar para Excel com formatação aprimorada (xlsx-js-style)
+  private exportarParaExcel(cenario: any): void {
     const cabecalho = [
-      "Nome",
-      "Objetivo",
-      "Precondição",
-      "Passo-a-Passo",
-      "Resultado Esperado",
-      "Componente",
-      "Rótulos",
-      "Propósito",
-      "Pasta",
-      "Proprietário",
-      "Cobertura (Issues)",
-      "Status"
+      'Nome',
+      'Objetivo',
+      'Precondição',
+      'Script de Teste (Passo a Passo)',
+      'Resultado Esperado',
+      'Componente',
+      'Rótulos',
+      'Propósito',
+      'Pasta',
+      'Proprietário',
+      'Cobertura (Issues)',
+      'Status'
     ];
 
     const linhas: any[][] = [cabecalho];
+    const tituloCenario = cenario.titulo || '';
 
-    const blocos = (cenario.cenarios?.[0] || "")
+    // Divide os blocos por "---"
+    const blocos = (cenario.cenarios?.[0] || '')
       .split(/\n---\n/)
       .map((b: string) => b.trim())
-      .filter((b: string | any[]) => b.length > 0);
+      .filter((b: string) => b.length > 0);
 
     blocos.forEach((bloco: string) => {
+      const nome = (bloco.match(/Nome:\s*(.*)/i)?.[1] || '').trim();
+      const objetivo = (bloco.match(/Objetivo:\s*([\s\S]*?)(?=\nPrecondição:|$)/i)?.[1] || '').trim();
+      const precondicao = (bloco.match(/Precondição:\s*([\s\S]*?)(?=\nScript de Teste \(Passo-a-Passo\):|$)/i)?.[1] || '').trim();
 
-      const nome = (bloco.match(/Nome:\s*(.*)/i)?.[1] || "").trim();
-      const objetivo = (bloco.match(/Objetivo:\s*([\s\S]*?)(?=\nPrecondição:|$)/i)?.[1] || "").trim();
-      const precondicao = (bloco.match(/Precondição:\s*([\s\S]*?)(?=\nScript de Teste|$)/i)?.[1] || "").trim();
-
+      // Passo a passo — formata com quebras de linha
       let passoAPasso = (
-        bloco.match(/Script de Teste \(Passo-a-Passo\):([\s\S]*?)(?=\nScript de Teste \(Passo-a-Passo\) - Resultado:|$)/i)?.[1] || ""
-      )
-        .trim()
-        .replace(/(?<=,|\.)\s*(E|Quando)\b/g, "\n$1")
-        .replace(/(Dado que)/, "$1")
-        .replace(/,\s*Quando/g, ",\nQuando");
+        bloco.match(/Script de Teste \(Passo-a-Passo\):\s*([\s\S]*?)(?=\nScript de Teste \(Passo-a-Passo\) - Resultado:|$)/i)?.[1] || ''
+      ).trim();
+      passoAPasso = passoAPasso
+        .replace(/(?<=,|\.)\s*(E|Quando)\b/g, '\n$1')
+        .replace(/(Dado que)/, '$1');
 
+      // Resultado esperado — formata com quebras de linha
       let resultadoEsperado = (
-        bloco.match(/Resultado:\s*([\s\S]*?)(?=\nComponente:|$)/i)?.[1] ||
-        bloco.match(/Script de Teste \(Passo-a-Passo\) - Resultado:\s*([\s\S]*?)(?=\nComponente:|$)/i)?.[1] ||
-        ""
-      )
-        .trim()
-        .replace(/(?<=,|\.)\s*(Então|E|E não|E o sistema)\b/gi, "\n$1")
-        .replace(/(Então)/, "$1");
+        bloco.match(/Script de Teste \(Passo-a-Passo\) - Resultado:\s*([\s\S]*?)(?=\nComponente:|Rótulos:|Propósito:|Pasta:|Proprietário:|Cobertura:|Status:|$)/i)?.[1] || ''
+      ).trim();
+      resultadoEsperado = resultadoEsperado
+        .replace(/(?<=,|\.)\s*(E( não| o sistema)?|Então)\b/gi, '\n$1')
+        .replace(/(Então)/, '$1');
 
-      const componente = (bloco.match(/Componente:\s*(.*)/i)?.[1] || "").trim();
-      const rotulos = (bloco.match(/Rótulos:\s*(.*)/i)?.[1] || "").trim();
-      const pasta = (bloco.match(/Pasta:\s*(.*)/i)?.[1] || "").trim();
-      const cobertura = (bloco.match(/Cobertura:\s*(.*)/i)?.[1] || "").trim();
-
-      // 🟢 CAMPOS FIXOS
+      const componente = (bloco.match(/Componente:\s*(.*)/i)?.[1] || '').trim();
+      const rotulos = (bloco.match(/Rótulos:\s*(.*)/i)?.[1] || '').trim();
       const proposito = "TESTE MANUAL";
+      const pasta = (bloco.match(/Pasta:\s*(.*)/i)?.[1] || '').trim();
       const proprietario = "JIRAUSER23105";
+      const cobertura = (bloco.match(/Cobertura:\s*(.*)/i)?.[1] || '').trim();
       const status = "APPROVED";
 
       linhas.push([
@@ -114,110 +122,70 @@ export class CenarioListComponent implements OnInit {
       ]);
     });
 
-    // Criar worksheet
-    const ws: any = XLSX.utils.aoa_to_sheet(linhas);
+    // Cria planilha com estilo (xlsx-js-style)
+    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(linhas);
 
-    // Estilos de células
-    const border = { top:{style:"thin"}, bottom:{style:"thin"}, left:{style:"thin"}, right:{style:"thin"} };
-
-    const headerStyle = {
-      font: { bold: true, sz: 14 },
-      fill: { fgColor: { rgb: "D9D9D9" } },
-      alignment: { horizontal: "center", vertical: "center", wrapText: true },
-      border
-    };
-
-    const cellStyle = {
-      font: { sz: 14 },
-      alignment: { vertical: "top", wrapText: true },
-      border
-    };
-
-    const range = XLSX.utils.decode_range(ws["!ref"]);
+    // Aplica estilo
+    const range = XLSX.utils.decode_range(ws['!ref']!);
     for (let R = range.s.r; R <= range.e.r; R++) {
       for (let C = range.s.c; C <= range.e.c; C++) {
-        const ref = XLSX.utils.encode_cell({ r: R, c: C });
-        if (!ws[ref]) continue;
-        ws[ref].s = R === 0 ? headerStyle : cellStyle;
+        const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!ws[cellRef]) continue;
+        ws[cellRef].s = {
+          font: { name: 'Calibri', sz: 14 },
+          alignment: { vertical: 'top', wrapText: true },
+          border: {
+            top: { style: 'thin', color: { rgb: '999999' } },
+            bottom: { style: 'thin', color: { rgb: '999999' } },
+            left: { style: 'thin', color: { rgb: '999999' } },
+            right: { style: 'thin', color: { rgb: '999999' } }
+          },
+          fill: R === 0 ? { fgColor: { rgb: 'D9D9D9' } } : undefined
+        };
       }
     }
 
-    ws["!cols"] = [
+    ws['!cols'] = [
       { wch: 40 }, { wch: 45 }, { wch: 40 },
       { wch: 70 }, { wch: 70 },
-      { wch: 35 }, { wch: 30 }, { wch: 30 },
-      { wch: 45 }, { wch: 35 }, { wch: 25 }, { wch: 20 }
+      { wch: 35 }, { wch: 30 }, { wch: 35 },
+      { wch: 45 }, { wch: 30 }, { wch: 25 }, { wch: 25 }
     ];
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Cenários");
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Cenários');
 
-    const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    FileSaver.saveAs(new Blob([buffer]), `${cenario.titulo}_ZephyrScale.xlsx`);
+    const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([buffer], { type: 'application/octet-stream' });
+    const nomeArquivo = tituloCenario.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_');
+    FileSaver.saveAs(blob, `${nomeArquivo}_ZephyrScale.xlsx`);
   }
 
-  // ======================================================
-  // 🔵 EXPORTAÇÃO PARA DOC
-  // ======================================================
-  exportarParaDoc(cenario: any): void {
-    const criteriosAdicionados = new Set<string>();
-
-    const criteriosHtml = cenario.criteriosAceitacao
-      .split("\n")
-      .map((l: string) => l.trim())
-      .filter((l: any) => l)
-      .join("\n");
-
-    const blocosHtml = cenario.cenarios
-      .map((c: string) => `<pre>${c}</pre>`)
-      .join("");
-
-    const conteudo = `
-      <html>
-        <head>
-          <style>${DOC_EXPORT_STYLES}</style>
-        </head>
-        <body>
-          <h1>${cenario.titulo}</h1>
-          <h2>Regra de Negócio</h2>
-          <p>${cenario.regraDeNegocio}</p>
-          <h2>Critérios de Aceitação</h2>
-          <pre>${criteriosHtml}</pre>
-          <h2>Cenários</h2>
-          ${blocosHtml}
-        </body>
-      </html>
-    `;
-
-    FileSaver.saveAs(
-      new Blob(['\ufeff' + conteudo], { type: "application/msword" }),
-      `${cenario.titulo}.doc`
-    );
-  }
-
-  // ======================================================
-  // 🔵 EXPORTAÇÃO PARA PDF
-  // ======================================================
-  exportarParaPDF(cenario: any): void {
+  // 🧾 Exportar para PDF (mantém igual)
+  private exportarParaPDF(cenario: any): void {
     const doc = new jsPDF();
     const margem = 15;
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text(cenario.titulo, margem, 20);
-
+    const larguraMax = doc.internal.pageSize.getWidth() - 2 * margem;
+    let y = 25;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text(cenario.titulo, margem, y);
+    y += 10;
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
-    doc.text("Regra de Negócio:", margem, 35);
-    doc.text(cenario.regraDeNegocio, margem, 45, { maxWidth: 170 });
-
-    doc.save(`${cenario.titulo}.pdf`);
+    doc.text(doc.splitTextToSize(cenario.regraDeNegocio || '', larguraMax), margem, y);
+    doc.save(`${cenario.titulo}_ZephyrScale.pdf`);
   }
 
-  exportar(cenario: any, formato: string) {
-    switch (formato) {
-      case "xlsx": this.exportarParaExcel(cenario); break;
-      case "doc": this.exportarParaDoc(cenario); break;
-      case "pdf": this.exportarParaPDF(cenario); break;
-    }
+  // 📄 Exportar para Word (.doc)
+  private exportarParaDoc(cenario: any): void {
+    const conteudo = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><style>${DOC_EXPORT_STYLES}</style></head>
+      <body><h1>${cenario.titulo}</h1><h2>Regra de Negócio</h2><p>${cenario.regraDeNegocio}</p></body>
+      </html>`;
+    const blob = new Blob(['\ufeff' + conteudo], { type: 'application/msword' });
+    FileSaver.saveAs(blob, `${cenario.titulo}_ZephyrScale.doc`);
   }
 }
