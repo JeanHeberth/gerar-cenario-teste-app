@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HttpClient} from '@angular/common/http';
+import {Router, RouterModule} from '@angular/router';
+import {FormsModule} from '@angular/forms';
 import * as FileSaver from 'file-saver';
+import * as XLSX from 'xlsx-js-style';
 import jsPDF from 'jspdf';
-import { DOC_EXPORT_STYLES } from './doc-export.styles';
-import { environment } from '../enviroment/enviroment.prd';
+import {DOC_EXPORT_STYLES} from './doc-export.styles';
+import {environment} from '../enviroment/enviroment.prd';
 
 @Component({
   selector: 'app-cenario-list',
@@ -16,18 +17,14 @@ import { environment } from '../enviroment/enviroment.prd';
   styleUrls: ['./cenario-list.component.css']
 })
 export class CenarioListComponent implements OnInit {
-
   cenarios: any[] = [];
 
-  jiraDomain: string = 'https://jeanheberth19.atlassian.net';
-  jiraProjectId: string = '';
-  jiraTestCaseIssueTypeId: string = '';
-
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {
+  }
 
   ngOnInit(): void {
     this.http.get<any[]>(`${environment.apiUrl}/cenario`).subscribe({
-      next: (res) => this.cenarios = res.reverse(),
+      next: (res) => (this.cenarios = res.reverse()),
       error: (err) => console.error('Erro ao buscar cenários:', err)
     });
   }
@@ -36,188 +33,346 @@ export class CenarioListComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  // ======================================================
-  // 🔵 EXPORTAÇÃO PARA EXCEL (com estilo e campos fixos)
-  // ======================================================
-  async exportarParaExcel(cenario: any): Promise<void> {
-
-    const XLSX = await import('xlsx-js-style');
-
-    const cabecalho = [
-      "Nome",
-      "Objetivo",
-      "Precondição",
-      "Passo-a-Passo",
-      "Resultado Esperado",
-      "Componente",
-      "Rótulos",
-      "Propósito",
-      "Pasta",
-      "Proprietário",
-      "Cobertura (Issues)",
-      "Status"
-    ];
-
-    const linhas: any[][] = [cabecalho];
-
-    const blocos = (cenario.cenarios?.[0] || "")
-      .split(/\n---\n/)
-      .map((b: string) => b.trim())
-      .filter((b: string | any[]) => b.length > 0);
-
-    blocos.forEach((bloco: string) => {
-
-      const nome = (bloco.match(/Nome:\s*(.*)/i)?.[1] || "").trim();
-      const objetivo = (bloco.match(/Objetivo:\s*([\s\S]*?)(?=\nPrecondição:|$)/i)?.[1] || "").trim();
-      const precondicao = (bloco.match(/Precondição:\s*([\s\S]*?)(?=\nScript de Teste|$)/i)?.[1] || "").trim();
-
-      let passoAPasso = (
-        bloco.match(/Script de Teste \(Passo-a-Passo\):([\s\S]*?)(?=\nScript de Teste \(Passo-a-Passo\) - Resultado:|$)/i)?.[1] || ""
-      )
-        .trim()
-        .replace(/(?<=,|\.)\s*(E|Quando)\b/g, "\n$1")
-        .replace(/(Dado que)/, "$1")
-        .replace(/,\s*Quando/g, ",\nQuando");
-
-      let resultadoEsperado = (
-        bloco.match(/Resultado:\s*([\s\S]*?)(?=\nComponente:|$)/i)?.[1] ||
-        bloco.match(/Script de Teste \(Passo-a-Passo\) - Resultado:\s*([\s\S]*?)(?=\nComponente:|$)/i)?.[1] ||
-        ""
-      )
-        .trim()
-        .replace(/(?<=,|\.)\s*(Então|E|E não|E o sistema)\b/gi, "\n$1")
-        .replace(/(Então)/, "$1");
-
-      const componente = (bloco.match(/Componente:\s*(.*)/i)?.[1] || "").trim();
-      const rotulos = (bloco.match(/Rótulos:\s*(.*)/i)?.[1] || "").trim();
-      const pasta = (bloco.match(/Pasta:\s*(.*)/i)?.[1] || "").trim();
-      const cobertura = (bloco.match(/Cobertura:\s*(.*)/i)?.[1] || "").trim();
-
-      // 🟢 CAMPOS FIXOS
-      const proposito = "TESTE MANUAL";
-      const proprietario = "JIRAUSER23105";
-      const status = "APPROVED";
-
-      linhas.push([
-        nome,
-        objetivo,
-        precondicao,
-        passoAPasso,
-        resultadoEsperado,
-        componente,
-        rotulos,
-        proposito,
-        pasta,
-        proprietario,
-        cobertura,
-        status
-      ]);
-    });
-
-    // Criar worksheet
-    const ws: any = XLSX.utils.aoa_to_sheet(linhas);
-
-    // Estilos de células
-    const border = { top:{style:"thin"}, bottom:{style:"thin"}, left:{style:"thin"}, right:{style:"thin"} };
-
-    const headerStyle = {
-      font: { bold: true, sz: 14 },
-      fill: { fgColor: { rgb: "D9D9D9" } },
-      alignment: { horizontal: "center", vertical: "center", wrapText: true },
-      border
-    };
-
-    const cellStyle = {
-      font: { sz: 14 },
-      alignment: { vertical: "top", wrapText: true },
-      border
-    };
-
-    const range = XLSX.utils.decode_range(ws["!ref"]);
-    for (let R = range.s.r; R <= range.e.r; R++) {
-      for (let C = range.s.c; C <= range.e.c; C++) {
-        const ref = XLSX.utils.encode_cell({ r: R, c: C });
-        if (!ws[ref]) continue;
-        ws[ref].s = R === 0 ? headerStyle : cellStyle;
-      }
+  exportar(cenario: any, formato: string): void {
+    switch (formato) {
+      case 'xlsx':
+        this.exportarParaExcel(cenario);
+        break;
+      case 'doc':
+        this.exportarParaDoc(cenario);
+        break;
+      case 'pdf':
+        this.exportarParaPDF(cenario);
+        break;
+      default:
+        console.warn(`Formato não suportado: ${formato}`);
     }
-
-    ws["!cols"] = [
-      { wch: 40 }, { wch: 45 }, { wch: 40 },
-      { wch: 70 }, { wch: 70 },
-      { wch: 35 }, { wch: 30 }, { wch: 30 },
-      { wch: 45 }, { wch: 35 }, { wch: 25 }, { wch: 20 }
-    ];
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Cenários");
-
-    const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    FileSaver.saveAs(new Blob([buffer]), `${cenario.titulo}_ZephyrScale.xlsx`);
   }
 
-  // ======================================================
-  // 🔵 EXPORTAÇÃO PARA DOC
-  // ======================================================
-  exportarParaDoc(cenario: any): void {
-    const criteriosAdicionados = new Set<string>();
+  private exportarParaExcel(cenario: any): void {
+    try {
+      const cabecalho = [
+        'Nome',
+        'Objetivo',
+        'Precondição',
+        'Script de Teste (Passo a Passo)',
+        'Resultado Esperado',
+        'Componente',
+        'Rótulos',
+        'Propósito',
+        'Pasta',
+        'Proprietário',
+        'Cobertura (Issues)',
+        'Status'
+      ];
 
-    const criteriosHtml = cenario.criteriosAceitacao
-      .split("\n")
-      .map((l: string) => l.trim())
-      .filter((l: any) => l)
-      .join("\n");
+      const linhas: any[][] = [cabecalho];
+      const cenariosLista: any[] = Array.isArray(cenario?.cenarios) ? cenario.cenarios : [];
 
-    const blocosHtml = cenario.cenarios
-      .map((c: string) => `<pre>${c}</pre>`)
-      .join("");
+      if (cenariosLista.length === 0) {
+        alert('Nenhum cenário encontrado para exportar.');
+        return;
+      }
 
-    const conteudo = `
-      <html>
+      cenariosLista.forEach((item: any) => {
+        const normalizado = this.normalizarCenario(item);
+
+        linhas.push([
+          normalizado.nome,
+          normalizado.objetivo,
+          normalizado.precondicao,
+          this.formatarBDD(normalizado.scriptTeste),
+          this.formatarResultadoEsperado(normalizado.resultadoEsperado),
+          normalizado.componente,
+          normalizado.rotulos,
+          normalizado.proposito,
+          normalizado.pasta,
+          'JIRAUSER23105',
+          normalizado.cobertura,
+          normalizado.status
+        ]);
+      });
+
+      const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(linhas);
+
+      if (ws['!ref']) {
+        const range = XLSX.utils.decode_range(ws['!ref']);
+
+        for (let r = range.s.r; r <= range.e.r; r++) {
+          for (let c = range.s.c; c <= range.e.c; c++) {
+            const cellRef = XLSX.utils.encode_cell({r, c});
+            if (!ws[cellRef]) continue;
+
+            ws[cellRef].s = {
+              font: {
+                name: 'Calibri',
+                sz: r === 0 ? 11 : 10,
+                bold: r === 0
+              },
+              alignment: {
+                vertical: 'top',
+                horizontal: 'left',
+                wrapText: true
+              },
+              border: {
+                top: {style: 'thin', color: {rgb: '999999'}},
+                bottom: {style: 'thin', color: {rgb: '999999'}},
+                left: {style: 'thin', color: {rgb: '999999'}},
+                right: {style: 'thin', color: {rgb: '999999'}}
+              },
+              fill: r === 0 ? {fgColor: {rgb: 'D9EAD3'}} : undefined
+            };
+          }
+        }
+      }
+
+      ws['!cols'] = [
+        {wch: 40},
+        {wch: 45},
+        {wch: 35},
+        {wch: 70},
+        {wch: 60},
+        {wch: 25},
+        {wch: 25},
+        {wch: 25},
+        {wch: 35},
+        {wch: 20},
+        {wch: 20},
+        {wch: 18}
+      ];
+
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Cenários');
+
+      const buffer = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
+
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+
+      FileSaver.saveAs(blob, `${this.nomeArquivo(cenario?.titulo)}_ZephyrScale.xlsx`);
+    } catch (error) {
+      console.error('Erro ao exportar Excel:', error);
+      alert('Erro ao gerar a planilha. Veja o console do navegador.');
+    }
+  }
+
+  private exportarParaPDF(cenario: any): void {
+    try {
+      const doc = new jsPDF();
+      const margem = 15;
+      const larguraMax = doc.internal.pageSize.getWidth() - 2 * margem;
+      const alturaPagina = doc.internal.pageSize.getHeight();
+      let y = 20;
+
+      const adicionarTexto = (texto: string, tamanho = 11, negrito = false) => {
+        doc.setFont('helvetica', negrito ? 'bold' : 'normal');
+        doc.setFontSize(tamanho);
+
+        const linhas = doc.splitTextToSize(texto || '', larguraMax);
+
+        linhas.forEach((linha: string) => {
+          if (y > alturaPagina - 20) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.text(linha, margem, y);
+          y += 6;
+        });
+
+        y += 3;
+      };
+
+      adicionarTexto(cenario?.titulo || 'Cenário de Teste', 16, true);
+      adicionarTexto('Regra de Negócio:', 13, true);
+      adicionarTexto(cenario?.regraDeNegocio || '', 11, false);
+
+      const cenariosLista = Array.isArray(cenario?.cenarios) ? cenario.cenarios : [];
+
+      cenariosLista.forEach((item: any, index: number) => {
+        const c = this.normalizarCenario(item);
+
+        adicionarTexto(`Cenário ${index + 1}: ${c.nome}`, 13, true);
+        adicionarTexto(`Objetivo: ${c.objetivo}`);
+        adicionarTexto(`Precondição: ${c.precondicao}`);
+        adicionarTexto('Script de Teste:', 11, true);
+        adicionarTexto(this.formatarBDD(c.scriptTeste));
+        adicionarTexto('Resultado Esperado:', 11, true);
+        adicionarTexto(this.formatarResultadoEsperado(c.resultadoEsperado));
+        adicionarTexto(`Componente: ${c.componente}`);
+        adicionarTexto(`Rótulos: ${c.rotulos}`);
+        adicionarTexto(`Propósito: ${c.proposito}`);
+        adicionarTexto(`Pasta: ${c.pasta}`);
+        adicionarTexto(`Proprietário: ${c.proprietario}`);
+        adicionarTexto(`Cobertura: ${c.cobertura}`);
+        adicionarTexto(`Status: ${c.status}`);
+      });
+
+      doc.save(`${this.nomeArquivo(cenario?.titulo)}_ZephyrScale.pdf`);
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+      alert('Erro ao gerar PDF. Veja o console do navegador.');
+    }
+  }
+
+  private exportarParaDoc(cenario: any): void {
+    try {
+      const cenariosLista = Array.isArray(cenario?.cenarios) ? cenario.cenarios : [];
+
+      const cenariosHtml = cenariosLista.map((item: any, index: number) => {
+        const c = this.normalizarCenario(item);
+
+        return `
+          <h3>Cenário ${index + 1}: ${this.escapeHtml(c.nome)}</h3>
+          <p><strong>Objetivo:</strong> ${this.escapeHtml(c.objetivo)}</p>
+          <p><strong>Precondição:</strong> ${this.escapeHtml(c.precondicao)}</p>
+          <p><strong>Script de Teste:</strong></p>
+          <pre>${this.escapeHtml(this.formatarBDD(c.scriptTeste))}</pre>
+          <p><strong>Resultado Esperado:</strong></p>
+          <pre>${this.escapeHtml(this.formatarResultadoEsperado(c.resultadoEsperado))}</pre>
+          <p><strong>Componente:</strong> ${this.escapeHtml(c.componente)}</p>
+          <p><strong>Rótulos:</strong> ${this.escapeHtml(c.rotulos)}</p>
+          <p><strong>Propósito:</strong> ${this.escapeHtml(c.proposito)}</p>
+          <p><strong>Pasta:</strong> ${this.escapeHtml(c.pasta)}</p>
+          <p><strong>Proprietário:</strong> ${this.escapeHtml(c.proprietario)}</p>
+          <p><strong>Cobertura:</strong> ${this.escapeHtml(c.cobertura)}</p>
+          <p><strong>Status:</strong> ${this.escapeHtml(c.status)}</p>
+        `;
+      }).join('<hr/>');
+
+      const conteudo = `
+        <!DOCTYPE html>
+        <html>
         <head>
+          <meta charset="UTF-8">
           <style>${DOC_EXPORT_STYLES}</style>
         </head>
         <body>
-          <h1>${cenario.titulo}</h1>
+          <h1>${this.escapeHtml(cenario?.titulo || 'Cenário de Teste')}</h1>
           <h2>Regra de Negócio</h2>
-          <p>${cenario.regraDeNegocio}</p>
-          <h2>Critérios de Aceitação</h2>
-          <pre>${criteriosHtml}</pre>
-          <h2>Cenários</h2>
-          ${blocosHtml}
+          <p>${this.escapeHtml(cenario?.regraDeNegocio || '')}</p>
+          <h2>Cenários de Teste</h2>
+          ${cenariosHtml}
         </body>
-      </html>
-    `;
+        </html>
+      `;
 
-    FileSaver.saveAs(
-      new Blob(['\ufeff' + conteudo], { type: "application/msword" }),
-      `${cenario.titulo}.doc`
-    );
-  }
-
-  // ======================================================
-  // 🔵 EXPORTAÇÃO PARA PDF
-  // ======================================================
-  exportarParaPDF(cenario: any): void {
-    const doc = new jsPDF();
-    const margem = 15;
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text(cenario.titulo, margem, 20);
-
-    doc.setFontSize(12);
-    doc.text("Regra de Negócio:", margem, 35);
-    doc.text(cenario.regraDeNegocio, margem, 45, { maxWidth: 170 });
-
-    doc.save(`${cenario.titulo}.pdf`);
-  }
-
-  exportar(cenario: any, formato: string) {
-    switch (formato) {
-      case "xlsx": this.exportarParaExcel(cenario); break;
-      case "doc": this.exportarParaDoc(cenario); break;
-      case "pdf": this.exportarParaPDF(cenario); break;
+      const blob = new Blob(['\ufeff' + conteudo], {type: 'application/msword'});
+      FileSaver.saveAs(blob, `${this.nomeArquivo(cenario?.titulo)}_ZephyrScale.doc`);
+    } catch (error) {
+      console.error('Erro ao exportar DOC:', error);
+      alert('Erro ao gerar DOC. Veja o console do navegador.');
     }
+  }
+
+  private normalizarCenario(item: any): any {
+    if (typeof item === 'string') {
+      return {
+        nome: this.extrairCampoTexto(item, 'Nome'),
+        objetivo: this.extrairCampoTexto(item, 'Objetivo'),
+        precondicao: this.extrairCampoTexto(item, 'Precondição'),
+        scriptTeste: this.extrairCampoTexto(item, 'Script de Teste \\(Passo-a-Passo\\)'),
+        resultadoEsperado: this.extrairCampoTexto(item, 'Script de Teste \\(Passo-a-Passo\\) - Resultado'),
+        componente: this.extrairCampoTexto(item, 'Componente'),
+        rotulos: this.extrairCampoTexto(item, 'Rótulos'),
+        proposito: this.extrairCampoTexto(item, 'Propósito') || 'TESTE MANUAL',
+        pasta: this.extrairCampoTexto(item, 'Pasta'),
+        proprietario: this.extrairCampoTexto(item, 'Proprietário') || 'JIRAUSER23105',
+        cobertura: this.extrairCampoTexto(item, 'Cobertura'),
+        status: this.extrairCampoTexto(item, 'Status') || 'APPROVED'
+      };
+    }
+
+    return {
+      nome: item?.nome || '',
+      objetivo: item?.objetivo || '',
+      precondicao: item?.precondicao || '',
+      scriptTeste: item?.scriptTeste || '',
+      resultadoEsperado: item?.resultadoEsperado || '',
+      componente: item?.componente || '',
+      rotulos: item?.rotulos || '',
+      proposito: item?.proposito || 'TESTE MANUAL',
+      pasta: item?.pasta || '',
+      proprietario: item?.proprietario || 'JIRAUSER23105',
+      cobertura: item?.cobertura || '',
+      status: item?.status || 'APPROVED'
+    };
+  }
+
+  private extrairCampoTexto(bloco: string, campo: string): string {
+    const campos = [
+      'Nome',
+      'Objetivo',
+      'Precondição',
+      'Script de Teste \\(Passo-a-Passo\\)',
+      'Script de Teste \\(Passo-a-Passo\\) - Resultado',
+      'Componente',
+      'Rótulos',
+      'Propósito',
+      'Pasta',
+      'Proprietário',
+      'Cobertura',
+      'Status'
+    ];
+
+    const index = campos.findIndex(c => c === campo);
+    const proximos = campos.slice(index + 1).join('|');
+
+    const regex = proximos
+      ? new RegExp(`${campo}:\\s*([\\s\\S]*?)(?=\\n(?:${proximos}):|$)`, 'i')
+      : new RegExp(`${campo}:\\s*([\\s\\S]*?)$`, 'i');
+
+    return (bloco.match(regex)?.[1] || '').trim();
+  }
+
+  private formatarBDD(texto: string): string {
+    if (!texto) return '';
+
+    let formatado = texto
+      .replace(/\r/g, '')
+      .replace(/\s*(Dado que)\s*/gi, '\nDado que ')
+      .replace(/\s+(Quando)\s+/gi, '\nQuando ')
+      .replace(/\s+(Então)\s+/gi, '\nEntão ')
+      .replace(/\s+(E)\s+/g, '\nE ')
+      .replace(/\n{2,}/g, '\n')
+      .trim();
+
+    // Remove tudo a partir do Então da coluna Passo a Passo
+    formatado = formatado.replace(/\n?Então[\s\S]*$/i, '').trim();
+
+    return formatado;
+  }
+
+  private formatarResultadoEsperado(texto: string): string {
+    if (!texto) return '';
+
+    const textoLimpo = texto
+      .replace(/\r/g, '')
+      .trim();
+
+    const textoComEntao = textoLimpo.match(/^Então\b/i)
+      ? textoLimpo
+      : `Então ${textoLimpo}`;
+
+    return textoComEntao
+      .replace(/\s+(Então)\s+/gi, '\nEntão ')
+      .replace(/\s+(E)\s+/g, '\nE ')
+      .replace(/\n{2,}/g, '\n')
+      .trim();
+  }
+
+  private escapeHtml(texto: string): string {
+    return (texto || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  private nomeArquivo(titulo: string): string {
+    return (titulo || 'cenario')
+      .replace(/[^\w\s]/gi, '')
+      .replace(/\s+/g, '_');
   }
 }
