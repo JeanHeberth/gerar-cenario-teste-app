@@ -56,7 +56,7 @@ export class CenarioListComponent implements OnInit {
         'Nome',
         'Objetivo',
         'Precondição',
-        'Script de Teste',
+        'Script de Teste (Passo a Passo)',
         'Resultado Esperado',
         'Componente',
         'Rótulos',
