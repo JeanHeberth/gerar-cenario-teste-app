@@ -52,6 +52,7 @@ export class CenarioListComponent implements OnInit {
   private exportarParaExcel(cenario: any): void {
     try {
       const cabecalho = [
+        'Variáveis',
         'Nome',
         'Objetivo',
         'Precondição',
@@ -62,7 +63,7 @@ export class CenarioListComponent implements OnInit {
         'Propósito',
         'Pasta',
         'Proprietário',
-        'Cobertura (Issues)',
+        'Cobertura',
         'Status'
       ];
 
@@ -75,21 +76,22 @@ export class CenarioListComponent implements OnInit {
       }
 
       cenariosLista.forEach((item: any) => {
-        const normalizado = this.normalizarCenario(item);
+        const c = this.normalizarCenario(item);
 
         linhas.push([
-          normalizado.nome,
-          normalizado.objetivo,
-          normalizado.precondicao,
-          this.formatarBDD(normalizado.scriptTeste),
-          this.formatarResultadoEsperado(normalizado.resultadoEsperado),
-          normalizado.componente,
-          normalizado.rotulos,
-          normalizado.proposito,
-          normalizado.pasta,
+          this.formatarVariaveis(c.variaveis),
+          c.nome,
+          c.objetivo,
+          c.precondicao,
+          this.formatarBDD(c.scriptTeste),
+          this.formatarResultadoEsperado(c.resultadoEsperado),
+          c.componente,
+          c.rotulos,
+          c.proposito,
+          c.pasta,
           'JIRAUSER23105',
-          normalizado.cobertura,
-          normalizado.status
+          c.cobertura,
+          c.status
         ]);
       });
 
@@ -124,21 +126,25 @@ export class CenarioListComponent implements OnInit {
             };
           }
         }
+
+        ws['!rows'] = Array(range.e.r + 1).fill({hpt: 45});
+        ws['!rows'][0] = {hpt: 24};
       }
 
       ws['!cols'] = [
+        {wch: 45},
         {wch: 40},
         {wch: 45},
         {wch: 35},
-        {wch: 70},
-        {wch: 60},
-        {wch: 25},
-        {wch: 25},
-        {wch: 25},
+        {wch: 75},
+        {wch: 65},
+        {wch: 30},
+        {wch: 30},
         {wch: 35},
-        {wch: 20},
-        {wch: 20},
-        {wch: 18}
+        {wch: 40},
+        {wch: 22},
+        {wch: 25},
+        {wch: 20}
       ];
 
       const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -193,6 +199,9 @@ export class CenarioListComponent implements OnInit {
         const c = this.normalizarCenario(item);
 
         adicionarTexto(`Cenário ${index + 1}: ${c.nome}`, 13, true);
+        adicionarTexto('Variáveis:', 11, true);
+        adicionarTexto('Variáveis:', 11, true);
+        adicionarTexto(this.formatarVariaveis(c.variaveis));
         adicionarTexto(`Objetivo: ${c.objetivo}`);
         adicionarTexto(`Precondição: ${c.precondicao}`);
         adicionarTexto('Script de Teste:', 11, true);
@@ -203,7 +212,7 @@ export class CenarioListComponent implements OnInit {
         adicionarTexto(`Rótulos: ${c.rotulos}`);
         adicionarTexto(`Propósito: ${c.proposito}`);
         adicionarTexto(`Pasta: ${c.pasta}`);
-        adicionarTexto(`Proprietário: ${c.proprietario}`);
+        adicionarTexto(`Proprietário: JIRAUSER23105`);
         adicionarTexto(`Cobertura: ${c.cobertura}`);
         adicionarTexto(`Status: ${c.status}`);
       });
@@ -224,6 +233,7 @@ export class CenarioListComponent implements OnInit {
 
         return `
           <h3>Cenário ${index + 1}: ${this.escapeHtml(c.nome)}</h3>
+          <p><strong>Variáveis:</strong></p><pre>${this.escapeHtml(this.formatarVariaveis(c.variaveis))}</pre>
           <p><strong>Objetivo:</strong> ${this.escapeHtml(c.objetivo)}</p>
           <p><strong>Precondição:</strong> ${this.escapeHtml(c.precondicao)}</p>
           <p><strong>Script de Teste:</strong></p>
@@ -234,7 +244,7 @@ export class CenarioListComponent implements OnInit {
           <p><strong>Rótulos:</strong> ${this.escapeHtml(c.rotulos)}</p>
           <p><strong>Propósito:</strong> ${this.escapeHtml(c.proposito)}</p>
           <p><strong>Pasta:</strong> ${this.escapeHtml(c.pasta)}</p>
-          <p><strong>Proprietário:</strong> ${this.escapeHtml(c.proprietario)}</p>
+          <p><strong>Proprietário:</strong> JIRAUSER23105</p>
           <p><strong>Cobertura:</strong> ${this.escapeHtml(c.cobertura)}</p>
           <p><strong>Status:</strong> ${this.escapeHtml(c.status)}</p>
         `;
@@ -268,6 +278,7 @@ export class CenarioListComponent implements OnInit {
   private normalizarCenario(item: any): any {
     if (typeof item === 'string') {
       return {
+        variaveis: this.extrairCampoTexto(item, 'Variáveis') || 'Não se aplica',
         nome: this.extrairCampoTexto(item, 'Nome'),
         objetivo: this.extrairCampoTexto(item, 'Objetivo'),
         precondicao: this.extrairCampoTexto(item, 'Precondição'),
@@ -277,13 +288,14 @@ export class CenarioListComponent implements OnInit {
         rotulos: this.extrairCampoTexto(item, 'Rótulos'),
         proposito: this.extrairCampoTexto(item, 'Propósito') || 'TESTE MANUAL',
         pasta: this.extrairCampoTexto(item, 'Pasta'),
-        proprietario: this.extrairCampoTexto(item, 'Proprietário') || 'JIRAUSER23105',
+        proprietario: 'JIRAUSER23105',
         cobertura: this.extrairCampoTexto(item, 'Cobertura'),
         status: this.extrairCampoTexto(item, 'Status') || 'APPROVED'
       };
     }
 
     return {
+      variaveis: item?.variaveis || 'Não se aplica',
       nome: item?.nome || '',
       objetivo: item?.objetivo || '',
       precondicao: item?.precondicao || '',
@@ -293,7 +305,7 @@ export class CenarioListComponent implements OnInit {
       rotulos: item?.rotulos || '',
       proposito: item?.proposito || 'TESTE MANUAL',
       pasta: item?.pasta || '',
-      proprietario: item?.proprietario || 'JIRAUSER23105',
+      proprietario: 'JIRAUSER23105',
       cobertura: item?.cobertura || '',
       status: item?.status || 'APPROVED'
     };
@@ -306,6 +318,7 @@ export class CenarioListComponent implements OnInit {
       'Precondição',
       'Script de Teste \\(Passo-a-Passo\\)',
       'Script de Teste \\(Passo-a-Passo\\) - Resultado',
+      'Variáveis',
       'Componente',
       'Rótulos',
       'Propósito',
@@ -316,6 +329,11 @@ export class CenarioListComponent implements OnInit {
     ];
 
     const index = campos.findIndex(c => c === campo);
+
+    if (index === -1) {
+      return '';
+    }
+
     const proximos = campos.slice(index + 1).join('|');
 
     const regex = proximos
@@ -328,17 +346,12 @@ export class CenarioListComponent implements OnInit {
   private formatarBDD(texto: string): string {
     if (!texto) return '';
 
-    let formatado = texto
-      .replace(/\r/g, '')
-      .replace(/\s*(Dado que)\s*/gi, '\nDado que ')
-      .replace(/\s+(Quando)\s+/gi, '\nQuando ')
-      .replace(/\s+(Então)\s+/gi, '\nEntão ')
-      .replace(/\s+(E)\s+/g, '\nE ')
+    let formatado = this.quebrarPalavrasChaveBDD(texto);
+
+    formatado = formatado
+      .replace(/\n?Então[\s\S]*$/i, '')
       .replace(/\n{2,}/g, '\n')
       .trim();
-
-    // Remove tudo a partir do Então da coluna Passo a Passo
-    formatado = formatado.replace(/\n?Então[\s\S]*$/i, '').trim();
 
     return formatado;
   }
@@ -346,16 +359,46 @@ export class CenarioListComponent implements OnInit {
   private formatarResultadoEsperado(texto: string): string {
     if (!texto) return '';
 
-    const textoLimpo = texto
+    let limpo = texto
       .replace(/\r/g, '')
+      .replace(/Variáveis:[\s\S]*$/i, '')
       .trim();
 
-    const textoComEntao = textoLimpo.match(/^Então\b/i)
-      ? textoLimpo
-      : `Então ${textoLimpo}`;
+    limpo = this.quebrarPalavrasChaveBDD(limpo);
 
-    return textoComEntao
-      .replace(/\s+(Então)\s+/gi, '\nEntão ')
+    limpo = limpo.replace(/^Então\s*Então\s*/i, 'Então ');
+
+    if (!limpo.match(/^Então\b/i)) {
+      limpo = `Então ${limpo}`;
+    }
+
+    return limpo
+      .replace(/\n{2,}/g, '\n')
+      .trim();
+  }
+
+  private formatarVariaveis(texto: string): string {
+    if (!texto) return 'Não se aplica';
+
+    return texto
+      .replace(/\r/g, '')
+      .replace(/\s*;\s*/g, ';\n') // quebra em cada ;
+      .replace(/\n{2,}/g, '\n')
+      .trim();
+  }
+
+  private quebrarPalavrasChaveBDD(texto: string): string {
+    return (texto || '')
+      .replace(/\r/g, '')
+      .replace(/\s+/g, ' ')
+      .replace(/([a-zA-ZÀ-ÿ0-9>])\s*(Dado que)/gi, '$1\n$2')
+      .replace(/([a-zA-ZÀ-ÿ0-9>])\s*(Quando)/gi, '$1\n$2')
+      .replace(/([a-zA-ZÀ-ÿ0-9>])\s*(Então)/gi, '$1\n$2')
+      .replace(/([a-zA-ZÀ-ÿ0-9>])E\s+/g, '$1\nE ')
+      .replace(/^\s*(Dado que)/gi, 'Dado que')
+      .replace(/\s+(Dado que)/gi, '\nDado que')
+      .replace(/\s+(Quando)/gi, '\nQuando')
+      .replace(/\s+(Então)/gi, '\nEntão')
       .replace(/\s+(E)\s+/g, '\nE ')
       .replace(/\n{2,}/g, '\n')
       .trim();
