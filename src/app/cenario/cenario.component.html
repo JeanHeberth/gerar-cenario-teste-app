@@ -9,8 +9,10 @@
         👀 Visualizar Cenários
       </button>
     </div>
+
     <div class="card-body">
       <form [formGroup]="form" (ngSubmit)="gerar()">
+
         <div class="mb-3">
           <label class="form-label">Título</label>
           <input
@@ -31,20 +33,38 @@
           ></textarea>
         </div>
 
+        <!-- 📎 NOVO: Upload de PDF -->
+        <div class="mb-3">
+          <label class="form-label">📎 Anexar PDF (Devbox / Reunião / Estimativa)</label>
+          <input
+            type="file"
+            accept="application/pdf"
+            class="form-control"
+            (change)="selecionarPdf($event)"
+          />
+
+          <small *ngIf="arquivoPdfSelecionado" class="text-success">
+            ✔ {{ arquivoPdfSelecionado.name }}
+          </small>
+        </div>
+
         <div class="d-grid">
           <button
             type="submit"
             class="btn btn-success"
             [disabled]="form.invalid || loading">
-            🚀 Gerar Cenário
+
+            {{ loading ? '⏳ Gerando...' : '🚀 Gerar Cenário' }}
+
           </button>
         </div>
+
       </form>
 
-      <!-- Mensagem de sucesso -->
       <div *ngIf="successMessage" class="alert alert-success mt-3 text-center">
         {{ successMessage }}
       </div>
+
     </div>
   </div>
 </div>
