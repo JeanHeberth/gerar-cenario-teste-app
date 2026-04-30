@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
-import {NgForOf, NgIf} from '@angular/common';
+import {NgIf} from '@angular/common';
 import {Router} from '@angular/router';
 import {environment} from '../enviroment/enviroment.prd';
 
@@ -16,46 +16,93 @@ import {environment} from '../enviroment/enviroment.prd';
   styleUrl: './cenario.component.css'
 })
 export class CenarioComponent {
+
   form;
   successMessage = '';
-  mostrarChat = false;
-
-
   loading = false;
-  cenarioGerado: string | null = null;
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
+  // 📎 NOVO
+  arquivoPdfSelecionado: File | null = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private router: Router
+  ) {
     this.form = this.fb.group({
       titulo: ['', Validators.required],
       regraDeNegocio: ['', Validators.required]
     });
   }
 
-  gerar() {
-    if (this.form.valid) {
-      this.loading = true;
-      const data = this.form.value;
+  // 📎 NOVO
+  selecionarPdf(event: Event) {
+    const input = event.target as HTMLInputElement;
 
-      this.http.post(`${environment.apiUrl}/cenario`, data).subscribe({
-        next: () => {
-          this.successMessage = '✅ Cenário gerado com sucesso!';
-          this.form.reset();
-          this.loading = false;
-
-          setTimeout(() => this.successMessage = '', 4000); // some após 4s
-        },
-        error: (err) => {
-          console.error('Erro ao gerar cenário:', err);
-          this.loading = false;
-        }
-      });
+    if (!input.files || input.files.length === 0) {
+      this.arquivoPdfSelecionado = null;
+      return;
     }
+
+    const arquivo = input.files[0];
+
+    if (arquivo.type !== 'application/pdf') {
+      alert('Selecione apenas arquivos PDF.');
+      input.value = '';
+      this.arquivoPdfSelecionado = null;
+      return;
+    }
+
+    this.arquivoPdfSelecionado = arquivo;
+  }
+
+  gerar() {
+    if (!this.form.valid) return;
+
+    this.loading = true;
+
+    const titulo = this.form.get('titulo')?.value || '';
+    const regraDeNegocio = this.form.get('regraDeNegocio')?.value || '';
+
+    if (this.arquivoPdfSelecionado) {
+      const formData = new FormData();
+
+      formData.append('titulo', titulo);
+      formData.append('regraDeNegocio', regraDeNegocio);
+      formData.append('arquivo', this.arquivoPdfSelecionado);
+
+      this.http.post(`${environment.apiUrl}/cenario/com-pdf`, formData)
+        .subscribe({
+          next: () => this.sucesso(),
+          error: (err) => this.erro(err)
+        });
+
+      return;
+    }
+
+    this.http.post(`${environment.apiUrl}/cenario`, {titulo, regraDeNegocio})
+      .subscribe({
+        next: () => this.sucesso(),
+        error: (err) => this.erro(err)
+      });
+  }
+
+  private sucesso() {
+    this.successMessage = '✅ Cenário gerado com sucesso!';
+    this.form.reset();
+    this.arquivoPdfSelecionado = null;
+    this.loading = false;
+
+    setTimeout(() => this.successMessage = '', 4000);
+  }
+
+  private erro(err: any) {
+    console.error('Erro ao gerar cenário:', err);
+    this.loading = false;
+    alert('❌ Erro ao gerar cenário');
   }
 
   irParaCenarios() {
     this.router.navigate(['/cenarios']);
   }
-
-
-
 }
