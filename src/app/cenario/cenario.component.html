@@ -5,6 +5,7 @@
         <span class="me-2">🖊️</span>
         <strong>Gerador de Cenário de Teste</strong>
       </div>
+
       <button class="btn btn-outline-light btn-sm" (click)="irParaCenarios()">
         👀 Visualizar Cenários
       </button>
@@ -12,7 +13,6 @@
 
     <div class="card-body">
       <form [formGroup]="form" (ngSubmit)="gerar()">
-
         <div class="mb-3">
           <label class="form-label">Título</label>
           <input
@@ -33,38 +33,70 @@
           ></textarea>
         </div>
 
-        <!-- 📎 NOVO: Upload de PDF -->
         <div class="mb-3">
-          <label class="form-label">📎 Anexar PDF (Devbox / Reunião / Estimativa)</label>
+          <label class="form-label">
+            📎 Anexar PDFs avulsos
+          </label>
+
           <input
             type="file"
             accept="application/pdf"
+            multiple
             class="form-control"
             (change)="selecionarPdf($event)"
           />
+        </div>
 
-          <small *ngIf="arquivoPdfSelecionado" class="text-success">
-            ✔ {{ arquivoPdfSelecionado.name }}
+        <div class="mb-3">
+          <label class="form-label">
+            📁 Selecionar pasta com PDFs
+          </label>
+
+          <input
+            type="file"
+            accept="application/pdf"
+            multiple
+            webkitdirectory
+            directory
+            class="form-control"
+            (change)="selecionarPdf($event)"
+          />
+        </div>
+
+        <div *ngIf="arquivosPdfSelecionados.length > 0" class="mt-2">
+          <small class="text-success d-block">
+            PDFs selecionados:
           </small>
+
+          <ul class="mb-2">
+            <li *ngFor="let arquivo of arquivosPdfSelecionados">
+              <small>{{ arquivo.name }}</small>
+            </li>
+          </ul>
+
+          <button
+            type="button"
+            class="btn btn-outline-danger btn-sm"
+            (click)="limparPdfs()"
+          >
+            🗑️ Limpar PDFs
+          </button>
         </div>
 
         <div class="d-grid">
           <button
             type="submit"
             class="btn btn-success"
-            [disabled]="form.invalid || loading">
-
+            [disabled]="form.invalid || loading"
+          >
             {{ loading ? '⏳ Gerando...' : '🚀 Gerar Cenário' }}
-
           </button>
         </div>
-
       </form>
 
       <div *ngIf="successMessage" class="alert alert-success mt-3 text-center">
         {{ successMessage }}
       </div>
-
     </div>
   </div>
 </div>
