@@ -4,6 +4,20 @@ import {HttpClient} from '@angular/common/http';
 import {NgForOf, NgIf} from '@angular/common';
 import {Router} from '@angular/router';
 import {environment} from '../enviroment/enviroment.prd';
+import {firstValueFrom} from 'rxjs';
+
+interface JiraAttachmentResponse {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  downloadUrl: string;
+}
+
+interface JiraIssueAttachmentsResponse {
+  taskKey: string;
+  attachments: JiraAttachmentResponse[];
+}
 
 @Component({
   selector: 'app-cenario',
@@ -20,6 +34,9 @@ export class CenarioComponent {
   form;
   successMessage = '';
   loading = false;
+  jiraLoading = false;
+  jiraMessage = '';
+  jiraMessageType: 'success' | 'error' | 'info' | '' = '';
 
   arquivosPdfSelecionados: File[] = [];
 
@@ -30,8 +47,76 @@ export class CenarioComponent {
   ) {
     this.form = this.fb.group({
       titulo: ['', Validators.required],
-      regraDeNegocio: ['', Validators.required]
+      regraDeNegocio: ['', Validators.required],
+      jiraTaskKey: ['']
     });
+  }
+
+  async buscarArquivosDaTaskJira(): Promise<void> {
+    const taskKey = (this.form.get('jiraTaskKey')?.value || '').trim().toUpperCase();
+
+    if (!taskKey) {
+      this.jiraMessage = 'Informe a task Jira no formato ABC-123.';
+      this.jiraMessageType = 'info';
+      return;
+    }
+
+    this.jiraLoading = true;
+    this.jiraMessage = '';
+    this.jiraMessageType = '';
+
+    try {
+      const issue = await firstValueFrom(
+        this.http.get<JiraIssueAttachmentsResponse>(`${environment.apiUrl}/jira/tasks/${taskKey}/attachments`)
+      );
+
+      const anexos = issue?.attachments || [];
+      if (anexos.length === 0) {
+        this.jiraMessage = `A task ${taskKey} nao possui anexos.`;
+        this.jiraMessageType = 'info';
+        return;
+      }
+
+      const anexosPdf = anexos.filter((anexo) =>
+        anexo.mimeType === 'application/pdf' || anexo.fileName.toLowerCase().endsWith('.pdf')
+      );
+
+      if (anexosPdf.length === 0) {
+        this.jiraMessage = `A task ${taskKey} nao possui anexos PDF.`;
+        this.jiraMessageType = 'info';
+        return;
+      }
+
+      const arquivosBaixados = await Promise.all(
+        anexosPdf.map(async (anexo) => {
+          const blob = await firstValueFrom(
+            this.http.get(this.toAbsoluteApiUrl(anexo.downloadUrl), {responseType: 'blob'})
+          );
+
+          return new File([blob], anexo.fileName, {
+            type: blob.type || anexo.mimeType || 'application/pdf'
+          });
+        })
+      );
+
+      const quantidadeAntes = this.arquivosPdfSelecionados.length;
+      this.arquivosPdfSelecionados = this.removerDuplicados([
+        ...this.arquivosPdfSelecionados,
+        ...arquivosBaixados
+      ]);
+
+      const adicionados = this.arquivosPdfSelecionados.length - quantidadeAntes;
+      this.jiraMessage = adicionados > 0
+        ? `✅ ${adicionados} PDF(s) importado(s) da task ${taskKey}.`
+        : `ℹ️ Os PDFs da task ${taskKey} ja estavam selecionados.`;
+      this.jiraMessageType = adicionados > 0 ? 'success' : 'info';
+    } catch (err) {
+      console.error('Erro ao buscar anexos da task Jira:', err);
+      this.jiraMessage = '❌ Nao foi possivel buscar anexos da task Jira. Verifique a task e tente novamente.';
+      this.jiraMessageType = 'error';
+    } finally {
+      this.jiraLoading = false;
+    }
   }
 
   selecionarPdf(event: Event): void {
@@ -74,6 +159,14 @@ export class CenarioComponent {
 
   limparPdfs(): void {
     this.arquivosPdfSelecionados = [];
+  }
+
+  private toAbsoluteApiUrl(downloadUrl: string): string {
+    if (downloadUrl.startsWith('http://') || downloadUrl.startsWith('https://')) {
+      return downloadUrl;
+    }
+
+    return `${environment.apiUrl}${downloadUrl}`;
   }
 
   gerar(): void {

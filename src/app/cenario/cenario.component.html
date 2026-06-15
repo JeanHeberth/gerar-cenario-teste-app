@@ -34,6 +34,34 @@
         </div>
 
         <div class="mb-3">
+          <label class="form-label">Task Jira</label>
+          <div class="input-group">
+            <input
+              type="text"
+              formControlName="jiraTaskKey"
+              class="form-control"
+              placeholder="Ex.: ABC-123"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              [disabled]="jiraLoading"
+              (click)="buscarArquivosDaTaskJira()"
+            >
+              {{ jiraLoading ? 'Buscando...' : 'Buscar anexos da task' }}
+            </button>
+          </div>
+          <small class="text-muted">Importa automaticamente os PDFs anexados na task.</small>
+          <div *ngIf="jiraMessage" class="alert mt-2 mb-0"
+            [class.alert-success]="jiraMessageType === 'success'"
+            [class.alert-danger]="jiraMessageType === 'error'"
+            [class.alert-info]="jiraMessageType === 'info'"
+            role="alert">
+            {{ jiraMessage }}
+          </div>
+        </div>
+
+        <div class="mb-3">
           <label class="form-label">
             📎 Anexar PDFs (um ou mais arquivos, Devbox, Estimativas, etc.)
           </label>
