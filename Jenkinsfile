@@ -3,11 +3,6 @@ pipeline {
 
   parameters {
     booleanParam(
-      name: 'DRY_RUN',
-      defaultValue: true,
-      description: 'Quando true, nao copia para Tomcat; apenas mostra as acoes.'
-    )
-    booleanParam(
       name: 'RUN_TESTS',
       defaultValue: false,
       description: 'Executa testes unitarios do frontend.'
@@ -89,12 +84,6 @@ pipeline {
       steps {
         script {
           def appName = env.JOB_BASE_NAME ?: 'gerar-cenario-teste-app'
-
-          if (params.DRY_RUN) {
-            echo "[Deploy] DRY_RUN=true. Deploy nao sera executado."
-            echo "[Deploy] Webapp de destino (nome): ${appName}"
-            return
-          }
 
           if (isUnix()) {
             sh """

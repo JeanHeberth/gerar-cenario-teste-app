@@ -1,0 +1,71 @@
+name: Frontend Pipeline
+
+on:
+  push:
+    branches: ["main", "master", "develop"]
+  pull_request:
+    branches: ["main", "master", "develop"]
+  workflow_dispatch:
+    inputs:
+      run_tests:
+        description: "Executar testes unitarios"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-pipeline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Angular App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --prefer-offline
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-gerar-cenario-teste-app
+          path: dist/gerar-cenario-teste-app
+          if-no-files-found: error
+
+  test:
+    name: Unit Tests (optional)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_tests == true }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --prefer-offline
+
+      - name: Run tests
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
+
