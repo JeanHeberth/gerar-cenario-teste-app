@@ -86,6 +86,7 @@ export class CenarioListComponent implements OnInit, OnDestroy {
     this.cenariosAbertos[chave] = !this.cenariosAbertos[chave];
   }
 
+
   estaAberto(cenario: any): boolean {
     return !!this.cenariosAbertos[this.chaveCenario(cenario)];
   }
