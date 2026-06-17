@@ -1,19 +1,20 @@
-<div class="container mt-4">
-  <div class="card shadow">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+<div class="container mt-4 page-shell">
+  <div class="card shadow scenario-card">
+    <div class="card-header header-gradient d-flex justify-content-between align-items-center">
       <div>
         <span class="me-2">🖊️</span>
         <strong>Gerador de Cenário de Teste</strong>
       </div>
 
-      <button class="btn btn-outline-light btn-sm" (click)="irParaCenarios()">
+      <button class="btn btn-outline-light btn-sm top-action" (click)="irParaCenarios()">
         👀 Visualizar Cenários
       </button>
     </div>
 
-    <div class="card-body">
+    <div class="card-body scenario-body">
       <form [formGroup]="form" (ngSubmit)="gerar()">
-        <div class="mb-3">
+        <div class="section-title">Dados do cenário</div>
+        <div class="mb-3 form-block">
           <label class="form-label">Título</label>
           <input
             type="text"
@@ -21,9 +22,10 @@
             class="form-control"
             placeholder="Digite o título do cenário"
           />
+          <small class="text-danger helper" *ngIf="campoInvalido('titulo')">Informe o título do cenário.</small>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-3 form-block">
           <label class="form-label">Regra de Negócio</label>
           <textarea
             formControlName="regraDeNegocio"
@@ -31,9 +33,73 @@
             class="form-control"
             placeholder="Descreva a regra de negócio"
           ></textarea>
+          <small class="text-danger helper" *ngIf="campoInvalido('regraDeNegocio')">Informe a regra de negócio.</small>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-3 form-block">
+          <label class="form-label">Agente</label>
+          <select class="form-select" formControlName="agent" [disabled]="agentsLoading">
+            <option value="">Sem agente (padrão)</option>
+            <option *ngFor="let agente of agents" [value]="agente.id">
+              {{ agente.id }}
+            </option>
+          </select>
+          <small class="text-muted helper" *ngIf="agentsLoading">Carregando agentes...</small>
+          <small class="text-danger helper" *ngIf="agentsMessage">{{ agentsMessage }}</small>
+        </div>
+
+        <div class="section-title">Integração Jira</div>
+
+        <div class="mb-3 form-block">
+          <label class="form-label">Task Jira</label>
+          <div class="input-group jira-group">
+            <input
+              type="text"
+              formControlName="jiraTaskKey"
+              class="form-control"
+              placeholder="Ex.: OP-1122"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              [disabled]="jiraLoading"
+              (click)="buscarArquivosDaTaskJira()"
+            >
+              {{ jiraLoading ? 'Buscando...' : 'Buscar anexos da task' }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              [disabled]="jiraDownloadLoading"
+              (click)="baixarTodosAnexosDaTaskJira()"
+            >
+              {{ jiraDownloadLoading ? 'Baixando...' : 'Baixar anexos (.zip)' }}
+            </button>
+          </div>
+          <small class="text-muted helper">Ao informar a task (ex.: OP-1122), o download sera salvo como OP-1122.zip e os PDFs podem ser importados.</small>
+          <div *ngIf="jiraMessage" class="alert mt-2 mb-0 jira-alert"
+            [class.alert-success]="jiraMessageType === 'success'"
+            [class.alert-danger]="jiraMessageType === 'error'"
+            [class.alert-info]="jiraMessageType === 'info'"
+            role="alert">
+            {{ jiraMessage }}
+          </div>
+        </div>
+
+        <div class="section-title">Anexos</div>
+
+        <div
+          class="dropzone mb-3"
+          [class.dropzone-active]="dragOver"
+          (dragover)="aoArrastarSobre($event)"
+          (dragleave)="aoSairArrasto($event)"
+          (drop)="aoSoltarArquivos($event)"
+        >
+          <div class="dropzone-title">Arraste e solte seus PDFs aqui</div>
+          <div class="dropzone-subtitle">Ou use os campos de upload abaixo.</div>
+        </div>
+
+        <div class="mb-3 form-block">
           <label class="form-label">
             📎 Anexar PDFs (um ou mais arquivos, Devbox, Estimativas, etc.)
           </label>
@@ -45,9 +111,17 @@
             class="form-control"
             (change)="selecionarPdf($event)"
           />
+
+          <div *ngIf="uploadMessage" class="alert mt-2 mb-0 jira-alert"
+               [class.alert-success]="uploadMessageType === 'success'"
+               [class.alert-danger]="uploadMessageType === 'error'"
+               [class.alert-info]="uploadMessageType === 'info'"
+               role="alert">
+            {{ uploadMessage }}
+          </div>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-3 form-block">
           <label class="form-label">
             📁 Selecionar pasta com PDFs
           </label>
@@ -63,16 +137,17 @@
           />
         </div>
 
-        <div *ngIf="arquivosPdfSelecionados.length > 0" class="mt-2">
+        <div *ngIf="arquivosPdfSelecionados.length > 0" class="mt-2 selected-files">
           <small class="text-success d-block">
             PDFs selecionados:
           </small>
 
-          <ul class="mb-2">
-            <li *ngFor="let arquivo of arquivosPdfSelecionados">
-              <small>{{ arquivo.name }}</small>
-            </li>
-          </ul>
+          <div class="file-chips mb-2">
+            <div class="file-chip" *ngFor="let arquivo of arquivosPdfSelecionados; let i = index">
+              <span class="file-chip-name" [title]="arquivo.name">{{ arquivo.name }}</span>
+              <button type="button" class="file-chip-remove" (click)="removerPdf(i)" aria-label="Remover arquivo">x</button>
+            </div>
+          </div>
 
           <button
             type="button"
@@ -83,10 +158,10 @@
           </button>
         </div>
 
-        <div class="d-grid">
+        <div class="d-grid submit-row">
           <button
             type="submit"
-            class="btn btn-success"
+            class="btn btn-success submit-btn"
             [disabled]="form.invalid || loading"
           >
             {{ loading ? '⏳ Gerando...' : '🚀 Gerar Cenário' }}
@@ -94,8 +169,12 @@
         </div>
       </form>
 
-      <div *ngIf="successMessage" class="alert alert-success mt-3 text-center">
+      <div *ngIf="successMessage" class="alert alert-success mt-3 text-center success-alert">
         {{ successMessage }}
+      </div>
+
+      <div class="ux-note mt-3">
+        <small class="text-muted">Dica: preencha título e regra de negócio para habilitar a geração.</small>
       </div>
     </div>
   </div>

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {Router, RouterModule} from '@angular/router';
@@ -16,17 +16,90 @@ import {environment} from '../enviroment/enviroment.prd';
   templateUrl: './cenario-list.component.html',
   styleUrls: ['./cenario-list.component.css']
 })
-export class CenarioListComponent implements OnInit {
+export class CenarioListComponent implements OnInit, OnDestroy {
   cenarios: any[] = [];
+  carregandoLista = true;
+  erroCarregamento = '';
+  termoBusca = '';
+  termoBuscaDigitado = '';
+  cenariosAbertos: Record<string, boolean> = {};
+  private buscaDebounceTimer?: ReturnType<typeof setTimeout>;
 
   constructor(private http: HttpClient, private router: Router) {
   }
 
   ngOnInit(): void {
     this.http.get<any[]>(`${environment.apiUrl}/cenario`).subscribe({
-      next: (res) => (this.cenarios = res.reverse()),
-      error: (err) => console.error('Erro ao buscar cenários:', err)
+      next: (res) => {
+        this.cenarios = res.reverse();
+        this.carregandoLista = false;
+      },
+      error: (err) => {
+        console.error('Erro ao buscar cenários:', err);
+        this.erroCarregamento = 'Nao foi possivel carregar a lista de cenarios.';
+        this.carregandoLista = false;
+      }
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.buscaDebounceTimer) {
+      clearTimeout(this.buscaDebounceTimer);
+    }
+  }
+
+  get cenariosFiltrados(): any[] {
+    const termo = this.normalizarTexto((this.termoBusca || '').trim());
+    if (!termo) {
+      return this.cenarios;
+    }
+
+    return this.cenarios.filter((cenario) => {
+      const titulo = this.normalizarTexto(cenario?.titulo || '');
+      return titulo.includes(termo);
+    });
+  }
+
+  onTermoBuscaChange(valor: string): void {
+    this.termoBuscaDigitado = valor;
+
+    if (this.buscaDebounceTimer) {
+      clearTimeout(this.buscaDebounceTimer);
+    }
+
+    this.buscaDebounceTimer = setTimeout(() => {
+      this.termoBusca = valor;
+    }, 200);
+  }
+
+  limparBusca(): void {
+    this.termoBusca = '';
+    this.termoBuscaDigitado = '';
+
+    if (this.buscaDebounceTimer) {
+      clearTimeout(this.buscaDebounceTimer);
+    }
+  }
+
+  toggleDetalhes(cenario: any): void {
+    const chave = this.chaveCenario(cenario);
+    this.cenariosAbertos[chave] = !this.cenariosAbertos[chave];
+  }
+
+  estaAberto(cenario: any): boolean {
+    return !!this.cenariosAbertos[this.chaveCenario(cenario)];
+  }
+
+
+  private chaveCenario(cenario: any): string {
+    return cenario?.id || cenario?._id || cenario?.titulo || JSON.stringify(cenario);
+  }
+
+  private normalizarTexto(texto: string): string {
+    return (texto || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
   }
 
   irParaCriacao(): void {
