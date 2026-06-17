@@ -2,7 +2,7 @@
 
   <div class="chat-header">
     <div class="chat-header-left">
-      <span class="chat-header-icon">🤖</span>
+      <span class="chat-header-icon">💬</span>
       <span class="chat-header-title">Chat com Agentes</span>
     </div>
     <div class="chat-header-right">
@@ -20,17 +20,6 @@
       <p class="empty-subtitle">
         Selecione um agente e envie uma mensagem para começar.
       </p>
-
-      <div class="agent-pills" *ngIf="agents.length > 0">
-        <button
-          *ngFor="let agent of agents"
-          class="agent-pill"
-          [class.active]="selectedAgent === agent.id"
-          (click)="selectedAgent = agent.id"
-        >
-          {{ getAgentLabel(agent.id) }}
-        </button>
-      </div>
     </div>
 
     <div class="messages-list" *ngIf="messages.length > 0 || loading">

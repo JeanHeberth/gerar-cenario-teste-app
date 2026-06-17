@@ -64,11 +64,11 @@
     <p>Tente outro termo para localizar os cenários.</p>
   </div>
 
-  <div *ngFor="let cenario of cenariosFiltrados" class="cenario-card">
-    <button type="button" class="cenario-toggle" (click)="toggleDetalhes(cenario)" [attr.aria-expanded]="estaAberto(cenario)" aria-label="Abrir ou fechar detalhes do cenário">
+  <div *ngFor="let cenario of cenariosFiltrados" class="cenario-card" (click)="toggleDetalhes(cenario)">
+    <div class="cenario-toggle">
       <h2 class="cenario-title">{{ cenario.titulo }}</h2>
       <span class="click-hint" aria-hidden="true">🖱️</span>
-    </button>
+    </div>
 
     <div class="cenario-detalhes" *ngIf="estaAberto(cenario)">
       <div class="detail-box">
