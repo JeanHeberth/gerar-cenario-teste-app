@@ -1,31 +1,220 @@
-.chat-fab {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #007bff;
-  color: white;
-  font-size: 24px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10000;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+.page-shell {
+  max-width: 980px;
+  margin-bottom: 32px;
 }
 
-.chat-container {
-  position: fixed;
-  bottom: 80px;
-  right: 20px;
-  width: 400px;
-  height: 600px;
-  background: white;
-  border: 1px solid #ccc;
-  z-index: 9999;
-  border-radius: 10px;
+.scenario-card {
+  border: 0;
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(16, 24, 40, 0.12) !important;
+}
+
+.header-gradient {
+  background: linear-gradient(135deg, #0d6efd 0%, #0047ba 50%, #0b5ed7 100%);
+  color: #fff;
+  border-bottom: 0;
+  padding: 16px 20px;
+}
+
+.top-action {
+  border-color: rgba(255, 255, 255, 0.85);
+  color: #fff;
+  font-weight: 600;
+}
+
+.top-action:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.scenario-body {
+  background: linear-gradient(180deg, #f8fbff 0%, #f4f7fc 100%);
+  padding: 24px;
+}
+
+.section-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #475569;
+  font-weight: 700;
+  margin: 8px 0 12px;
+}
+
+.dropzone {
+  border: 2px dashed #93c5fd;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  background: #eff6ff;
+  transition: all 0.2s ease;
+}
+
+.dropzone-active {
+  border-color: #3b82f6;
+  background: #dbeafe;
+  transform: translateY(-1px);
+}
+
+.dropzone-title {
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.dropzone-subtitle {
+  color: #475569;
+  font-size: 0.88rem;
+}
+
+.form-block {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.form-control,
+.form-select {
+  border-radius: 12px;
+  border: 1px solid #d0d7e2;
+  background-color: #fff;
+  min-height: 44px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea.form-control {
+  min-height: 112px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #6ea8fe;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.16);
+}
+
+.input-group > .btn {
+  font-weight: 600;
+}
+
+.helper {
+  display: block;
+  margin-top: 6px;
+}
+
+.jira-alert,
+.success-alert {
+  border-radius: 12px;
+  border: 0;
+  font-weight: 500;
+}
+
+.selected-files {
+  background: #eef6ff;
+  border: 1px solid #cfe2ff;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.file-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.file-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #cfe2ff;
+  background: #ffffff;
+}
+
+.file-chip-name {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: #0f172a;
+}
+
+.file-chip-remove {
+  border: 0;
+  background: transparent;
+  color: #dc3545;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.file-list {
+  margin-top: 8px;
+  padding-left: 18px;
+}
+
+.file-list li {
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.submit-row {
+  margin-top: 8px;
+}
+
+.submit-btn {
+  min-height: 48px;
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  border: 0;
+  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.25);
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(22, 163, 74, 0.3);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+.ux-note {
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .scenario-body {
+    padding: 16px;
+  }
+
+  .header-gradient {
+    padding: 14px 16px;
+  }
+
+  .jira-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .jira-group > .btn {
+    width: 100%;
+    border-radius: 10px !important;
+  }
+
+  .file-chip-name {
+    max-width: 200px;
+  }
 }
