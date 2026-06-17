@@ -83,6 +83,19 @@ export class CenarioComponent implements OnInit {
 
       if (this.agents.length === 0) {
         this.agentsMessage = 'Nenhum agente disponivel no backend.';
+      } else {
+        // Procurar agente "Gerador de Cenario de Testes"
+        const agenteGerador = this.agents.find((agent) =>
+          agent.id.toLowerCase().includes('gerador') &&
+          agent.id.toLowerCase().includes('cenario')
+        );
+
+        // Se encontrado, setar como padrão
+        if (agenteGerador) {
+          this.form.patchValue({
+            agent: agenteGerador.id
+          });
+        }
       }
     } catch (err) {
       console.error('Erro ao carregar agentes:', err);
@@ -378,7 +391,17 @@ export class CenarioComponent implements OnInit {
 
   private sucesso(): void {
     this.successMessage = '✅ Cenario gerado com sucesso!';
-    this.form.reset({agent: ''});
+
+    // Reseta o formulário mantendo o agente padrão "Gerador de Cenario de Testes"
+    const agenteGerador = this.agents.find((agent) =>
+      agent.id.toLowerCase().includes('gerador') &&
+      agent.id.toLowerCase().includes('cenario')
+    );
+
+    this.form.reset({
+      agent: agenteGerador?.id || ''
+    });
+
     this.arquivosPdfSelecionados = [];
     this.submitted = false;
     this.loading = false;

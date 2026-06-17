@@ -1,3 +1,9 @@
-<router-outlet>
+<nav class="app-nav">
+  <div class="app-nav-links">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">✏️ Gerar Cenário</a>
+    <a routerLink="/chat-agentes" routerLinkActive="active">💬 Chat IA</a>
+    <a routerLink="/cenarios" routerLinkActive="active">📋 Cenários</a>
+  </div>
+</nav>
 
-</router-outlet>
+<router-outlet></router-outlet>
