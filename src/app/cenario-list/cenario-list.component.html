@@ -1,10 +1,30 @@
-<div class="container">
-
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Lista de Cenários de Teste</h1>
-    <button class="btn btn-primary btn-sm" (click)="irParaCriacao()">
+<div class="container list-shell">
+  <div class="list-header d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="list-title">Lista de Cenários de Teste</h1>
+      <p class="list-subtitle">Acompanhe cenários gerados e exporte no formato desejado.</p>
+    </div>
+    <button class="btn btn-primary btn-sm create-btn" (click)="irParaCriacao()">
       ➕ Novo Cenário
     </button>
+  </div>
+
+  <div class="toolbar mb-3">
+    <div class="search-wrap">
+      <input
+        type="text"
+        class="form-control search-input"
+        placeholder="Buscar por título"
+        [ngModel]="termoBuscaDigitado"
+        (ngModelChange)="onTermoBuscaChange($event)"
+      />
+      <button *ngIf="termoBuscaDigitado" type="button" class="btn btn-sm btn-outline-secondary clear-search" (click)="limparBusca()">
+        Limpar
+      </button>
+    </div>
+    <small class="results-counter">
+      {{ cenariosFiltrados.length }} de {{ cenarios.length }} cenário(s)
+    </small>
   </div>
 
   <!--  &lt;!&ndash; Card de Configuração do Jira &ndash;&gt;-->
@@ -25,9 +45,37 @@
   <!--    </div>-->
   <!--  </div>-->
 
-  <div *ngFor="let cenario of cenarios" class="cenario-card">
-    <h2>{{ cenario.titulo }}</h2>
-    <p><strong>Regra de Negócio:</strong> {{ cenario.regraDeNegocio }}</p>
+  <div *ngIf="carregandoLista" class="skeleton-list" aria-hidden="true">
+    <div class="skeleton-item" *ngFor="let item of [1,2,3]"></div>
+  </div>
+
+  <div *ngIf="erroCarregamento" class="empty-state filtered-empty-state">
+    <h3>Falha ao carregar</h3>
+    <p>{{ erroCarregamento }}</p>
+  </div>
+
+  <div *ngIf="!carregandoLista && !erroCarregamento && cenarios.length === 0" class="empty-state">
+    <h3>Nenhum cenário encontrado</h3>
+    <p>Gere um novo cenário para começar.</p>
+  </div>
+
+  <div *ngIf="!carregandoLista && cenarios.length > 0 && cenariosFiltrados.length === 0" class="empty-state filtered-empty-state">
+    <h3>Nenhum resultado para a busca</h3>
+    <p>Tente outro termo para localizar os cenários.</p>
+  </div>
+
+  <div *ngFor="let cenario of cenariosFiltrados" class="cenario-card">
+    <button type="button" class="cenario-toggle" (click)="toggleDetalhes(cenario)" [attr.aria-expanded]="estaAberto(cenario)" aria-label="Abrir ou fechar detalhes do cenário">
+      <h2 class="cenario-title">{{ cenario.titulo }}</h2>
+      <span class="click-hint" aria-hidden="true">🖱️</span>
+    </button>
+
+    <div class="cenario-detalhes" *ngIf="estaAberto(cenario)">
+      <div class="detail-box">
+        <h3>Regra de Negócio completa:</h3>
+        <p class="rule-text">{{ cenario.regraDeNegocio }}</p>
+      </div>
+    </div>
 
     <!-- Exportação -->
     <div class="export-buttons d-flex gap-2 mt-3">
