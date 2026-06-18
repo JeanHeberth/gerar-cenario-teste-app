@@ -39,7 +39,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/cenario-testes-app/"
+              "baseHref": "/gerar-cenario-teste-app/"
             },
             "development": {
               "optimization": false,
