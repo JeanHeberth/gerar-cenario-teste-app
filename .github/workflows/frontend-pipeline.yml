@@ -1,6 +1,10 @@
 name: Frontend Pipeline
 
 on:
+  push:
+    branches: ["main", "master", "develop"]
+  pull_request:
+    branches: ["main", "master", "develop"]
   workflow_dispatch:
     inputs:
       run_tests:
@@ -11,6 +15,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: frontend-pipeline-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -60,3 +68,4 @@ jobs:
 
       - name: Run tests
         run: npm run test -- --watch=false --browsers=ChromeHeadless
+
