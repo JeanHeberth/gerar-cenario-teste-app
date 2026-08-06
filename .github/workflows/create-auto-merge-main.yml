@@ -20,17 +20,17 @@ jobs:
       - name: Configurar o Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Instala a versão do Node compatível com seu Angular
-          cache: 'npm'       # Agiliza o processo salvando o cache do node_modules
+          node-version: '20'
+          cache: 'npm'
 
       - name: Instalar Dependências
-        run: npm ci # Instalação limpa e rápida baseada no package-lock.json
+        run: npm ci
 
       - name: Verificar Lint (Opcional)
-        run: npm run lint --if-present # Garante que as regras de estilo de código foram seguidas
+        run: npm run lint --if-present
 
       - name: Executar o Build do Angular
-        run: npm run build -- --configuration=production # Compila o projeto frontend para produção
+        run: npm run build -- --configuration=production
 
       - name: Configurar o Git
         run: |
