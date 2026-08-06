@@ -13,6 +13,8 @@ on:
         default: false
         type: boolean
 
+  workflow_call: {}
+
 permissions:
   contents: read
 
@@ -49,9 +51,12 @@ jobs:
           if-no-files-found: error
 
   test:
-    name: Unit Tests (optional)
+    name: Unit Tests
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_tests == true }}
+    # Roda sempre quando este pipeline é chamado como etapa de outro workflow
+    # (ex.: o gate develop -> main), e também quando disparado manualmente
+    # com a opção "run_tests" marcada.
+    if: ${{ github.event_name == 'workflow_call' || (github.event_name == 'workflow_dispatch' && inputs.run_tests == true) }}
 
     steps:
       - name: Checkout
