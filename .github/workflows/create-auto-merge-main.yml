@@ -1,4 +1,4 @@
-name: Auto Merge Develop para Main
+name: Promover Develop para Main
 
 on:
   pull_request:
@@ -9,15 +9,44 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  merge-para-main:
-    name: Merge automático para Main
-    runs-on: ubuntu-latest
-
-    # Só executa se o PR para a develop tiver sido mesclado com sucesso
+  frontend:
+    name: 1. Frontend (build + testes)
     if: github.event.pull_request.merged == true
+    uses: ./.github/workflows/frontend-pipeline.yml
 
+  # 2. Cria o PR develop -> main. Só roda se o job "frontend" tiver sucesso.
+  criar-pr:
+    name: 2. Criar PR develop -> main
+    needs: frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Criar PR develop -> main (se ainda não existir e houver diferenças)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          existing=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "Já existe um PR aberto develop -> main (#$existing). Nada a fazer."
+            exit 0
+          fi
+
+          gh pr create \
+            --base main \
+            --head develop \
+            --title "Merge automático: develop -> main (PR #${{ github.event.pull_request.number }})" \
+            --body "PR criado automaticamente após o merge do PR #${{ github.event.pull_request.number }} na branch develop." \
+          || echo "Não foi possível criar o PR (provavelmente sem diferenças entre develop e main neste momento)."
+
+  # 3. Mescla develop na main via push direto. Só roda se "frontend" E
+  #    "criar-pr" tiverem sucesso.
+  merge-main:
+    name: 3. Merge automático para Main
+    needs: [frontend, criar-pr]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v5
@@ -36,4 +65,3 @@ jobs:
           git merge origin/develop --no-ff -m "Automated merge: develop into main (PR #${{ github.event.pull_request.number }})"
 
           git push origin main --tags
-
