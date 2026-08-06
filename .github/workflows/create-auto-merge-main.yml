@@ -1,0 +1,45 @@
+name: Auto Merge Developer to Main (Angular)
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types:
+      - closed
+
+jobs:
+  build-and-merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar o Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Instala a versão do Node compatível com seu Angular
+          cache: 'npm'       # Agiliza o processo salvando o cache do node_modules
+
+      - name: Instalar Dependências
+        run: npm ci # Instalação limpa e rápida baseada no package-lock.json
+
+      - name: Verificar Lint (Opcional)
+        run: npm run lint --if-present # Garante que as regras de estilo de código foram seguidas
+
+      - name: Executar o Build do Angular
+        run: npm run build -- --configuration=production # Compila o projeto frontend para produção
+
+      - name: Configurar o Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge developer into main
+        run: |
+          git checkout main
+          git pull origin main
+          git merge origin/developer --no-ff -m "Automated merge: developer into main (PR #${{ github.event.pull_request.number }})"
+          git push origin main
