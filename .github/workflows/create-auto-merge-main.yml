@@ -35,6 +35,5 @@ jobs:
           git pull origin main
           git merge origin/develop --no-ff -m "Automated merge: develop into main (PR #${{ github.event.pull_request.number }})"
 
-          # Garante o envio definitivo ignorando bloqueios simples de push
           git push origin main --tags
 
