@@ -1,4 +1,4 @@
-name: Auto Merge develop to Main (Angular)
+name: Auto Merge Develop para Main (Angular)
 
 on:
   pull_request:
