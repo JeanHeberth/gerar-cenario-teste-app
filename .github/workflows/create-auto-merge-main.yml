@@ -1,4 +1,4 @@
-name: Auto Merge Developer to Main (Angular)
+name: Auto Merge develop to Main (Angular)
 
 on:
   pull_request:
@@ -37,9 +37,9 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Merge developer into main
+      - name: Merge develop into main
         run: |
           git checkout main
           git pull origin main
-          git merge origin/developer --no-ff -m "Automated merge: developer into main (PR #${{ github.event.pull_request.number }})"
+          git merge origin/develop --no-ff -m "Automated merge: develop into main (PR #${{ github.event.pull_request.number }})"
           git push origin main
