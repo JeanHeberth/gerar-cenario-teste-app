@@ -31,6 +31,7 @@ describe('AutoQaExecutionStateService', () => {
   });
 
   const networkError = () => new HttpErrorResponse({ status: 0 });
+  const httpError = (status: number) => new HttpErrorResponse({ status });
 
   beforeEach(() => {
     serviceSpy = jasmine.createSpyObj('AutoQaExecutionService', [
@@ -43,6 +44,8 @@ describe('AutoQaExecutionStateService', () => {
       'cancel',
       'registerApplyApproval',
       'registerExecutionApproval',
+      'apply',
+      'execute',
     ]);
     TestBed.configureTestingModule({
       providers: [AutoQaExecutionStateService, { provide: AutoQaExecutionService, useValue: serviceSpy }],
@@ -332,6 +335,72 @@ describe('AutoQaExecutionStateService', () => {
       state.start('exec-1').subscribe();
 
       expect(serviceSpy.generate).not.toHaveBeenCalled();
+    });
+
+    it('apply(): chama executionService.apply, ativa pendingAction("APPLY") durante a chamada e atualiza current()', () => {
+      const updated = execution({ status: 'WAITING_EXECUTION_APPROVAL', availableActions: ['EXECUTE'] });
+      let pendingDuringCall: string | null | undefined;
+      serviceSpy.apply.and.callFake(() => {
+        pendingDuringCall = state.pendingAction();
+        return of(updated);
+      });
+
+      state.apply('exec-1').subscribe();
+
+      expect(serviceSpy.apply).toHaveBeenCalledWith('exec-1');
+      expect(pendingDuringCall).toBe('APPLY');
+      expect(state.pendingAction()).toBeNull();
+      expect(state.current()).toEqual(updated);
+    });
+
+    it('apply(): em 403/409/422 preserva current(), limpa pendingAction() e seta actionError()', () => {
+      const initial = execution();
+      serviceSpy.get.and.returnValue(of(initial));
+      state.loadExecution('exec-1');
+
+      for (const status of [403, 409, 422]) {
+        serviceSpy.apply.and.returnValue(throwError(() => httpError(status)));
+        let receivedError = false;
+        state.apply('exec-1').subscribe({ error: () => (receivedError = true) });
+
+        expect(receivedError).toBeTrue();
+        expect(state.pendingAction()).toBeNull();
+        expect(state.actionError()).toBeTruthy();
+        expect(state.current()).toEqual(initial);
+      }
+    });
+
+    it('execute(): chama executionService.execute, ativa pendingAction("EXECUTE") durante a chamada e atualiza current()', () => {
+      const updated = execution({ status: 'COMPLETED', availableActions: [] });
+      let pendingDuringCall: string | null | undefined;
+      serviceSpy.execute.and.callFake(() => {
+        pendingDuringCall = state.pendingAction();
+        return of(updated);
+      });
+
+      state.execute('exec-1').subscribe();
+
+      expect(serviceSpy.execute).toHaveBeenCalledWith('exec-1');
+      expect(pendingDuringCall).toBe('EXECUTE');
+      expect(state.pendingAction()).toBeNull();
+      expect(state.current()).toEqual(updated);
+    });
+
+    it('execute(): em 403/409/422 preserva current(), limpa pendingAction() e seta actionError()', () => {
+      const initial = execution();
+      serviceSpy.get.and.returnValue(of(initial));
+      state.loadExecution('exec-1');
+
+      for (const status of [403, 409, 422]) {
+        serviceSpy.execute.and.returnValue(throwError(() => httpError(status)));
+        let receivedError = false;
+        state.execute('exec-1').subscribe({ error: () => (receivedError = true) });
+
+        expect(receivedError).toBeTrue();
+        expect(state.pendingAction()).toBeNull();
+        expect(state.actionError()).toBeTruthy();
+        expect(state.current()).toEqual(initial);
+      }
     });
   });
 
