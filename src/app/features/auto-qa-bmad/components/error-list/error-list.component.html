@@ -1,10 +1,16 @@
-@if (errors().length > 0) {
-  <ul class="error-list" role="alert" aria-label="Erros da execução">
-    @for (error of errors(); track error.code) {
-      <li class="error-list__item">
-        <strong>{{ error.code }}</strong>
-        <span>{{ error.message }}</span>
-      </li>
-    }
-  </ul>
-}
+<section class="error-list-section">
+  <h3 class="error-list-section__title">Erros</h3>
+
+  @if (errors().length > 0) {
+    <ul class="error-list" role="alert" aria-label="Erros da execução">
+      @for (error of errors(); track error.code) {
+        <li class="error-list__item">
+          <strong>{{ error.code }}</strong>
+          <span>{{ error.message }}</span>
+        </li>
+      }
+    </ul>
+  } @else {
+    <aqb-empty-state title="Nenhum erro registrado nesta execução." />
+  }
+</section>

@@ -35,4 +35,22 @@ describe('WarningListComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('.warning-list__item').length).toBe(0);
   });
+
+  it('exibe o título "Avisos"', () => {
+    fixture.componentRef.setInput('warnings', []);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.warning-list-section__title')?.textContent).toContain('Avisos');
+  });
+
+  it('exibe um estado vazio acessível quando não há warnings', () => {
+    fixture.componentRef.setInput('warnings', []);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Nenhum aviso registrado nesta execução.');
+  });
+
+  it('não exibe o estado vazio quando há warnings', () => {
+    fixture.componentRef.setInput('warnings', [{ code: 'W1', description: 'aviso', blocking: false }]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain('Nenhum aviso registrado nesta execução.');
+  });
 });

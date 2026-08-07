@@ -1,13 +1,19 @@
-@if (warnings().length > 0) {
-  <ul class="warning-list" aria-label="Avisos da execução">
-    @for (warning of warnings(); track warning.code) {
-      <li class="warning-list__item" [class.warning-list__item--blocking]="warning.blocking">
-        <strong>{{ warning.code }}</strong>
-        <span>{{ warning.description }}</span>
-        @if (warning.blocking) {
-          <span class="warning-list__badge">Bloqueante</span>
-        }
-      </li>
-    }
-  </ul>
-}
+<section class="warning-list-section">
+  <h3 class="warning-list-section__title">Avisos</h3>
+
+  @if (warnings().length > 0) {
+    <ul class="warning-list" aria-label="Avisos da execução">
+      @for (warning of warnings(); track warning.code) {
+        <li class="warning-list__item" [class.warning-list__item--blocking]="warning.blocking">
+          <strong>{{ warning.code }}</strong>
+          <span>{{ warning.description }}</span>
+          @if (warning.blocking) {
+            <span class="warning-list__badge">Bloqueante</span>
+          }
+        </li>
+      }
+    </ul>
+  } @else {
+    <aqb-empty-state title="Nenhum aviso registrado nesta execução." />
+  }
+</section>

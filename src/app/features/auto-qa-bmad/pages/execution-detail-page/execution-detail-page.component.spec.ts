@@ -142,15 +142,31 @@ describe('ExecutionDetailPageComponent', () => {
       );
     });
 
-    it('renderiza WorkflowOverview, StageTimeline, StageDetailPanel, ExecutionSummary, WarningList, ErrorList e ActionBar', () => {
+    it('renderiza WorkflowOverview, StageTimeline, StageDetailPanel, ExecutionSummary, ExecutionResultSummary (com WarningList/ErrorList), ExecutionStatusHeader e ActionBar', () => {
       fixture.detectChanges();
       expect(fixture.nativeElement.querySelector('app-workflow-overview')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-stage-timeline')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-stage-detail-panel')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-execution-summary')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('app-execution-status-header')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('app-execution-result-summary')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-warning-list')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-error-list')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-action-bar')).not.toBeNull();
+    });
+
+    it('o status header reflete o status atual da execução', () => {
+      currentSignal.set(execution({ status: 'FAILED' }));
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('app-execution-status-header')?.textContent).toContain('Falhou');
+    });
+
+    it('o resumo de resultado reflete a mensagem final e as ações disponíveis da execução', () => {
+      currentSignal.set(execution({ status: 'COMPLETED', availableActions: ['RETRY'] }));
+      fixture.detectChanges();
+      const summary = fixture.nativeElement.querySelector('app-execution-result-summary');
+      expect(summary.textContent).toContain('Execução concluída.');
+      expect(summary.textContent).toContain('Tentar novamente');
     });
 
     it('seleção inicial usa currentStage quando presente', () => {
