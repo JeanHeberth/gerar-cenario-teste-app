@@ -1,0 +1,49 @@
+.stage-timeline-item {
+  display: flex;
+  align-items: center;
+  gap: var(--aq-space-3);
+  padding: var(--aq-space-3);
+  border-radius: var(--aq-radius-md);
+  border: var(--aq-border-width) solid transparent;
+  cursor: pointer;
+  font-family: var(--aq-font-family);
+
+  &:hover {
+    background: var(--aq-surface);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--aq-primary);
+    outline-offset: 2px;
+  }
+
+  &--selected {
+    border-color: var(--aq-primary);
+    background: var(--aq-surface);
+  }
+
+  &__icon {
+    display: inline-flex;
+    color: var(--aq-text-muted);
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--aq-font-size-sm);
+    color: var(--aq-text-primary);
+  }
+
+  &__message {
+    margin: 0;
+    font-size: var(--aq-font-size-xs);
+    color: var(--aq-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

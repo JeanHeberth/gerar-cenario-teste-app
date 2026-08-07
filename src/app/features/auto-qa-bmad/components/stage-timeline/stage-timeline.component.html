@@ -1,0 +1,10 @@
+<div class="stage-timeline" role="listbox" aria-label="Etapas do workflow Auto QA">
+  @for (entry of entries(); track entry.metadata.stage) {
+    <app-stage-timeline-item
+      [metadata]="entry.metadata"
+      [state]="entry.state"
+      [selected]="entry.metadata.stage === selectedStage()"
+      (stageSelected)="onSelect(entry.metadata.stage)"
+    />
+  }
+</div>

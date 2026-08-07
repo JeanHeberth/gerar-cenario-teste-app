@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { AqbStageIconComponent } from '../../shared/ui/stage-icon/aqb-stage-icon.component';
 import { AUTO_QA_STAGE_CATALOG, AutoQaStageMetadata } from '../../models/auto-qa-stage-catalog';
 import { AutoQaExecutionResponse } from '../../models/auto-qa-execution.model';
+import { StageVisualState } from '../../models/stage-visual-state.model';
+import { resolveStageVisualState } from '../../shared/utils/resolve-stage-visual-state';
 
 export type WorkflowOverviewItemState = 'done' | 'current' | 'failed' | 'pending';
 
@@ -14,8 +16,11 @@ export interface WorkflowOverviewItem {
  * Visão estática de alto nível das 10 etapas do workflow (Fase 12.3.1).
  * Puramente apresentacional: recebe a execução por input, consome só o
  * catálogo central, não chama service, não altera estado, não decide
- * ações permitidas e não simula streaming. Desacoplado da futura Timeline
- * interativa — não compartilha estado nem seleção com ela.
+ * ações permitidas e não simula streaming. Desacoplado da Timeline
+ * interativa (Fase 12.3.3) — não compartilha estado nem seleção com ela,
+ * mas usa a MESMA fonte de verdade de derivação (resolveStageVisualState)
+ * — nunca uma segunda máquina de estados. Aqui só colapsa os 6 estados
+ * possíveis nas 4 classes visuais compactas deste componente.
  */
 @Component({
   selector: 'app-workflow-overview',
@@ -32,36 +37,22 @@ export class WorkflowOverviewComponent {
     const execution = this.execution();
     return AUTO_QA_STAGE_CATALOG.map((metadata) => ({
       metadata,
-      state: this.resolveState(metadata, execution),
+      state: this.toCompactState(resolveStageVisualState(execution, metadata.stage)),
     }));
   });
 
-  private resolveState(
-    metadata: AutoQaStageMetadata,
-    execution: AutoQaExecutionResponse | null
-  ): WorkflowOverviewItemState {
-    if (!execution) {
-      return 'pending';
+  private toCompactState(state: StageVisualState): WorkflowOverviewItemState {
+    switch (state) {
+      case 'COMPLETED':
+        return 'done';
+      case 'CURRENT':
+        return 'current';
+      case 'FAILED':
+      case 'CANCELLED':
+        return 'failed';
+      case 'PENDING':
+      case 'BLOCKED':
+        return 'pending';
     }
-
-    const lastCompletedOrder = this.orderOf(execution.lastStageCompleted);
-    const currentOrder = this.orderOf(execution.currentStage);
-
-    if (lastCompletedOrder !== null && metadata.order <= lastCompletedOrder) {
-      return 'done';
-    }
-
-    if (currentOrder !== null && metadata.order === currentOrder) {
-      return execution.status === 'FAILED' ? 'failed' : 'current';
-    }
-
-    return 'pending';
-  }
-
-  private orderOf(stage: AutoQaExecutionResponse['currentStage']): number | null {
-    if (!stage) {
-      return null;
-    }
-    return AUTO_QA_STAGE_CATALOG.find((entry) => entry.stage === stage)?.order ?? null;
   }
 }
