@@ -1,0 +1,20 @@
+<div class="execution-list-page">
+  <aqb-page-header title="Execuções Auto QA" subtitle="Acompanhe o andamento dos workflows de automação de testes." />
+
+  @if (state.loading()) {
+    <aqb-loading label="Carregando execuções..." />
+  } @else if (state.list().length === 0) {
+    <aqb-empty-state title="Nenhuma execução encontrada" description="As execuções criadas aparecerão aqui." />
+  } @else {
+    <div class="execution-list-page__grid">
+      @for (execution of state.list(); track execution.executionId) {
+        <a class="execution-list-page__item" [routerLink]="[execution.executionId]">
+          <aqb-card padding="md">
+            <p class="execution-list-page__scenario">{{ execution.scenario }}</p>
+            <aqb-badge tone="neutral">{{ execution.status }}</aqb-badge>
+          </aqb-card>
+        </a>
+      }
+    </div>
+  }
+</div>

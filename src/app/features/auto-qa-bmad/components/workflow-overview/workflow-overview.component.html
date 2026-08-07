@@ -1,0 +1,14 @@
+<ol class="workflow-overview" role="list" aria-label="Andamento das etapas do workflow Auto QA">
+  @for (item of items(); track item.metadata.stage) {
+    <li
+      class="workflow-overview__item"
+      [class]="'workflow-overview__item--' + item.state"
+      [attr.aria-current]="item.state === 'current' ? 'step' : null"
+    >
+      <span class="workflow-overview__icon">
+        <aqb-stage-icon [stage]="item.metadata.stage" />
+      </span>
+      <span class="workflow-overview__label">{{ item.metadata.shortTitle }}</span>
+    </li>
+  }
+</ol>

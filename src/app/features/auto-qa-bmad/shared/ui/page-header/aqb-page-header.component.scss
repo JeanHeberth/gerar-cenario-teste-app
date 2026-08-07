@@ -1,0 +1,28 @@
+.aqb-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--aq-space-4);
+  max-width: var(--aq-content-max-width);
+
+  &__title {
+    margin: 0;
+    font-family: var(--aq-font-family);
+    font-size: var(--aq-font-size-xl);
+    font-weight: 600;
+    color: var(--aq-text-primary);
+  }
+
+  &__subtitle {
+    margin: var(--aq-space-1) 0 0;
+    font-family: var(--aq-font-family);
+    font-size: var(--aq-font-size-sm);
+    color: var(--aq-text-muted);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--aq-space-2);
+  }
+}

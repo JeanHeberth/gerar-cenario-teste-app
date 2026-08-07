@@ -1,0 +1,32 @@
+.aqb-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-2);
+
+  &__item {
+    border-radius: var(--aq-radius-sm);
+    background: linear-gradient(90deg, var(--aq-panel) 25%, var(--aq-surface) 37%, var(--aq-panel) 63%);
+    background-size: 200% 100%;
+    animation: aqb-skeleton-shimmer 1.4s ease infinite;
+
+    &--text {
+      height: 12px;
+      width: 100%;
+    }
+
+    &--block {
+      height: 64px;
+      width: 100%;
+      border-radius: var(--aq-radius-md);
+    }
+  }
+}
+
+@keyframes aqb-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

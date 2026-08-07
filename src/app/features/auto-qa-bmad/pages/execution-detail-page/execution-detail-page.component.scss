@@ -1,0 +1,8 @@
+.execution-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-6);
+  max-width: var(--aq-content-max-width);
+  margin: 0 auto;
+  padding: var(--aq-space-6) var(--aq-space-4);
+}

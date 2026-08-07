@@ -14,47 +14,58 @@
 
   <div class="messages-area">
 
-    <div class="empty-state" *ngIf="messages.length === 0 && !loading && agents.length > 0">
-      <div class="empty-icon">🤖</div>
-      <h2 class="empty-title">Como posso ajudar?</h2>
-      <p class="empty-subtitle">
-        Selecione um agente e envie uma mensagem para começar.
-      </p>
-    </div>
-
-    <div class="messages-list" *ngIf="messages.length > 0 || loading">
-      <div
-        *ngFor="let msg of messages"
-        class="message-row"
-        [class.user-row]="msg.role === 'user'"
-        [class.assistant-row]="msg.role === 'assistant'"
-      >
-        <div class="message-avatar" *ngIf="msg.role === 'assistant'">🤖</div>
-
-        <div class="message-bubble" [class.user-bubble]="msg.role === 'user'" [class.assistant-bubble]="msg.role === 'assistant'">
-          <div class="message-content" [innerHTML]="formatContent(msg.content)"></div>
-        </div>
-
-        <div class="message-avatar user-avatar" *ngIf="msg.role === 'user'">👤</div>
+    @if (messages.length === 0 && !loading && agents.length > 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🤖</div>
+        <h2 class="empty-title">Como posso ajudar?</h2>
+        <p class="empty-subtitle">
+          Selecione um agente e envie uma mensagem para começar.
+        </p>
       </div>
+    }
 
-      <div class="message-row assistant-row" *ngIf="loading">
-        <div class="message-avatar">🤖</div>
-        <div class="message-bubble assistant-bubble typing-bubble">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
+    @if (messages.length > 0 || loading) {
+      <div class="messages-list">
+        @for (msg of messages; track msg) {
+          <div
+            class="message-row"
+            [class.user-row]="msg.role === 'user'"
+            [class.assistant-row]="msg.role === 'assistant'"
+            >
+            @if (msg.role === 'assistant') {
+              <div class="message-avatar">🤖</div>
+            }
+            <div class="message-bubble" [class.user-bubble]="msg.role === 'user'" [class.assistant-bubble]="msg.role === 'assistant'">
+              <div class="message-content" [innerHTML]="formatContent(msg.content)"></div>
+            </div>
+            @if (msg.role === 'user') {
+              <div class="message-avatar user-avatar">👤</div>
+            }
+          </div>
+        }
+        @if (loading) {
+          <div class="message-row assistant-row">
+            <div class="message-avatar">🤖</div>
+            <div class="message-bubble assistant-bubble typing-bubble">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        }
+        <div #messagesEnd></div>
       </div>
+    }
 
-      <div #messagesEnd></div>
-    </div>
-
-    <div class="empty-state" *ngIf="agents.length === 0">
-      <div class="empty-icon">⚠️</div>
-      <h2 class="empty-title">Nenhum agente disponivel</h2>
-      <p class="empty-subtitle" *ngIf="agentsMessage">{{ agentsMessage }}</p>
-    </div>
+    @if (agents.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <h2 class="empty-title">Nenhum agente disponivel</h2>
+        @if (agentsMessage) {
+          <p class="empty-subtitle">{{ agentsMessage }}</p>
+        }
+      </div>
+    }
   </div>
 
   <div class="input-area">
@@ -76,11 +87,13 @@
             [(ngModel)]="selectedAgent"
             [disabled]="loading || agents.length === 0"
             title="Selecionar agente"
-          >
+            >
             <option value="" disabled>Selecionar agente</option>
-            <option *ngFor="let agent of agents" [value]="agent.id">
-              {{ getAgentLabel(agent.id) }}
-            </option>
+            @for (agent of agents; track agent) {
+              <option [value]="agent.id">
+                {{ getAgentLabel(agent.id) }}
+              </option>
+            }
           </select>
           <span class="select-arrow">⌄</span>
         </div>
@@ -91,7 +104,7 @@
           [disabled]="!userInput.trim() || !selectedAgent || loading"
           (click)="sendMessage()"
           title="Enviar (Enter)"
-        >
+          >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
             <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
           </svg>

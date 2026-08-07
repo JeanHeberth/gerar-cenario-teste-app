@@ -1,5 +1,5 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+
 import {HttpClient} from '@angular/common/http';
 import {Router, RouterModule} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -12,8 +12,9 @@ import {environment} from '../enviroment/enviroment.prd';
 @Component({
   selector: 'app-cenario-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [RouterModule, FormsModule],
   templateUrl: './cenario-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./cenario-list.component.css']
 })
 export class CenarioListComponent implements OnInit, OnDestroy {

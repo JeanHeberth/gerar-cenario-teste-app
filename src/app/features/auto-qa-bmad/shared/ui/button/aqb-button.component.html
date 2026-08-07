@@ -1,0 +1,9 @@
+<button
+  class="aqb-button"
+  [class]="'aqb-button--' + variant()"
+  [type]="type()"
+  [disabled]="isDisabled"
+  (click)="onClick()"
+>
+  <ng-content />
+</button>

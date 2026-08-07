@@ -1,0 +1,22 @@
+.aqb-panel {
+  background: var(--aq-panel);
+  border: var(--aq-border-width) solid var(--aq-border);
+  border-radius: var(--aq-radius-lg);
+  padding: var(--aq-space-5);
+  max-width: var(--aq-panel-max-width);
+
+  &__title {
+    margin: 0 0 var(--aq-space-3);
+    font-family: var(--aq-font-family);
+    font-size: var(--aq-font-size-md);
+    font-weight: 600;
+    color: var(--aq-text-primary);
+  }
+
+  &__body {
+    color: var(--aq-text-secondary);
+    font-family: var(--aq-font-family);
+    font-size: var(--aq-font-size-sm);
+    line-height: var(--aq-line-height-normal);
+  }
+}

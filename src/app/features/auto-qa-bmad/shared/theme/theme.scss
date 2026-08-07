@@ -1,0 +1,54 @@
+// Tema centralizado do Auto QA BMAD (Fase 12.3.1).
+// Único ponto de verdade para cor, espaçamento, raio, tipografia, borda,
+// transição e limites de layout usados pelos componentes de
+// features/auto-qa-bmad/**. Nenhum componente deve declarar HEX, px de
+// espaçamento/raio ou família de fonte fora daqui.
+
+:root {
+  // Cor — segue a identidade dark já usada no nav global (app.component.css)
+  --aq-background: #131313;
+  --aq-surface: #1a1a1a;
+  --aq-panel: #202020;
+  --aq-border: #3f3f3f;
+  --aq-primary: #10a37f;
+  --aq-success: #2fa66b;
+  --aq-warning: #d9a441;
+  --aq-danger: #e05a4f;
+  --aq-text-primary: #ececec;
+  --aq-text-secondary: #b4b4b4;
+  --aq-text-muted: #7d7d7d;
+
+  // Espaçamento — escala em px, consumida via var(--aq-space-N)
+  --aq-space-1: 4px;
+  --aq-space-2: 8px;
+  --aq-space-3: 12px;
+  --aq-space-4: 16px;
+  --aq-space-5: 20px;
+  --aq-space-6: 24px;
+  --aq-space-8: 32px;
+  --aq-space-10: 40px;
+  --aq-space-12: 48px;
+
+  // Raio de borda
+  --aq-radius-sm: 4px;
+  --aq-radius-md: 8px;
+  --aq-radius-lg: 12px;
+  --aq-radius-pill: 999px;
+
+  // Tipografia
+  --aq-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --aq-font-size-xs: 11px;
+  --aq-font-size-sm: 13px;
+  --aq-font-size-md: 14px;
+  --aq-font-size-lg: 16px;
+  --aq-font-size-xl: 20px;
+  --aq-line-height-tight: 1.25;
+  --aq-line-height-normal: 1.5;
+
+  // Outros
+  --aq-border-width: 1px;
+  --aq-transition-fast: 120ms ease;
+  --aq-transition-normal: 200ms ease;
+  --aq-panel-max-width: 480px;
+  --aq-content-max-width: 1120px;
+}

@@ -1,0 +1,37 @@
+.aqb-textarea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-1);
+  font-family: var(--aq-font-family);
+
+  &__label {
+    font-size: var(--aq-font-size-sm);
+    color: var(--aq-text-secondary);
+  }
+
+  &__field {
+    font-family: inherit;
+    font-size: var(--aq-font-size-sm);
+    color: var(--aq-text-primary);
+    background: var(--aq-surface);
+    border: var(--aq-border-width) solid var(--aq-border);
+    border-radius: var(--aq-radius-md);
+    padding: var(--aq-space-2) var(--aq-space-3);
+    resize: vertical;
+
+    &:focus {
+      outline: none;
+      border-color: var(--aq-primary);
+    }
+
+    &[aria-invalid='true'] {
+      border-color: var(--aq-danger);
+    }
+  }
+
+  &__error {
+    margin: 0;
+    font-size: var(--aq-font-size-xs);
+    color: var(--aq-danger);
+  }
+}
