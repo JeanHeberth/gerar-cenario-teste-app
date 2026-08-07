@@ -33,14 +33,24 @@ describe('AutoQaExecutionStateService', () => {
   const networkError = () => new HttpErrorResponse({ status: 0 });
 
   beforeEach(() => {
-    serviceSpy = jasmine.createSpyObj('AutoQaExecutionService', ['list', 'get', 'create']);
+    serviceSpy = jasmine.createSpyObj('AutoQaExecutionService', [
+      'list',
+      'get',
+      'create',
+      'start',
+      'continueExecution',
+      'generate',
+      'cancel',
+      'registerApplyApproval',
+      'registerExecutionApproval',
+    ]);
     TestBed.configureTestingModule({
       providers: [AutoQaExecutionStateService, { provide: AutoQaExecutionService, useValue: serviceSpy }],
     });
     state = TestBed.inject(AutoQaExecutionStateService);
   });
 
-  it('estado inicial: sem execução, lista vazia, sem erro, sem loading/creating, paginação zerada, sem seleção', () => {
+  it('estado inicial: sem execução, lista vazia, sem erro, sem loading/creating, paginação zerada, sem seleção, sem pendingAction/actionError', () => {
     expect(state.current()).toBeNull();
     expect(state.list()).toEqual([]);
     expect(state.error()).toBeNull();
@@ -48,6 +58,8 @@ describe('AutoQaExecutionStateService', () => {
     expect(state.creating()).toBeFalse();
     expect(state.pagination()).toEqual({ page: 0, size: 20, totalElements: 0 });
     expect(state.selectedExecutionId()).toBeNull();
+    expect(state.pendingAction()).toBeNull();
+    expect(state.actionError()).toBeNull();
   });
 
   describe('loadList', () => {
@@ -237,6 +249,89 @@ describe('AutoQaExecutionStateService', () => {
         return of(execution());
       });
       state.loadExecution('exec-1');
+    });
+  });
+
+  describe('ações de workflow (start/continue/generate/cancel/aprovações)', () => {
+    it('start(): chama o service, ativa pendingAction("START") durante a chamada e atualiza current() com a resposta', () => {
+      const updated = execution({ status: 'RUNNING', currentStage: 'DISCOVERY' });
+      let pendingDuringCall: string | null | undefined;
+      serviceSpy.start.and.callFake(() => {
+        pendingDuringCall = state.pendingAction();
+        return of(updated);
+      });
+
+      state.start('exec-1').subscribe();
+
+      expect(serviceSpy.start).toHaveBeenCalledWith('exec-1');
+      expect(pendingDuringCall).toBe('START');
+      expect(state.pendingAction()).toBeNull();
+      expect(state.current()).toEqual(updated);
+    });
+
+    it('continueExecution(): chama executionService.continueExecution', () => {
+      serviceSpy.continueExecution.and.returnValue(of(execution()));
+      state.continueExecution('exec-1').subscribe();
+      expect(serviceSpy.continueExecution).toHaveBeenCalledWith('exec-1');
+    });
+
+    it('generate(): chama executionService.generate', () => {
+      serviceSpy.generate.and.returnValue(of(execution()));
+      state.generate('exec-1').subscribe();
+      expect(serviceSpy.generate).toHaveBeenCalledWith('exec-1');
+    });
+
+    it('cancel(): chama executionService.cancel com o motivo informado', () => {
+      serviceSpy.cancel.and.returnValue(of(execution({ status: 'CANCELLED' })));
+      state.cancel('exec-1', 'Cancelado pelo usuário').subscribe();
+      expect(serviceSpy.cancel).toHaveBeenCalledWith('exec-1', 'Cancelado pelo usuário');
+    });
+
+    it('approveFileUpdate(): chama executionService.registerApplyApproval com o request', () => {
+      const request = {
+        approvedBy: 'jean',
+        authorizedOperations: ['CREATE' as const],
+        allowFileUpdate: true,
+        allowWarnings: false,
+      };
+      serviceSpy.registerApplyApproval.and.returnValue(of(execution()));
+      state.approveFileUpdate('exec-1', request).subscribe();
+      expect(serviceSpy.registerApplyApproval).toHaveBeenCalledWith('exec-1', request);
+    });
+
+    it('approveExecution(): chama executionService.registerExecutionApproval com o request', () => {
+      const request = {
+        approvedBy: 'jean',
+        allowedCommands: ['NPM_TEST' as const],
+        allowTestExecution: true,
+        allowInstallCommand: false,
+        allowBuildCommand: false,
+      };
+      serviceSpy.registerExecutionApproval.and.returnValue(of(execution()));
+      state.approveExecution('exec-1', request).subscribe();
+      expect(serviceSpy.registerExecutionApproval).toHaveBeenCalledWith('exec-1', request);
+    });
+
+    it('em erro, define actionError(), limpa pendingAction() e propaga o erro para quem assinou', () => {
+      serviceSpy.start.and.returnValue(throwError(() => networkError()));
+
+      let receivedError = false;
+      state.start('exec-1').subscribe({ error: () => (receivedError = true) });
+
+      expect(receivedError).toBeTrue();
+      expect(state.pendingAction()).toBeNull();
+      expect(state.actionError()).toBeTruthy();
+    });
+
+    it('ignora uma nova ação enquanto outra ainda está em andamento (guard entre ações diferentes)', () => {
+      serviceSpy.start.and.callFake(() => {
+        state.generate('exec-1').subscribe(); // reentrante, deve ser ignorado
+        return of(execution());
+      });
+
+      state.start('exec-1').subscribe();
+
+      expect(serviceSpy.generate).not.toHaveBeenCalled();
     });
   });
 

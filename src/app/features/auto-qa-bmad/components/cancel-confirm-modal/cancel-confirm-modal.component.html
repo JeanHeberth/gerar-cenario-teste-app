@@ -1,0 +1,23 @@
+<aqb-modal [open]="open()" title="Cancelar execução" (closed)="onDismiss()">
+  <p class="cancel-confirm-modal__warning">
+    Esta ação vai cancelar a execução. Ela não poderá continuar depois disso.
+  </p>
+
+  <aqb-textarea
+    label="Motivo (opcional)"
+    [value]="reason()"
+    placeholder="Descreva o motivo do cancelamento, se quiser..."
+    (valueChange)="onReasonChange($event)"
+  />
+
+  <div class="cancel-confirm-modal__actions">
+    <span class="cancel-confirm-modal__dismiss">
+      <aqb-button variant="secondary" (clicked)="onDismiss()">Voltar</aqb-button>
+    </span>
+    <span class="cancel-confirm-modal__confirm">
+      <aqb-button variant="danger" [loading]="submitting()" [disabled]="submitting()" (clicked)="onConfirm()">
+        Confirmar cancelamento
+      </aqb-button>
+    </span>
+  </div>
+</aqb-modal>

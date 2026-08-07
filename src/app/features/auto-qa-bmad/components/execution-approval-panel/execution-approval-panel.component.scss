@@ -1,0 +1,30 @@
+.execution-approval-panel {
+  display: block;
+
+  &__fieldset {
+    border: none;
+    padding: 0;
+    margin: var(--aq-space-3) 0;
+
+    legend {
+      font-size: var(--aq-font-size-xs);
+      color: var(--aq-text-muted);
+      margin-bottom: var(--aq-space-1);
+    }
+  }
+
+  &__checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--aq-space-2);
+    font-family: var(--aq-font-family);
+    font-size: var(--aq-font-size-sm);
+    color: var(--aq-text-secondary);
+    margin-bottom: var(--aq-space-1);
+  }
+
+  &__submit {
+    display: inline-block;
+    margin-top: var(--aq-space-3);
+  }
+}
