@@ -1,1 +1,20 @@
-<aqb-modal [open]="open()" title="Executar testes" (closed)="onDismiss()">\n  <p class="execute-confirm-modal__warning">\n    Esta ação iniciará a execução dos testes no projeto. A operação pode levar algum tempo; o resultado será determinado pelo backend.\n  </p>\n\n  <div class="execute-confirm-modal__actions">\n    <span class="execute-confirm-modal__dismiss">\n      <aqb-button variant="secondary" (clicked)="onDismiss()">Voltar</aqb-button>\n    </span>\n    <span class="execute-confirm-modal__confirm">\n      <aqb-button variant="primary" [loading]="submitting()" [disabled]="submitting()" (clicked)="onConfirm()">\n        Confirmar execução\n      </aqb-button>\n    </span>\n  </div>\n</aqb-modal>
+<aqb-modal [open]="open()" title="Executar testes" (closed)="onDismiss()">
+  <p class="execute-confirm-modal__warning">Os testes automatizados serão executados pelo backend.</p>
+
+  <ul class="execute-confirm-modal__details">
+    <li>A operação pode levar algum tempo até ser concluída.</li>
+    <li>O resultado será determinado pelo backend.</li>
+    <li>Falha dos testes não significa necessariamente falha técnica do sistema.</li>
+  </ul>
+
+  <div class="execute-confirm-modal__actions">
+    <span class="execute-confirm-modal__dismiss">
+      <aqb-button variant="secondary" (clicked)="onDismiss()">Voltar</aqb-button>
+    </span>
+    <span class="execute-confirm-modal__confirm">
+      <aqb-button variant="primary" [loading]="submitting()" [disabled]="submitting()" (clicked)="onConfirm()">
+        Confirmar execução
+      </aqb-button>
+    </span>
+  </div>
+</aqb-modal>

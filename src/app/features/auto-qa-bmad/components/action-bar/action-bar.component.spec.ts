@@ -44,7 +44,7 @@ describe('ActionBarComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Disponível em uma próxima etapa.');
   });
 
-  it('ações funcionais (START/CONTINUE/GENERATE/CANCEL/APPROVE_FILE_UPDATE/APPROVE_EXECUTION) ficam habilitadas, sem o aviso', () => {
+  it('ações funcionais (START/CONTINUE/GENERATE/CANCEL/APPROVE_FILE_UPDATE/APPROVE_EXECUTION/APPLY/EXECUTE) ficam habilitadas, sem o aviso', () => {
     fixture.componentRef.setInput('availableActions', [
       'START',
       'CONTINUE',
@@ -52,6 +52,8 @@ describe('ActionBarComponent', () => {
       'CANCEL',
       'APPROVE_FILE_UPDATE',
       'APPROVE_EXECUTION',
+      'APPLY',
+      'EXECUTE',
     ]);
     fixture.detectChanges();
 
@@ -59,6 +61,30 @@ describe('ActionBarComponent', () => {
       expect(item.disabled).toBeFalse();
     }
     expect(fixture.nativeElement.textContent).not.toContain('Disponível em uma próxima etapa.');
+  });
+
+  it('emite actionTriggered ao clicar em APPLY quando presente em availableActions', () => {
+    fixture.componentRef.setInput('availableActions', ['APPLY']);
+    fixture.detectChanges();
+
+    let emitted: string | undefined;
+    fixture.componentInstance.actionTriggered.subscribe((action) => (emitted = action));
+
+    buttons()[0].click();
+
+    expect(emitted).toBe('APPLY');
+  });
+
+  it('emite actionTriggered ao clicar em EXECUTE quando presente em availableActions', () => {
+    fixture.componentRef.setInput('availableActions', ['EXECUTE']);
+    fixture.detectChanges();
+
+    let emitted: string | undefined;
+    fixture.componentInstance.actionTriggered.subscribe((action) => (emitted = action));
+
+    buttons()[0].click();
+
+    expect(emitted).toBe('EXECUTE');
   });
 
   it('emite actionTriggered ao clicar em uma ação funcional', () => {
