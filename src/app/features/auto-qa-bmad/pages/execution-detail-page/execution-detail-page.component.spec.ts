@@ -142,13 +142,14 @@ describe('ExecutionDetailPageComponent', () => {
       );
     });
 
-    it('renderiza WorkflowOverview, StageTimeline, StageDetailPanel, ExecutionSummary, ExecutionResultSummary (com WarningList/ErrorList), ExecutionStatusHeader e ActionBar', () => {
+    it('renderiza WorkflowOverview, StageTimeline, StageDetailPanel, ExecutionSummary, ExecutionStatusHeader, InspectionPanel (com ExecutionResultSummary/WarningList/ErrorList na aba Resumo) e ActionBar', () => {
       fixture.detectChanges();
       expect(fixture.nativeElement.querySelector('app-workflow-overview')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-stage-timeline')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-stage-detail-panel')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-execution-summary')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-execution-status-header')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('app-execution-inspection-panel')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-execution-result-summary')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-warning-list')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-error-list')).not.toBeNull();
@@ -311,6 +312,51 @@ describe('ExecutionDetailPageComponent', () => {
         modal.triggerEventHandler('confirmed', undefined);
 
         expect(executeSpy).toHaveBeenCalledWith('exec-1');
+      });
+
+      it('VIEW_GENERATED_FILES seleciona a aba Artefatos no Inspection Panel, sem chamada HTTP', () => {
+        currentSignal.set(execution({ availableActions: ['VIEW_GENERATED_FILES'] }));
+        fixture.detectChanges();
+        triggerAction('VIEW_GENERATED_FILES');
+        fixture.detectChanges();
+
+        const panel = fixture.nativeElement.querySelector('app-execution-inspection-panel [role="tabpanel"]');
+        expect(panel.textContent).toContain(
+          'Os detalhes dos arquivos gerados não estão disponíveis no contrato público atual.'
+        );
+      });
+
+      it('VIEW_DIFF seleciona a aba Diff no Inspection Panel, sem chamada HTTP', () => {
+        currentSignal.set(execution({ availableActions: ['VIEW_DIFF'] }));
+        fixture.detectChanges();
+        triggerAction('VIEW_DIFF');
+        fixture.detectChanges();
+
+        const panel = fixture.nativeElement.querySelector('app-execution-inspection-panel [role="tabpanel"]');
+        expect(panel.textContent).toContain('Diff não disponível no contrato público atual.');
+      });
+
+      it('VIEW_LOGS seleciona a aba Logs no Inspection Panel, sem chamada HTTP', () => {
+        currentSignal.set(execution({ availableActions: ['VIEW_LOGS'] }));
+        fixture.detectChanges();
+        triggerAction('VIEW_LOGS');
+        fixture.detectChanges();
+
+        const panel = fixture.nativeElement.querySelector('app-execution-inspection-panel [role="tabpanel"]');
+        expect(panel.textContent).toContain('Logs detalhados da execução não são expostos pela API atual.');
+      });
+
+      it('VIEW_LEARNING seleciona a etapa LEARNING no StageDetailPanel, sem alterar a aba do Inspection Panel', () => {
+        currentSignal.set(execution({ availableActions: ['VIEW_LEARNING'] }));
+        fixture.detectChanges();
+        triggerAction('VIEW_LEARNING');
+        fixture.detectChanges();
+
+        const stagePanel = fixture.nativeElement.querySelector('.stage-detail-panel__title');
+        expect(stagePanel.textContent).toContain('Aprendizado');
+
+        const resumoTab = fixture.nativeElement.querySelector('[role="tab"][aria-selected="true"]');
+        expect(resumoTab.textContent).toContain('Resumo');
       });
 
       it('APROVE_FILE_UPDATE mostra o painel de aprovação de aplicação', () => {

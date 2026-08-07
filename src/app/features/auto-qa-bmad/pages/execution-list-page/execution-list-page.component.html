@@ -1,16 +1,22 @@
 <div class="execution-list-page">
-  <aqb-page-header title="Execuções Auto QA" subtitle="Acompanhe o andamento dos workflows de automação de testes." />
+  <aqb-page-header
+    title="Histórico de execuções"
+    subtitle="Execuções anteriores do Auto QA BMAD, na ordem retornada pela API."
+  />
 
   <app-new-execution-form [submitting]="state.creating()" (created)="onCreate($event)" />
 
   @if (state.error()) {
-    <p class="execution-list-page__error" role="alert">{{ state.error() }}</p>
+    <div class="execution-list-page__error" role="alert">
+      <p>{{ state.error() }}</p>
+      <aqb-button variant="secondary" (clicked)="onRetryList()">Tentar novamente</aqb-button>
+    </div>
   }
 
   @if (state.loading()) {
     <aqb-loading label="Carregando execuções..." />
   } @else if (!state.hasExecutions()) {
-    <aqb-empty-state title="Nenhuma execução encontrada" description="Crie a primeira execução preenchendo o formulário acima." />
+    <aqb-empty-state title="Nenhuma execução disponível." description="Crie a primeira execução preenchendo o formulário acima." />
   } @else {
     <div class="execution-list-page__grid">
       @for (execution of state.list(); track execution.executionId) {

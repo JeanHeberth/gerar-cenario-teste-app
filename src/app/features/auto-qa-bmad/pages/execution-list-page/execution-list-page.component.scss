@@ -24,13 +24,20 @@
   }
 
   &__error {
-    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--aq-space-3);
     padding: var(--aq-space-3) var(--aq-space-4);
     border-radius: var(--aq-radius-md);
     border: var(--aq-border-width) solid var(--aq-danger);
     background: rgba(224, 90, 79, 0.1);
     color: var(--aq-text-secondary);
     font-size: var(--aq-font-size-sm);
+
+    p {
+      margin: 0;
+    }
   }
 
   &__pagination {
