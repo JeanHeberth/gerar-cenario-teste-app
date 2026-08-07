@@ -1,0 +1,28 @@
+.action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aq-space-3);
+
+  &__entry {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--aq-space-1);
+  }
+
+  &__item {
+    font-family: var(--aq-font-family);
+    font-size: var(--aq-font-size-sm);
+    border-radius: var(--aq-radius-md);
+    border: var(--aq-border-width) solid var(--aq-border);
+    background: var(--aq-panel);
+    color: var(--aq-text-muted);
+    padding: var(--aq-space-2) var(--aq-space-4);
+    cursor: not-allowed;
+  }
+
+  &__hint {
+    font-size: var(--aq-font-size-xs);
+    color: var(--aq-text-muted);
+  }
+}

@@ -5,4 +5,22 @@
   max-width: var(--aq-content-max-width);
   margin: 0 auto;
   padding: var(--aq-space-6) var(--aq-space-4);
+
+  &__back {
+    align-self: flex-start;
+    font-family: var(--aq-font-family);
+    font-size: var(--aq-font-size-sm);
+    color: var(--aq-text-secondary);
+    text-decoration: none;
+  }
+
+  &__error {
+    margin: 0;
+    padding: var(--aq-space-3) var(--aq-space-4);
+    border-radius: var(--aq-radius-md);
+    border: var(--aq-border-width) solid var(--aq-danger);
+    background: rgba(224, 90, 79, 0.1);
+    color: var(--aq-text-secondary);
+    font-size: var(--aq-font-size-sm);
+  }
 }

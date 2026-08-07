@@ -1,0 +1,56 @@
+<dl class="execution-summary">
+  <div>
+    <dt>ID da execução</dt>
+    <dd>{{ execution().executionId }}</dd>
+  </div>
+
+  <div>
+    <dt>Status</dt>
+    <dd><aqb-status-chip [status]="execution().status" /></dd>
+  </div>
+
+  <div>
+    <dt>Etapa atual</dt>
+    <dd>{{ stageLabel() }}</dd>
+  </div>
+
+  <div>
+    <dt>Tentativa</dt>
+    <dd>{{ execution().attempt }}</dd>
+  </div>
+
+  <div>
+    <dt>Progresso</dt>
+    <dd>{{ execution().progress }}%</dd>
+  </div>
+
+  <div class="execution-summary__created-at">
+    <dt>Criada em</dt>
+    <dd>{{ execution().createdAt | date: 'short' }}</dd>
+  </div>
+
+  <div class="execution-summary__updated-at">
+    <dt>Atualizada em</dt>
+    <dd>{{ execution().updatedAt | date: 'short' }}</dd>
+  </div>
+
+  <div class="execution-summary__started-at">
+    <dt>Iniciada em</dt>
+    <dd>{{ execution().startedAt ? (execution().startedAt | date: 'short') : display(null) }}</dd>
+  </div>
+
+  <div class="execution-summary__finished-at">
+    <dt>Finalizada em</dt>
+    <dd>{{ execution().finishedAt ? (execution().finishedAt | date: 'short') : display(null) }}</dd>
+  </div>
+
+  <div class="execution-summary__cancelled-at">
+    <dt>Cancelada em</dt>
+    <dd>{{ execution().cancelledAt ? (execution().cancelledAt | date: 'short') : display(null) }}</dd>
+  </div>
+
+  <div class="execution-summary__cancellation-reason">
+    <dt>Motivo do cancelamento</dt>
+    <dd>{{ display(execution().cancellationReason) }}</dd>
+  </div>
+</dl>

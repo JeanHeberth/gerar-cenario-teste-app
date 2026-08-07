@@ -1,0 +1,21 @@
+<form class="new-execution-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <aqb-textarea
+    label="Cenário de teste"
+    [value]="form.controls.scenario.value"
+    [error]="scenarioError()"
+    placeholder="Descreva o cenário de teste em linguagem natural..."
+    (valueChange)="onScenarioChange($event)"
+  />
+
+  <aqb-input
+    label="Caminho do projeto"
+    [value]="form.controls.projectPath.value"
+    [error]="projectPathError()"
+    placeholder="/caminho/para/o/projeto"
+    (valueChange)="onProjectPathChange($event)"
+  />
+
+  <aqb-button type="submit" variant="primary" [loading]="submitting()" [disabled]="form.invalid">
+    Executar Workflow
+  </aqb-button>
+</form>
