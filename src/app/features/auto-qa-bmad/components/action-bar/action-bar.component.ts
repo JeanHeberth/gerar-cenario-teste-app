@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { AqbLoadingComponent } from '../../shared/ui/loading/aqb-loading.component';
 import { AutoQaAvailableAction } from '../../models/auto-qa-enums.model';
 
@@ -20,10 +20,24 @@ const ACTION_LABELS: Record<AutoQaAvailableAction, string> = {
 };
 
 /**
- * Só renderização. `availableActions` vem exatamente como o backend
- * devolveu — nunca reordenado, filtrado ou inventado. Nesta fase (12.3.2)
- * nenhuma ação é operacional ainda: todo botão nasce desabilitado, com o
- * aviso "Disponível em uma próxima etapa.".
+ * Ações que já têm despacho real no state service a partir da Fase 12.3.4.
+ * APPLY/EXECUTE continuam fora (ainda não há Apply/Execute reais) — assim
+ * como RETRY e as ações de visualização (Preview/Diff/Logs/Learning).
+ */
+const FUNCTIONAL_ACTIONS: ReadonlySet<AutoQaAvailableAction> = new Set([
+  'START',
+  'CONTINUE',
+  'GENERATE',
+  'CANCEL',
+  'APPROVE_FILE_UPDATE',
+  'APPROVE_EXECUTION',
+]);
+
+/**
+ * Só renderização e emissão de intenção — nunca decide se uma ação é
+ * permitida (isso já veio pronto em `availableActions`) e nunca chama
+ * service/HttpClient diretamente. `availableActions` é exibida exatamente
+ * como o backend devolveu — nunca reordenada, filtrada ou inventada.
  */
 @Component({
   selector: 'app-action-bar',
@@ -37,7 +51,24 @@ export class ActionBarComponent {
   readonly availableActions = input<AutoQaAvailableAction[]>([]);
   readonly pendingAction = input<AutoQaAvailableAction | null>(null);
 
+  readonly actionTriggered = output<AutoQaAvailableAction>();
+
   protected labelFor(action: AutoQaAvailableAction): string {
     return ACTION_LABELS[action];
+  }
+
+  protected isFunctional(action: AutoQaAvailableAction): boolean {
+    return FUNCTIONAL_ACTIONS.has(action);
+  }
+
+  protected isDisabled(action: AutoQaAvailableAction): boolean {
+    return !this.isFunctional(action) || this.pendingAction() !== null;
+  }
+
+  onClick(action: AutoQaAvailableAction): void {
+    if (this.isDisabled(action)) {
+      return;
+    }
+    this.actionTriggered.emit(action);
   }
 }

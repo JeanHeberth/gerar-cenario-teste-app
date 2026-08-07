@@ -2,13 +2,20 @@
   <div class="action-bar" role="group" aria-label="Ações disponíveis para esta execução">
     @for (action of availableActions(); track action) {
       <div class="action-bar__entry">
-        <button type="button" class="action-bar__item" disabled>
+        <button
+          type="button"
+          class="action-bar__item"
+          [disabled]="isDisabled(action)"
+          (click)="onClick(action)"
+        >
           {{ labelFor(action) }}
         </button>
         @if (pendingAction() === action) {
           <aqb-loading />
         }
-        <span class="action-bar__hint">Disponível em uma próxima etapa.</span>
+        @if (!isFunctional(action)) {
+          <span class="action-bar__hint">Disponível em uma próxima etapa.</span>
+        }
       </div>
     }
   </div>

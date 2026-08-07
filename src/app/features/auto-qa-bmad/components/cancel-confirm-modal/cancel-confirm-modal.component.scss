@@ -1,0 +1,14 @@
+.cancel-confirm-modal {
+  &__warning {
+    margin: 0 0 var(--aq-space-3);
+    font-size: var(--aq-font-size-sm);
+    color: var(--aq-text-secondary);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--aq-space-2);
+    margin-top: var(--aq-space-4);
+  }
+}

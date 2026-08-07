@@ -13,19 +13,35 @@ describe('ExecutionDetailPageComponent', () => {
   const loadingSignal = signal(false);
   const errorSignal = signal<string | null>(null);
   const selectedExecutionIdSignal = signal<string | null>(null);
+  const pendingActionSignal = signal<string | null>(null);
+  const actionErrorSignal = signal<string | null>(null);
   const loadExecutionSpy = jasmine.createSpy('loadExecution');
+  const startSpy = jasmine.createSpy('start');
+  const continueExecutionSpy = jasmine.createSpy('continueExecution');
+  const generateSpy = jasmine.createSpy('generate');
+  const cancelSpy = jasmine.createSpy('cancel');
+  const approveFileUpdateSpy = jasmine.createSpy('approveFileUpdate');
+  const approveExecutionSpy = jasmine.createSpy('approveExecution');
 
   const fakeState = {
     current: currentSignal,
     loading: loadingSignal,
     error: errorSignal,
     selectedExecutionId: selectedExecutionIdSignal,
+    pendingAction: pendingActionSignal,
+    actionError: actionErrorSignal,
     loadExecution: loadExecutionSpy,
     hasCurrentExecution: () => currentSignal() !== null,
     canRefresh: () => currentSignal() !== null && !loadingSignal(),
     currentWarnings: () => currentSignal()?.warnings ?? [],
     currentErrors: () => currentSignal()?.errors ?? [],
     currentAvailableActions: () => currentSignal()?.availableActions ?? [],
+    start: startSpy,
+    continueExecution: continueExecutionSpy,
+    generate: generateSpy,
+    cancel: cancelSpy,
+    approveFileUpdate: approveFileUpdateSpy,
+    approveExecution: approveExecutionSpy,
   };
 
   const execution = (overrides: Partial<AutoQaExecutionResponse> = {}): AutoQaExecutionResponse => ({
@@ -54,7 +70,21 @@ describe('ExecutionDetailPageComponent', () => {
     loadingSignal.set(false);
     errorSignal.set(null);
     selectedExecutionIdSignal.set(null);
+    pendingActionSignal.set(null);
+    actionErrorSignal.set(null);
     loadExecutionSpy.calls.reset();
+    startSpy.calls.reset();
+    continueExecutionSpy.calls.reset();
+    generateSpy.calls.reset();
+    cancelSpy.calls.reset();
+    approveFileUpdateSpy.calls.reset();
+    approveExecutionSpy.calls.reset();
+    startSpy.and.returnValue(of(execution()));
+    continueExecutionSpy.and.returnValue(of(execution()));
+    generateSpy.and.returnValue(of(execution()));
+    cancelSpy.and.returnValue(of(execution({ status: 'CANCELLED' })));
+    approveFileUpdateSpy.and.returnValue(of(execution()));
+    approveExecutionSpy.and.returnValue(of(execution()));
 
     TestBed.configureTestingModule({
       imports: [ExecutionDetailPageComponent],
@@ -152,6 +182,128 @@ describe('ExecutionDetailPageComponent', () => {
       fixture.detectChanges();
       const refresh: HTMLButtonElement = fixture.nativeElement.querySelector('.execution-detail-page__refresh button');
       expect(refresh.disabled).toBeTrue();
+    });
+
+    describe('ações do workflow', () => {
+      function triggerAction(action: string): void {
+        const actionBar = fixture.debugElement.query((n) => n.name === 'app-action-bar');
+        actionBar.triggerEventHandler('actionTriggered', action);
+      }
+
+      it('START despacha state.start diretamente, sem modal/painel', () => {
+        fixture.detectChanges();
+        triggerAction('START');
+        expect(startSpy).toHaveBeenCalledWith('exec-1');
+      });
+
+      it('CONTINUE despacha state.continueExecution diretamente', () => {
+        fixture.detectChanges();
+        triggerAction('CONTINUE');
+        expect(continueExecutionSpy).toHaveBeenCalledWith('exec-1');
+      });
+
+      it('GENERATE despacha state.generate diretamente', () => {
+        fixture.detectChanges();
+        triggerAction('GENERATE');
+        expect(generateSpy).toHaveBeenCalledWith('exec-1');
+      });
+
+      it('CANCEL abre o modal de confirmação sem chamar state.cancel imediatamente', () => {
+        fixture.detectChanges();
+        triggerAction('CANCEL');
+        fixture.detectChanges();
+
+        expect(cancelSpy).not.toHaveBeenCalled();
+        expect(fixture.nativeElement.querySelector('app-cancel-confirm-modal [role="dialog"]')).not.toBeNull();
+      });
+
+      it('confirmar o cancelamento chama state.cancel com o motivo informado', () => {
+        fixture.detectChanges();
+        triggerAction('CANCEL');
+        fixture.detectChanges();
+
+        const modal = fixture.debugElement.query((n) => n.name === 'app-cancel-confirm-modal');
+        modal.triggerEventHandler('confirmed', 'Motivo de teste');
+
+        expect(cancelSpy).toHaveBeenCalledWith('exec-1', 'Motivo de teste');
+      });
+
+      it('dispensar o modal de cancelamento não chama state.cancel', () => {
+        fixture.detectChanges();
+        triggerAction('CANCEL');
+        fixture.detectChanges();
+
+        const modal = fixture.debugElement.query((n) => n.name === 'app-cancel-confirm-modal');
+        modal.triggerEventHandler('dismissed', undefined);
+        fixture.detectChanges();
+
+        expect(cancelSpy).not.toHaveBeenCalled();
+        expect(fixture.nativeElement.querySelector('app-cancel-confirm-modal [role="dialog"]')).toBeNull();
+      });
+
+      it('APPROVE_FILE_UPDATE mostra o painel de aprovação de aplicação', () => {
+        fixture.detectChanges();
+        triggerAction('APPROVE_FILE_UPDATE');
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector('app-apply-approval-panel')).not.toBeNull();
+      });
+
+      it('aprovar a aplicação chama state.approveFileUpdate com o request emitido pelo painel', () => {
+        fixture.detectChanges();
+        triggerAction('APPROVE_FILE_UPDATE');
+        fixture.detectChanges();
+
+        const panel = fixture.debugElement.query((n) => n.name === 'app-apply-approval-panel');
+        const request = {
+          approvedBy: 'jean',
+          authorizedOperations: ['CREATE'],
+          allowFileUpdate: true,
+          allowWarnings: false,
+        };
+        panel.triggerEventHandler('approved', request);
+
+        expect(approveFileUpdateSpy).toHaveBeenCalledWith('exec-1', request);
+      });
+
+      it('APPROVE_EXECUTION mostra o painel de aprovação de execução', () => {
+        fixture.detectChanges();
+        triggerAction('APPROVE_EXECUTION');
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector('app-execution-approval-panel')).not.toBeNull();
+      });
+
+      it('aprovar a execução chama state.approveExecution com o request emitido pelo painel', () => {
+        fixture.detectChanges();
+        triggerAction('APPROVE_EXECUTION');
+        fixture.detectChanges();
+
+        const panel = fixture.debugElement.query((n) => n.name === 'app-execution-approval-panel');
+        const request = {
+          approvedBy: 'jean',
+          allowedCommands: ['NPM_TEST'],
+          allowTestExecution: true,
+          allowInstallCommand: false,
+          allowBuildCommand: false,
+        };
+        panel.triggerEventHandler('approved', request);
+
+        expect(approveExecutionSpy).toHaveBeenCalledWith('exec-1', request);
+      });
+
+      it('mostra actionError() em role="alert"', () => {
+        actionErrorSignal.set('Esta ação não está disponível no momento.');
+        fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).toContain('Esta ação não está disponível no momento.');
+      });
+
+      it('repassa pendingAction() para a ActionBar', () => {
+        pendingActionSignal.set('START');
+        fixture.detectChanges();
+        const actionBar = fixture.debugElement.query((n) => n.name === 'app-action-bar');
+        expect(actionBar.componentInstance.pendingAction()).toBe('START');
+      });
     });
   });
 

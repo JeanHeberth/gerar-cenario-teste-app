@@ -14,11 +14,24 @@
     font-family: var(--aq-font-family);
     font-size: var(--aq-font-size-sm);
     border-radius: var(--aq-radius-md);
-    border: var(--aq-border-width) solid var(--aq-border);
-    background: var(--aq-panel);
-    color: var(--aq-text-muted);
+    border: var(--aq-border-width) solid var(--aq-primary);
+    background: transparent;
+    color: var(--aq-primary);
     padding: var(--aq-space-2) var(--aq-space-4);
-    cursor: not-allowed;
+    cursor: pointer;
+    transition: background var(--aq-transition-fast), opacity var(--aq-transition-fast);
+
+    &:hover:not(:disabled) {
+      background: var(--aq-primary);
+      color: #ffffff;
+    }
+
+    &:disabled {
+      border-color: var(--aq-border);
+      background: var(--aq-panel);
+      color: var(--aq-text-muted);
+      cursor: not-allowed;
+    }
   }
 
   &__hint {

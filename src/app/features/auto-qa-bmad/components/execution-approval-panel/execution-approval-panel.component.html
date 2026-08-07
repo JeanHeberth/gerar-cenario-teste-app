@@ -1,0 +1,57 @@
+<aqb-panel title="Aprovar execução de comandos" class="execution-approval-panel">
+  <aqb-input
+    label="Aprovado por"
+    [value]="approvedBy()"
+    placeholder="Seu nome"
+    (valueChange)="onApprovedByChange($event)"
+  />
+
+  <fieldset class="execution-approval-panel__fieldset">
+    <legend>Comandos autorizados</legend>
+    @for (command of commands; track command) {
+      <label class="execution-approval-panel__checkbox">
+        <input
+          type="checkbox"
+          [value]="command"
+          (change)="toggleCommand(command, $any($event.target).checked)"
+        />
+        {{ command }}
+      </label>
+    }
+  </fieldset>
+
+  <label class="execution-approval-panel__checkbox">
+    <input
+      type="checkbox"
+      name="allowTestExecution"
+      (change)="allowTestExecution.set($any($event.target).checked)"
+    />
+    Permitir execução de testes
+  </label>
+
+  <label class="execution-approval-panel__checkbox">
+    <input
+      type="checkbox"
+      name="allowInstallCommand"
+      (change)="allowInstallCommand.set($any($event.target).checked)"
+    />
+    Permitir comando de instalação de dependências
+  </label>
+
+  <label class="execution-approval-panel__checkbox">
+    <input type="checkbox" name="allowBuildCommand" (change)="allowBuildCommand.set($any($event.target).checked)" />
+    Permitir comando de build
+  </label>
+
+  <span class="execution-approval-panel__submit">
+    <aqb-button
+      type="button"
+      variant="primary"
+      [loading]="submitting()"
+      [disabled]="!canSubmit() || submitting()"
+      (clicked)="onSubmit()"
+    >
+      Aprovar execução
+    </aqb-button>
+  </span>
+</aqb-panel>

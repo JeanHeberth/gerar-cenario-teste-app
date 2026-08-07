@@ -1,0 +1,38 @@
+<aqb-panel title="Aprovar aplicação de arquivos" class="apply-approval-panel">
+  <aqb-input
+    label="Aprovado por"
+    [value]="approvedBy()"
+    placeholder="Seu nome"
+    (valueChange)="onApprovedByChange($event)"
+  />
+
+  <fieldset class="apply-approval-panel__fieldset">
+    <legend>Operações autorizadas</legend>
+    @for (operation of operations; track operation) {
+      <label class="apply-approval-panel__checkbox">
+        <input
+          type="checkbox"
+          [value]="operation"
+          (change)="toggleOperation(operation, $any($event.target).checked)"
+        />
+        {{ operation }}
+      </label>
+    }
+  </fieldset>
+
+  <label class="apply-approval-panel__checkbox">
+    <input type="checkbox" name="allowFileUpdate" (change)="allowFileUpdate.set($any($event.target).checked)" />
+    Permitir atualização de arquivos existentes
+  </label>
+
+  <label class="apply-approval-panel__checkbox">
+    <input type="checkbox" name="allowWarnings" (change)="allowWarnings.set($any($event.target).checked)" />
+    Permitir aplicar mesmo havendo avisos
+  </label>
+
+  <span class="apply-approval-panel__submit">
+    <aqb-button type="button" variant="primary" [loading]="submitting()" [disabled]="!canSubmit() || submitting()" (clicked)="onSubmit()">
+      Aprovar aplicação
+    </aqb-button>
+  </span>
+</aqb-panel>
