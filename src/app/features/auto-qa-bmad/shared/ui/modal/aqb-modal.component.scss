@@ -1,0 +1,46 @@
+.aqb-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.aqb-modal {
+  background: var(--aq-panel);
+  border: var(--aq-border-width) solid var(--aq-border);
+  border-radius: var(--aq-radius-lg);
+  padding: var(--aq-space-5);
+  max-width: var(--aq-panel-max-width);
+  width: 100%;
+  font-family: var(--aq-font-family);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--aq-space-3);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--aq-font-size-lg);
+    color: var(--aq-text-primary);
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    color: var(--aq-text-muted);
+    font-size: var(--aq-font-size-lg);
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  &__body {
+    color: var(--aq-text-secondary);
+    font-size: var(--aq-font-size-sm);
+  }
+}

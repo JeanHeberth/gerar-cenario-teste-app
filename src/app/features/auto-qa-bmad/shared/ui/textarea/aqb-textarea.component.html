@@ -1,0 +1,15 @@
+<div class="aqb-textarea">
+  <label class="aqb-textarea__label" [for]="inputId()">{{ label() }}</label>
+  <textarea
+    class="aqb-textarea__field"
+    [id]="inputId()"
+    [rows]="rows()"
+    [placeholder]="placeholder()"
+    [attr.aria-invalid]="!!error()"
+    (input)="onInput($event)"
+    >{{ value() }}</textarea
+  >
+  @if (error()) {
+    <p class="aqb-textarea__error">{{ error() }}</p>
+  }
+</div>

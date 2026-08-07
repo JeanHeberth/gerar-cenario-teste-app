@@ -8,7 +8,10 @@ export const routes: Routes = [
   {path: '', component: CenarioComponent},
   {path: 'chat-agentes', component: ChatAgentesComponent},
   {path: 'cenarios', component: CenarioListComponent},
-  {path: 'auto-qa', component: AutoqaArtifactsComponent},
+  {
+    path: 'auto-qa',
+    loadChildren: () => import('./features/auto-qa-bmad/auto-qa-bmad.routes').then((m) => m.AUTO_QA_BMAD_ROUTES),
+  },
   {path: 'autoqa-artifacts', component: AutoqaArtifactsComponent},
 ];
 

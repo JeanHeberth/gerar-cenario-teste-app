@@ -1,0 +1,17 @@
+.aqb-card {
+  background: var(--aq-surface);
+  border: var(--aq-border-width) solid var(--aq-border);
+  border-radius: var(--aq-radius-lg);
+
+  &--sm {
+    padding: var(--aq-space-3);
+  }
+
+  &--md {
+    padding: var(--aq-space-4);
+  }
+
+  &--lg {
+    padding: var(--aq-space-6);
+  }
+}

@@ -1,0 +1,11 @@
+<header class="aqb-page-header">
+  <div class="aqb-page-header__text">
+    <h1 class="aqb-page-header__title">{{ title() }}</h1>
+    @if (subtitle()) {
+      <p class="aqb-page-header__subtitle">{{ subtitle() }}</p>
+    }
+  </div>
+  <div class="aqb-page-header__actions">
+    <ng-content />
+  </div>
+</header>

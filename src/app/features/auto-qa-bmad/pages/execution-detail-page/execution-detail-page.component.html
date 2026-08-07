@@ -1,0 +1,13 @@
+<div class="execution-detail-page">
+  @if (state.loading() && !state.current()) {
+    <aqb-loading label="Carregando execução..." />
+  }
+
+  @if (state.current(); as execution) {
+    <aqb-page-header [title]="execution.scenario">
+      <aqb-badge tone="neutral">{{ execution.status }}</aqb-badge>
+    </aqb-page-header>
+
+    <app-workflow-overview [execution]="execution" />
+  }
+</div>
