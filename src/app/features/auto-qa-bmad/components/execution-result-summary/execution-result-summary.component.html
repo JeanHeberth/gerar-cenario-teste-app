@@ -1,0 +1,33 @@
+<aqb-panel title="Resultado da execução" class="execution-result-summary">
+  <app-execution-status-header [status]="execution().status" />
+
+  <p class="execution-result-summary__message">{{ finalMessage() }}</p>
+
+  <dl class="execution-result-summary__metrics">
+    <div>
+      <dt>Tempo de execução</dt>
+      <dd class="execution-result-summary__duration">{{ duration() ?? '—' }}</dd>
+    </div>
+    <div>
+      <dt>Etapas executadas</dt>
+      <dd>{{ executedStageCount() }} de {{ totalStageCount }}</dd>
+    </div>
+  </dl>
+
+  <aqb-divider />
+
+  <app-warning-list [warnings]="execution().warnings" />
+
+  <app-error-list [errors]="execution().errors" />
+
+  @if (execution().availableActions.length > 0) {
+    <div class="execution-result-summary__actions">
+      <h3 class="execution-result-summary__actions-title">Ações disponíveis</h3>
+      <ul class="execution-result-summary__actions-list">
+        @for (action of execution().availableActions; track action) {
+          <li>{{ actionLabel(action) }}</li>
+        }
+      </ul>
+    </div>
+  }
+</aqb-panel>

@@ -11,9 +11,9 @@ import { WorkflowOverviewComponent } from '../../components/workflow-overview/wo
 import { StageTimelineComponent } from '../../components/stage-timeline/stage-timeline.component';
 import { StageDetailPanelComponent } from '../../components/stage-detail-panel/stage-detail-panel.component';
 import { ExecutionSummaryComponent } from '../../components/execution-summary/execution-summary.component';
-import { WarningListComponent } from '../../components/warning-list/warning-list.component';
-import { ErrorListComponent } from '../../components/error-list/error-list.component';
 import { ActionBarComponent } from '../../components/action-bar/action-bar.component';
+import { ExecutionStatusHeaderComponent } from '../../components/execution-status-header/execution-status-header.component';
+import { ExecutionResultSummaryComponent } from '../../components/execution-result-summary/execution-result-summary.component';
 import { CancelConfirmModalComponent } from '../../components/cancel-confirm-modal/cancel-confirm-modal.component';
 import { ApplyConfirmModalComponent } from '../../components/apply-confirm-modal/apply-confirm-modal.component';
 import { ExecuteConfirmModalComponent } from '../../components/execute-confirm-modal/execute-confirm-modal.component';
@@ -50,9 +50,9 @@ import {
     StageTimelineComponent,
     StageDetailPanelComponent,
     ExecutionSummaryComponent,
-    WarningListComponent,
-    ErrorListComponent,
     ActionBarComponent,
+    ExecutionStatusHeaderComponent,
+    ExecutionResultSummaryComponent,
     CancelConfirmModalComponent,
     ApplyApprovalPanelComponent,
     ExecutionApprovalPanelComponent,

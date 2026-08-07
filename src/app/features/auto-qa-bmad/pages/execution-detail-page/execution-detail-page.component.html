@@ -26,6 +26,8 @@
       </aqb-button>
     </aqb-page-header>
 
+    <app-execution-status-header [status]="execution.status" />
+
     <app-workflow-overview [execution]="execution" />
 
     <div class="execution-detail-page__main">
@@ -47,9 +49,7 @@
     <div class="execution-detail-page__footer">
       <app-execution-summary [execution]="execution" />
 
-      <app-warning-list [warnings]="state.currentWarnings()" />
-
-      <app-error-list [errors]="state.currentErrors()" />
+      <app-execution-result-summary [execution]="execution" />
 
       <app-action-bar
         [availableActions]="state.currentAvailableActions()"
