@@ -69,4 +69,9 @@ export class ExecutionListPageComponent implements OnInit {
     const { page, size } = this.state.pagination();
     this.state.loadList(page + 1, size);
   }
+
+  onRetryList(): void {
+    const { page, size } = this.state.pagination();
+    this.state.loadList(page, size);
+  }
 }
