@@ -20,9 +20,9 @@ const ACTION_LABELS: Record<AutoQaAvailableAction, string> = {
 };
 
 /**
- * Ações que já têm despacho real no state service a partir da Fase 12.3.4.
- * APPLY/EXECUTE continuam fora (ainda não há Apply/Execute reais) — assim
- * como RETRY e as ações de visualização (Preview/Diff/Logs/Learning).
+ * Ações que já têm despacho real no state service. APPLY/EXECUTE passaram a
+ * ser funcionais na Fase 12.3.5. RETRY e as ações de visualização
+ * (Preview/Diff/Logs/Learning) continuam fora.
  */
 const FUNCTIONAL_ACTIONS: ReadonlySet<AutoQaAvailableAction> = new Set([
   'START',

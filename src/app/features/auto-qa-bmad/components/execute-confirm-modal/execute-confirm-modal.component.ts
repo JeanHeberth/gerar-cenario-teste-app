@@ -12,6 +12,7 @@ import { AqbButtonComponent } from '../../shared/ui/button/aqb-button.component'
   imports: [AqbModalComponent, AqbButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './execute-confirm-modal.component.html',
+  styleUrl: './execute-confirm-modal.component.scss',
 })
 export class ExecuteConfirmModalComponent {
   readonly open = input(false);
