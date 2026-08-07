@@ -15,6 +15,8 @@ import { WarningListComponent } from '../../components/warning-list/warning-list
 import { ErrorListComponent } from '../../components/error-list/error-list.component';
 import { ActionBarComponent } from '../../components/action-bar/action-bar.component';
 import { CancelConfirmModalComponent } from '../../components/cancel-confirm-modal/cancel-confirm-modal.component';
+import { ApplyConfirmModalComponent } from '../../components/apply-confirm-modal/apply-confirm-modal.component';
+import { ExecuteConfirmModalComponent } from '../../components/execute-confirm-modal/execute-confirm-modal.component';
 import { ApplyApprovalPanelComponent } from '../../components/apply-approval-panel/apply-approval-panel.component';
 import { ExecutionApprovalPanelComponent } from '../../components/execution-approval-panel/execution-approval-panel.component';
 import { AUTO_QA_STAGE_CATALOG, AutoQaStageId, getStageMetadata } from '../../models/auto-qa-stage-catalog';
@@ -54,6 +56,9 @@ import {
     CancelConfirmModalComponent,
     ApplyApprovalPanelComponent,
     ExecutionApprovalPanelComponent,
+    // confirmation modals for sensitive actions
+    ApplyConfirmModalComponent,
+    ExecuteConfirmModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './execution-detail-page.component.html',
@@ -68,6 +73,8 @@ export class ExecutionDetailPageComponent implements OnInit {
   protected readonly showCancelModal = signal(false);
   protected readonly showApplyApprovalPanel = signal(false);
   protected readonly showExecutionApprovalPanel = signal(false);
+  protected readonly showApplyConfirm = signal(false);
+  protected readonly showExecuteConfirm = signal(false);
 
   /** Seleção efetiva: escolha explícita do usuário, com fallback currentStage → lastStageCompleted → primeira etapa do catálogo. */
   protected readonly selectedStage = computed<AutoQaStageId>(() => {
@@ -128,6 +135,12 @@ export class ExecutionDetailPageComponent implements OnInit {
       case 'APPROVE_EXECUTION':
         this.showExecutionApprovalPanel.set(true);
         break;
+      case 'APPLY':
+        this.showApplyConfirm.set(true);
+        break;
+      case 'EXECUTE':
+        this.showExecuteConfirm.set(true);
+        break;
       default:
         // Ação ainda não suportada — a ActionBar já a mantém desabilitada,
         // não deveria emitir actionTriggered para ela.
@@ -164,6 +177,34 @@ export class ExecutionDetailPageComponent implements OnInit {
     }
     this.showExecutionApprovalPanel.set(false);
     this.dispatch(this.state.approveExecution(executionId, request));
+  }
+
+  // Apply confirmation modal handlers
+  onApplyConfirmed(): void {
+    const executionId = this.state.selectedExecutionId();
+    if (!executionId) {
+      return;
+    }
+    this.showApplyConfirm.set(false);
+    this.dispatch(this.state.apply(executionId));
+  }
+
+  onApplyDismissed(): void {
+    this.showApplyConfirm.set(false);
+  }
+
+  // Execute confirmation modal handlers
+  onExecuteConfirmed(): void {
+    const executionId = this.state.selectedExecutionId();
+    if (!executionId) {
+      return;
+    }
+    this.showExecuteConfirm.set(false);
+    this.dispatch(this.state.execute(executionId));
+  }
+
+  onExecuteDismissed(): void {
+    this.showExecuteConfirm.set(false);
   }
 
   private dispatch(action$: Observable<AutoQaExecutionResponse>): void {

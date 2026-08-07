@@ -31,6 +31,8 @@ const FUNCTIONAL_ACTIONS: ReadonlySet<AutoQaAvailableAction> = new Set([
   'CANCEL',
   'APPROVE_FILE_UPDATE',
   'APPROVE_EXECUTION',
+  'APPLY',
+  'EXECUTE',
 ]);
 
 /**
