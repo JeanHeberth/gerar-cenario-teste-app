@@ -1,6 +1,6 @@
 # Fase 12.3.1 — Frontend Auto QA BMAD: Fundação (Plano Técnico Atualizado, aguardando aprovação)
 
-Este documento substitui, para a Fase 12.3.1, o plano técnico anterior (`fase12.3-frontend-plano-tecnico.md`, no repositório backend) onde houver divergência, incorporando integralmente a **Aprovação Técnica Oficial** recebida do usuário. Nenhum arquivo foi criado, alterado ou removido além deste próprio documento e da pasta `docs/auto-qa/` que o abriga — confirmação formal no item 7.
+Este documento substitui, para a Fase 12.3.1, o plano técnico anterior (`fase12.3-frontend-plano-tecnico.md`, no repositório backend) onde houver divergência, incorporando integralmente a **Aprovação Técnica Oficial** recebida do usuário. Nenhum arquivo foi criado, alterado ou removido além deste próprio documento e da pasta `../..` que o abriga — confirmação formal no item 7.
 
 A partir desta fase, **os planos técnicos do frontend passam a viver neste repositório** (`gerar-cenario-teste-app/docs/auto-qa/`), não mais no repositório backend.
 
@@ -24,7 +24,7 @@ Ordem confirmada: **funções utilitárias → services → state → componente
 **Revoga a proposta de remoção do plano anterior.** `autoqa-artifacts/`, `autoqa.service.ts` e `autoqa.interface.ts` permanecem intactos no repositório, como referência, e não serão importados por nenhum arquivo novo desta feature. Nenhuma edição, nenhuma exclusão. Remoção fica reservada para o encerramento da Fase 12 inteira.
 
 ### 2.4 Isolamento da feature
-Toda a implementação fica sob `src/app/features/auto-qa-bmad/`. Nenhum import cruzado com `autoqa-artifacts`/`cenario`/`chat-agentes`.
+Toda a implementação fica sob `app/features/auto-qa-bmad`. Nenhum import cruzado com `autoqa-artifacts`/`cenario`/`chat-agentes`.
 
 ### 2.5 Shared Layer — decisão de localização (ponto a confirmar)
 A aprovação não especifica se `shared/` fica **dentro** de `features/auto-qa-bmad/` ou em `src/app/shared/` (global à aplicação). Interpretação adotada, alinhada ao item 5 da aprovação ("toda a nova funcionalidade ficará dentro desta feature", "não misturar componentes novos com componentes antigos"): **`shared/` nasce dentro de `features/auto-qa-bmad/shared/`** nesta fase. Se no futuro outras telas da aplicação (fora do Auto QA) precisarem do mesmo Design System, promovemos para `src/app/shared/` em uma fase própria — decisão consciente para não impactar `cenario`/`chat-agentes` sem necessidade real hoje. **Peço confirmação explícita deste ponto antes de iniciar.**
@@ -171,7 +171,7 @@ Mesma integração via `loadChildren` em `app.routes.ts` já descrita no plano a
 
 ## 7. Confirmação de que nenhum arquivo foi alterado
 
-Confirmado. Nesta etapa só foi criada a pasta `docs/auto-qa/` (vazia até este arquivo) e este próprio documento de planejamento. Nenhum componente, service, rota, SCSS, `theme.scss` ou config (`angular.json`/`package.json`) foi criado ou alterado. Nenhum `npm install`. Nenhum commit.
+Confirmado. Nesta etapa só foi criada a pasta `../..` (vazia até este arquivo) e este próprio documento de planejamento. Nenhum componente, service, rota, SCSS, `theme.scss` ou config (`../../../../angular.json`/`../../../../package.json`) foi criado ou alterado. Nenhum `npm install`. Nenhum commit.
 
 ---
 
