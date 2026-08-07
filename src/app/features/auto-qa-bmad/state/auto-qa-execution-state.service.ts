@@ -2,7 +2,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { EMPTY, Observable, finalize, tap } from 'rxjs';
 import { AutoQaExecutionService } from '../services/auto-qa-execution.service';
-import { AutoQaExecutionResponse } from '../models/auto-qa-execution.model';
+import {
+  AutoQaApplyApprovalRequest,
+  AutoQaExecutionApprovalRequest,
+  AutoQaExecutionResponse,
+} from '../models/auto-qa-execution.model';
+import { AutoQaAvailableAction } from '../models/auto-qa-enums.model';
 import { mapHttpErrorToUiError } from '../shared/utils/auto-qa-error-mapper';
 
 export interface AutoQaPagination {
@@ -30,6 +35,8 @@ export class AutoQaExecutionStateService {
   private readonly _error = signal<string | null>(null);
   private readonly _pagination = signal<AutoQaPagination>({ page: 0, size: 20, totalElements: 0 });
   private readonly _selectedExecutionId = signal<string | null>(null);
+  private readonly _pendingAction = signal<AutoQaAvailableAction | null>(null);
+  private readonly _actionError = signal<string | null>(null);
 
   readonly current = this._current.asReadonly();
   readonly list = this._list.asReadonly();
@@ -38,6 +45,8 @@ export class AutoQaExecutionStateService {
   readonly error = this._error.asReadonly();
   readonly pagination = this._pagination.asReadonly();
   readonly selectedExecutionId = this._selectedExecutionId.asReadonly();
+  readonly pendingAction = this._pendingAction.asReadonly();
+  readonly actionError = this._actionError.asReadonly();
 
   readonly hasExecutions = computed(() => this._list().length > 0);
   readonly hasCurrentExecution = computed(() => this._current() !== null);
@@ -103,6 +112,57 @@ export class AutoQaExecutionStateService {
         error: (err: HttpErrorResponse) => this._error.set(mapHttpErrorToUiError(err).message),
       }),
       finalize(() => this._creating.set(false))
+    );
+  }
+
+  start(executionId: string): Observable<AutoQaExecutionResponse> {
+    return this.dispatch('START', () => this.executionService.start(executionId));
+  }
+
+  continueExecution(executionId: string): Observable<AutoQaExecutionResponse> {
+    return this.dispatch('CONTINUE', () => this.executionService.continueExecution(executionId));
+  }
+
+  generate(executionId: string): Observable<AutoQaExecutionResponse> {
+    return this.dispatch('GENERATE', () => this.executionService.generate(executionId));
+  }
+
+  cancel(executionId: string, reason?: string): Observable<AutoQaExecutionResponse> {
+    return this.dispatch('CANCEL', () => this.executionService.cancel(executionId, reason));
+  }
+
+  approveFileUpdate(executionId: string, request: AutoQaApplyApprovalRequest): Observable<AutoQaExecutionResponse> {
+    return this.dispatch('APPROVE_FILE_UPDATE', () => this.executionService.registerApplyApproval(executionId, request));
+  }
+
+  approveExecution(
+    executionId: string,
+    request: AutoQaExecutionApprovalRequest
+  ): Observable<AutoQaExecutionResponse> {
+    return this.dispatch('APPROVE_EXECUTION', () => this.executionService.registerExecutionApproval(executionId, request));
+  }
+
+  /**
+   * Ponto único de despacho de ações do workflow. Ignora uma nova ação
+   * enquanto outra ainda está em andamento (guard entre ações diferentes,
+   * não só dentro da mesma). Sempre atualiza current() com a resposta
+   * autoritativa do backend — nunca recalcula status/availableActions.
+   */
+  private dispatch(
+    action: AutoQaAvailableAction,
+    call: () => Observable<AutoQaExecutionResponse>
+  ): Observable<AutoQaExecutionResponse> {
+    if (this._pendingAction()) {
+      return EMPTY;
+    }
+    this._pendingAction.set(action);
+    this._actionError.set(null);
+    return call().pipe(
+      tap((response) => this._current.set(response)),
+      tap({
+        error: (err: HttpErrorResponse) => this._actionError.set(mapHttpErrorToUiError(err).message),
+      }),
+      finalize(() => this._pendingAction.set(null))
     );
   }
 }

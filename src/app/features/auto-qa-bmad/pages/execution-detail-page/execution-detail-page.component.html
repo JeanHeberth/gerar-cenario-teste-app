@@ -5,6 +5,10 @@
     <p class="execution-detail-page__error" role="alert">{{ state.error() }}</p>
   }
 
+  @if (state.actionError()) {
+    <p class="execution-detail-page__error" role="alert">{{ state.actionError() }}</p>
+  }
+
   @if (state.loading() && !state.current()) {
     <aqb-loading label="Carregando execução..." />
   }
@@ -47,7 +51,29 @@
 
       <app-error-list [errors]="state.currentErrors()" />
 
-      <app-action-bar [availableActions]="state.currentAvailableActions()" [pendingAction]="null" />
+      <app-action-bar
+        [availableActions]="state.currentAvailableActions()"
+        [pendingAction]="state.pendingAction()"
+        (actionTriggered)="onActionTriggered($event)"
+      />
+
+      @if (showApplyApprovalPanel()) {
+        <app-apply-approval-panel [submitting]="state.pendingAction() === 'APPROVE_FILE_UPDATE'" (approved)="onApplyApproved($event)" />
+      }
+
+      @if (showExecutionApprovalPanel()) {
+        <app-execution-approval-panel
+          [submitting]="state.pendingAction() === 'APPROVE_EXECUTION'"
+          (approved)="onExecutionApproved($event)"
+        />
+      }
     </div>
+
+    <app-cancel-confirm-modal
+      [open]="showCancelModal()"
+      [submitting]="state.pendingAction() === 'CANCEL'"
+      (confirmed)="onCancelConfirmed($event)"
+      (dismissed)="onCancelDismissed()"
+    />
   }
 </div>
