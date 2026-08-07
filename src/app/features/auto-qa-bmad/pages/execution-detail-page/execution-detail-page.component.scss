@@ -23,4 +23,34 @@
     color: var(--aq-text-secondary);
     font-size: var(--aq-font-size-sm);
   }
+
+  // Desktop: Timeline à esquerda, Stage Detail à direita.
+  &__main {
+    display: grid;
+    grid-template-columns: minmax(260px, 320px) 1fr;
+    gap: var(--aq-space-5);
+    align-items: start;
+  }
+
+  &__footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aq-space-4);
+  }
+}
+
+// Tablet: colunas mais estreitas.
+@media (max-width: 960px) {
+  .execution-detail-page__main {
+    grid-template-columns: minmax(220px, 260px) 1fr;
+  }
+}
+
+// Mobile: Timeline horizontal rolável acima, Stage Detail abaixo — sem
+// overflow da página (o scroll fica contido dentro da própria timeline,
+// ver stage-timeline.component.scss).
+@media (max-width: 800px) {
+  .execution-detail-page__main {
+    grid-template-columns: 1fr;
+  }
 }

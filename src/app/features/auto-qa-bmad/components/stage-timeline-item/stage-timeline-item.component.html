@@ -1,0 +1,23 @@
+<div
+  class="stage-timeline-item"
+  [class.stage-timeline-item--selected]="selected()"
+  role="option"
+  tabindex="0"
+  [attr.aria-current]="state() === 'CURRENT' ? 'step' : null"
+  [attr.aria-selected]="selected()"
+  [attr.aria-label]="metadata().title + ' — ' + visualState().label"
+  (click)="select()"
+  (keydown.enter)="select()"
+  (keydown.space)="onSpace($event)"
+>
+  <span class="stage-timeline-item__icon" aria-hidden="true">
+    <aqb-stage-icon [stage]="metadata().stage" />
+  </span>
+
+  <div class="stage-timeline-item__text">
+    <p class="stage-timeline-item__title">{{ metadata().title }}</p>
+    <p class="stage-timeline-item__message">{{ contextMessage() }}</p>
+  </div>
+
+  <aqb-badge [tone]="visualState().tone">{{ visualState().label }}</aqb-badge>
+</div>

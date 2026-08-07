@@ -24,12 +24,30 @@
 
     <app-workflow-overview [execution]="execution" />
 
-    <app-execution-summary [execution]="execution" />
+    <div class="execution-detail-page__main">
+      <app-stage-timeline
+        class="execution-detail-page__timeline"
+        [execution]="execution"
+        [selectedStage]="selectedStage()"
+        (stageSelected)="onStageSelected($event)"
+      />
 
-    <app-warning-list [warnings]="state.currentWarnings()" />
+      <app-stage-detail-panel
+        class="execution-detail-page__detail"
+        [metadata]="selectedStageMetadata()"
+        [state]="selectedStageVisualState()"
+        [execution]="execution"
+      />
+    </div>
 
-    <app-error-list [errors]="state.currentErrors()" />
+    <div class="execution-detail-page__footer">
+      <app-execution-summary [execution]="execution" />
 
-    <app-action-bar [availableActions]="state.currentAvailableActions()" [pendingAction]="null" />
+      <app-warning-list [warnings]="state.currentWarnings()" />
+
+      <app-error-list [errors]="state.currentErrors()" />
+
+      <app-action-bar [availableActions]="state.currentAvailableActions()" [pendingAction]="null" />
+    </div>
   }
 </div>

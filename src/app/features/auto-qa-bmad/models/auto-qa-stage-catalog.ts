@@ -3,8 +3,10 @@
  * espelhando a ordem real de com.br.criarcenariotestes...AutoQaStage
  * (DISCOVERY=0 .. LEARNING=9). Fonte única de título, descrição, ícone e
  * mensagens das etapas — nenhum outro componente deve duplicar esses textos.
- * Não contém regra de transição nem decide availableActions: isso continua
- * vindo exclusivamente do backend.
+ * Não contém regra de transição, não decide availableActions e não
+ * referencia nenhum endpoint: isso continua vindo exclusivamente do backend.
+ * `detailSections` é só texto estático descrevendo o que o StageDetailPanel
+ * mostrará no futuro — nunca um DTO fictício de resultado do agente.
  */
 
 export type AutoQaStageId =
@@ -32,6 +34,11 @@ export interface AutoQaStageMetadata {
   loadingMessage: string;
   successMessage: string;
   errorMessage: string;
+  pendingMessage: string;
+  cancelledMessage: string;
+  blockedMessage: string;
+  helpText: string;
+  detailSections: string[];
 }
 
 export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
@@ -46,6 +53,11 @@ export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
     loadingMessage: 'Analisando a estrutura do projeto...',
     successMessage: 'Projeto identificado com sucesso.',
     errorMessage: 'Não foi possível identificar o projeto.',
+    pendingMessage: 'Etapa ainda não iniciada.',
+    cancelledMessage: 'Execução cancelada antes da conclusão desta etapa.',
+    blockedMessage: 'Etapa não será executada porque a execução foi encerrada antes de alcançá-la.',
+    helpText: 'Nenhuma ação do usuário é necessária nesta etapa.',
+    detailSections: ['Framework detectado', 'Linguagem detectada', 'Comandos sugeridos'],
   },
   {
     stage: 'SCENARIO_ANALYSIS',
@@ -58,6 +70,11 @@ export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
     loadingMessage: 'Analisando o cenário informado...',
     successMessage: 'Cenário analisado com sucesso.',
     errorMessage: 'Não foi possível analisar o cenário.',
+    pendingMessage: 'Etapa ainda não iniciada.',
+    cancelledMessage: 'Execução cancelada antes da conclusão desta etapa.',
+    blockedMessage: 'Etapa não será executada porque a execução foi encerrada antes de alcançá-la.',
+    helpText: 'Nenhuma ação do usuário é necessária nesta etapa.',
+    detailSections: ['Requisitos extraídos do cenário'],
   },
   {
     stage: 'PROJECT_KNOWLEDGE',
@@ -70,6 +87,11 @@ export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
     loadingMessage: 'Mapeando classes e convenções existentes...',
     successMessage: 'Base de conhecimento do projeto construída.',
     errorMessage: 'Não foi possível mapear o conhecimento do projeto.',
+    pendingMessage: 'Etapa ainda não iniciada.',
+    cancelledMessage: 'Execução cancelada antes da conclusão desta etapa.',
+    blockedMessage: 'Etapa não será executada porque a execução foi encerrada antes de alcançá-la.',
+    helpText: 'Nenhuma ação do usuário é necessária nesta etapa.',
+    detailSections: ['Classes e page objects mapeados', 'Convenções identificadas'],
   },
   {
     stage: 'PLANNING',
@@ -82,6 +104,11 @@ export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
     loadingMessage: 'Montando o plano técnico...',
     successMessage: 'Plano técnico pronto.',
     errorMessage: 'Não foi possível montar o plano técnico.',
+    pendingMessage: 'Etapa ainda não iniciada.',
+    cancelledMessage: 'Execução cancelada antes da conclusão desta etapa.',
+    blockedMessage: 'Etapa não será executada porque a execução foi encerrada antes de alcançá-la.',
+    helpText: 'Nenhuma ação do usuário é necessária nesta etapa.',
+    detailSections: ['Componentes reutilizáveis', 'Arquivos planejados', 'Riscos identificados'],
   },
   {
     stage: 'GENERATION',
@@ -94,6 +121,11 @@ export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
     loadingMessage: 'Gerando os arquivos de automação...',
     successMessage: 'Código gerado com sucesso.',
     errorMessage: 'Não foi possível gerar o código.',
+    pendingMessage: 'Etapa ainda não iniciada.',
+    cancelledMessage: 'Execução cancelada antes da conclusão desta etapa.',
+    blockedMessage: 'Etapa não será executada porque a execução foi encerrada antes de alcançá-la.',
+    helpText: 'Pode exigir aprovação antes de prosseguir.',
+    detailSections: ['Arquivos gerados', 'Cobertura de reuso'],
   },
   {
     stage: 'REVIEW',
@@ -106,6 +138,11 @@ export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
     loadingMessage: 'Revisando o código gerado...',
     successMessage: 'Revisão concluída.',
     errorMessage: 'Não foi possível concluir a revisão.',
+    pendingMessage: 'Etapa ainda não iniciada.',
+    cancelledMessage: 'Execução cancelada antes da conclusão desta etapa.',
+    blockedMessage: 'Etapa não será executada porque a execução foi encerrada antes de alcançá-la.',
+    helpText: 'Nenhuma ação do usuário é necessária nesta etapa.',
+    detailSections: ['Problemas encontrados', 'Sugestões de melhoria'],
   },
   {
     stage: 'APPLY',
@@ -118,6 +155,11 @@ export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
     loadingMessage: 'Aplicando os arquivos no projeto...',
     successMessage: 'Arquivos aplicados com sucesso.',
     errorMessage: 'Não foi possível aplicar os arquivos.',
+    pendingMessage: 'Etapa ainda não iniciada.',
+    cancelledMessage: 'Execução cancelada antes da conclusão desta etapa.',
+    blockedMessage: 'Etapa não será executada porque a execução foi encerrada antes de alcançá-la.',
+    helpText: 'Requer aprovação explícita antes de aplicar arquivos no projeto.',
+    detailSections: ['Arquivos aplicados', 'Backup gerado'],
   },
   {
     stage: 'EXECUTION',
@@ -130,6 +172,11 @@ export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
     loadingMessage: 'Executando os testes...',
     successMessage: 'Execução concluída com sucesso.',
     errorMessage: 'A execução dos testes falhou.',
+    pendingMessage: 'Etapa ainda não iniciada.',
+    cancelledMessage: 'Execução cancelada antes da conclusão desta etapa.',
+    blockedMessage: 'Etapa não será executada porque a execução foi encerrada antes de alcançá-la.',
+    helpText: 'Requer aprovação explícita antes de executar comandos no projeto.',
+    detailSections: ['Comando executado', 'Resultado da execução'],
   },
   {
     stage: 'FAILURE_ANALYSIS',
@@ -142,6 +189,11 @@ export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
     loadingMessage: 'Analisando a causa da falha...',
     successMessage: 'Causa da falha identificada.',
     errorMessage: 'Não foi possível analisar a falha.',
+    pendingMessage: 'Etapa ainda não iniciada.',
+    cancelledMessage: 'Execução cancelada antes da conclusão desta etapa.',
+    blockedMessage: 'Etapa não será executada porque a execução foi encerrada antes de alcançá-la.',
+    helpText: 'Executada automaticamente quando a execução dos testes falha.',
+    detailSections: ['Causa provável', 'Sugestões de correção'],
   },
   {
     stage: 'LEARNING',
@@ -154,6 +206,11 @@ export const AUTO_QA_STAGE_CATALOG: readonly AutoQaStageMetadata[] = [
     loadingMessage: 'Registrando aprendizado...',
     successMessage: 'Aprendizado registrado.',
     errorMessage: 'Não foi possível registrar o aprendizado.',
+    pendingMessage: 'Etapa ainda não iniciada.',
+    cancelledMessage: 'Execução cancelada antes da conclusão desta etapa.',
+    blockedMessage: 'Etapa não será executada porque a execução foi encerrada antes de alcançá-la.',
+    helpText: 'Executada automaticamente ao final do workflow.',
+    detailSections: ['Aprendizado registrado para futuras execuções'],
   },
 ];
 

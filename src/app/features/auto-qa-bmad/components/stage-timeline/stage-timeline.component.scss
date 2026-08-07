@@ -1,0 +1,14 @@
+.stage-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-1);
+}
+
+@media (max-width: 800px) {
+  .stage-timeline {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: var(--aq-space-2);
+    padding-bottom: var(--aq-space-2);
+  }
+}

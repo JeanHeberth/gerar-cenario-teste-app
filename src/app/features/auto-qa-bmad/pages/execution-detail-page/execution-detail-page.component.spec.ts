@@ -102,13 +102,34 @@ describe('ExecutionDetailPageComponent', () => {
       );
     });
 
-    it('renderiza WorkflowOverview, ExecutionSummary, WarningList, ErrorList e ActionBar', () => {
+    it('renderiza WorkflowOverview, StageTimeline, StageDetailPanel, ExecutionSummary, WarningList, ErrorList e ActionBar', () => {
       fixture.detectChanges();
       expect(fixture.nativeElement.querySelector('app-workflow-overview')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('app-stage-timeline')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('app-stage-detail-panel')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-execution-summary')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-warning-list')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-error-list')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('app-action-bar')).not.toBeNull();
+    });
+
+    it('seleção inicial usa currentStage quando presente', () => {
+      fixture.detectChanges();
+      const panel = fixture.nativeElement.querySelector('.stage-detail-panel__title');
+      expect(panel.textContent).toContain('Descoberta do Projeto');
+    });
+
+    it('troca o painel ao selecionar outra etapa na timeline, sem chamar a API novamente', () => {
+      fixture.detectChanges();
+      loadExecutionSpy.calls.reset();
+
+      const timeline = fixture.debugElement.query((n) => n.name === 'app-stage-timeline');
+      timeline.triggerEventHandler('stageSelected', 'PLANNING');
+      fixture.detectChanges();
+
+      const panel = fixture.nativeElement.querySelector('.stage-detail-panel__title');
+      expect(panel.textContent).toContain('Planejamento Técnico');
+      expect(loadExecutionSpy).not.toHaveBeenCalled();
     });
 
     it('possui um link para voltar à lista', () => {
@@ -131,6 +152,26 @@ describe('ExecutionDetailPageComponent', () => {
       fixture.detectChanges();
       const refresh: HTMLButtonElement = fixture.nativeElement.querySelector('.execution-detail-page__refresh button');
       expect(refresh.disabled).toBeTrue();
+    });
+  });
+
+  describe('seleção inicial — fallback', () => {
+    it('usa lastStageCompleted quando currentStage é null', () => {
+      currentSignal.set(execution({ currentStage: null, lastStageCompleted: 'PROJECT_KNOWLEDGE' }));
+      selectedExecutionIdSignal.set('exec-1');
+      fixture.detectChanges();
+
+      const panel = fixture.nativeElement.querySelector('.stage-detail-panel__title');
+      expect(panel.textContent).toContain('Conhecimento do Projeto');
+    });
+
+    it('usa a primeira etapa do catálogo quando currentStage e lastStageCompleted são null', () => {
+      currentSignal.set(execution({ currentStage: null, lastStageCompleted: null }));
+      selectedExecutionIdSignal.set('exec-1');
+      fixture.detectChanges();
+
+      const panel = fixture.nativeElement.querySelector('.stage-detail-panel__title');
+      expect(panel.textContent).toContain('Descoberta do Projeto');
     });
   });
 });

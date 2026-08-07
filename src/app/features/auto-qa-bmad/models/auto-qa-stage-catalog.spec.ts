@@ -31,6 +31,11 @@ describe('AUTO_QA_STAGE_CATALOG', () => {
       expect(entry.loadingMessage).toBeTruthy();
       expect(entry.successMessage).toBeTruthy();
       expect(entry.errorMessage).toBeTruthy();
+      expect(entry.pendingMessage).toBeTruthy();
+      expect(entry.cancelledMessage).toBeTruthy();
+      expect(entry.blockedMessage).toBeTruthy();
+      expect(entry.helpText).toBeTruthy();
+      expect(entry.detailSections.length).toBeGreaterThan(0);
     }
   });
 
@@ -54,6 +59,11 @@ describe('AUTO_QA_STAGE_CATALOG', () => {
         entry.loadingMessage,
         entry.successMessage,
         entry.errorMessage,
+        entry.pendingMessage,
+        entry.cancelledMessage,
+        entry.blockedMessage,
+        entry.helpText,
+        ...entry.detailSections,
       ];
       for (const text of texts) {
         expect(EMOJI_PATTERN.test(text)).toBeFalse();
