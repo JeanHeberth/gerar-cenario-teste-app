@@ -142,6 +142,14 @@ export class AutoQaExecutionStateService {
     return this.dispatch('APPROVE_EXECUTION', () => this.executionService.registerExecutionApproval(executionId, request));
   }
 
+  apply(executionId: string): Observable<AutoQaExecutionResponse> {
+    return this.dispatch('APPLY', () => this.executionService.apply(executionId));
+  }
+
+  execute(executionId: string): Observable<AutoQaExecutionResponse> {
+    return this.dispatch('EXECUTE', () => this.executionService.execute(executionId));
+  }
+
   /**
    * Ponto único de despacho de ações do workflow. Ignora uma nova ação
    * enquanto outra ainda está em andamento (guard entre ações diferentes,

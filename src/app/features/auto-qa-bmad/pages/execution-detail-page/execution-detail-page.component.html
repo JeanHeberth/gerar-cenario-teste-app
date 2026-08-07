@@ -69,6 +69,20 @@
       }
     </div>
 
+    <app-apply-confirm-modal
+      [open]="showApplyConfirm()"
+      [submitting]="state.pendingAction() === 'APPLY'"
+      (confirmed)="onApplyConfirmed()"
+      (dismissed)="onApplyDismissed()"
+    />
+
+    <app-execute-confirm-modal
+      [open]="showExecuteConfirm()"
+      [submitting]="state.pendingAction() === 'EXECUTE'"
+      (confirmed)="onExecuteConfirmed()"
+      (dismissed)="onExecuteDismissed()"
+    />
+
     <app-cancel-confirm-modal
       [open]="showCancelModal()"
       [submitting]="state.pendingAction() === 'CANCEL'"

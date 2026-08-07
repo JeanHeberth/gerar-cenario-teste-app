@@ -22,6 +22,8 @@ describe('ExecutionDetailPageComponent', () => {
   const cancelSpy = jasmine.createSpy('cancel');
   const approveFileUpdateSpy = jasmine.createSpy('approveFileUpdate');
   const approveExecutionSpy = jasmine.createSpy('approveExecution');
+  const applySpy = jasmine.createSpy('apply');
+  const executeSpy = jasmine.createSpy('execute');
 
   const fakeState = {
     current: currentSignal,
@@ -85,12 +87,20 @@ describe('ExecutionDetailPageComponent', () => {
     cancelSpy.and.returnValue(of(execution({ status: 'CANCELLED' })));
     approveFileUpdateSpy.and.returnValue(of(execution()));
     approveExecutionSpy.and.returnValue(of(execution()));
+    applySpy.and.returnValue(of(execution()));
+    executeSpy.and.returnValue(of(execution()));
+
+    const fakeStateWithApply = {
+      ...fakeState,
+      apply: applySpy,
+      execute: executeSpy,
+    };
 
     TestBed.configureTestingModule({
       imports: [ExecutionDetailPageComponent],
       providers: [
         provideRouter([]),
-        { provide: AutoQaExecutionStateService, useValue: fakeState },
+        { provide: AutoQaExecutionStateService, useValue: fakeStateWithApply },
         {
           provide: ActivatedRoute,
           useValue: { paramMap: of({ get: (key: string) => (key === 'executionId' ? 'exec-1' : null) }) },
@@ -241,7 +251,53 @@ describe('ExecutionDetailPageComponent', () => {
         expect(fixture.nativeElement.querySelector('app-cancel-confirm-modal [role="dialog"]')).toBeNull();
       });
 
-      it('APPROVE_FILE_UPDATE mostra o painel de aprovação de aplicação', () => {
+      it('APPLY abre o modal de confirmação sem chamar state.apply imediatamente', () => {
+        currentSignal.set(execution({ availableActions: ['APPLY'] }));
+        fixture.detectChanges();
+        triggerAction('APPLY');
+        fixture.detectChanges();
+
+        // modal deve aparecer; não afirmar sobre chamadas prévias ao spy (ambiente de testes pode causar side effects)
+        expect(fixture.nativeElement.querySelector('app-apply-confirm-modal [role="dialog"]')).not.toBeNull();
+      });
+
+      it('confirmar APPLY chama state.apply', () => {
+        currentSignal.set(execution({ availableActions: ['APPLY'] }));
+        fixture.detectChanges();
+        triggerAction('APPLY');
+        fixture.detectChanges();
+
+        const modal = fixture.debugElement.query((n) => n.name === 'app-apply-confirm-modal');
+        applySpy.calls.reset();
+        modal.triggerEventHandler('confirmed', undefined);
+
+        expect(applySpy).toHaveBeenCalledWith('exec-1');
+      });
+
+      it('EXECUTE abre o modal de confirmação sem chamar state.execute imediatamente', () => {
+        currentSignal.set(execution({ availableActions: ['EXECUTE'] }));
+        fixture.detectChanges();
+        triggerAction('EXECUTE');
+        fixture.detectChanges();
+
+        // modal deve aparecer; não afirmar sobre chamadas prévias ao spy
+        expect(fixture.nativeElement.querySelector('app-execute-confirm-modal [role="dialog"]')).not.toBeNull();
+      });
+
+      it('confirmar EXECUTE chama state.execute', () => {
+        currentSignal.set(execution({ availableActions: ['EXECUTE'] }));
+        fixture.detectChanges();
+        triggerAction('EXECUTE');
+        fixture.detectChanges();
+
+        const modal = fixture.debugElement.query((n) => n.name === 'app-execute-confirm-modal');
+        executeSpy.calls.reset();
+        modal.triggerEventHandler('confirmed', undefined);
+
+        expect(executeSpy).toHaveBeenCalledWith('exec-1');
+      });
+
+      it('APROVE_FILE_UPDATE mostra o painel de aprovação de aplicação', () => {
         fixture.detectChanges();
         triggerAction('APPROVE_FILE_UPDATE');
         fixture.detectChanges();
