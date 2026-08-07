@@ -1,0 +1,10 @@
+@if (errors().length > 0) {
+  <ul class="error-list" role="alert" aria-label="Erros da execução">
+    @for (error of errors(); track error.code) {
+      <li class="error-list__item">
+        <strong>{{ error.code }}</strong>
+        <span>{{ error.message }}</span>
+      </li>
+    }
+  </ul>
+}
