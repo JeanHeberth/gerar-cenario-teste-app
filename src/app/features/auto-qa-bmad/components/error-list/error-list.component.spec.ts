@@ -27,4 +27,22 @@ describe('ErrorListComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('.error-list__item').length).toBe(0);
   });
+
+  it('exibe o título "Erros"', () => {
+    fixture.componentRef.setInput('errors', []);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.error-list-section__title')?.textContent).toContain('Erros');
+  });
+
+  it('exibe um estado vazio acessível quando não há errors', () => {
+    fixture.componentRef.setInput('errors', []);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Nenhum erro registrado nesta execução.');
+  });
+
+  it('não exibe o estado vazio quando há errors', () => {
+    fixture.componentRef.setInput('errors', [{ code: 'E1', message: 'erro' }]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain('Nenhum erro registrado nesta execução.');
+  });
 });

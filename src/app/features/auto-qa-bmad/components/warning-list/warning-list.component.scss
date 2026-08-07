@@ -1,3 +1,13 @@
+.warning-list-section {
+  &__title {
+    margin: 0 0 var(--aq-space-2);
+    font-family: var(--aq-font-family);
+    font-size: var(--aq-font-size-sm);
+    font-weight: 600;
+    color: var(--aq-text-primary);
+  }
+}
+
 .warning-list {
   list-style: none;
   margin: 0;
