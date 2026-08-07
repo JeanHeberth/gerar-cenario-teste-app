@@ -1,0 +1,44 @@
+.workflow-overview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aq-space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--aq-space-2);
+    padding: var(--aq-space-2) var(--aq-space-3);
+    border-radius: var(--aq-radius-pill);
+    border: var(--aq-border-width) solid var(--aq-border);
+    color: var(--aq-text-muted);
+    font-family: var(--aq-font-family);
+    font-size: var(--aq-font-size-xs);
+    transition: border-color var(--aq-transition-fast), color var(--aq-transition-fast);
+  }
+
+  &__item--done {
+    color: var(--aq-success);
+    border-color: var(--aq-success);
+  }
+
+  &__item--current {
+    color: var(--aq-text-primary);
+    border-color: var(--aq-primary);
+  }
+
+  &__item--failed {
+    color: var(--aq-danger);
+    border-color: var(--aq-danger);
+  }
+
+  &__item--pending {
+    color: var(--aq-text-muted);
+  }
+
+  &__icon {
+    display: inline-flex;
+  }
+}

@@ -1,0 +1,18 @@
+.execution-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--aq-space-3) var(--aq-space-5);
+  margin: 0;
+  font-family: var(--aq-font-family);
+
+  dt {
+    font-size: var(--aq-font-size-xs);
+    color: var(--aq-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--aq-font-size-sm);
+    color: var(--aq-text-secondary);
+  }
+}

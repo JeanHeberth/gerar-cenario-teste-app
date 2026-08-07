@@ -1,0 +1,53 @@
+<div class="execution-detail-page">
+  <a routerLink="/auto-qa" class="execution-detail-page__back">← Voltar</a>
+
+  @if (state.error()) {
+    <p class="execution-detail-page__error" role="alert">{{ state.error() }}</p>
+  }
+
+  @if (state.loading() && !state.current()) {
+    <aqb-loading label="Carregando execução..." />
+  }
+
+  @if (state.current(); as execution) {
+    <aqb-page-header [title]="execution.scenario">
+      <aqb-status-chip [status]="execution.status" />
+      <aqb-button
+        class="execution-detail-page__refresh"
+        variant="secondary"
+        [disabled]="!state.canRefresh()"
+        (clicked)="onRefresh()"
+      >
+        Atualizar
+      </aqb-button>
+    </aqb-page-header>
+
+    <app-workflow-overview [execution]="execution" />
+
+    <div class="execution-detail-page__main">
+      <app-stage-timeline
+        class="execution-detail-page__timeline"
+        [execution]="execution"
+        [selectedStage]="selectedStage()"
+        (stageSelected)="onStageSelected($event)"
+      />
+
+      <app-stage-detail-panel
+        class="execution-detail-page__detail"
+        [metadata]="selectedStageMetadata()"
+        [state]="selectedStageVisualState()"
+        [execution]="execution"
+      />
+    </div>
+
+    <div class="execution-detail-page__footer">
+      <app-execution-summary [execution]="execution" />
+
+      <app-warning-list [warnings]="state.currentWarnings()" />
+
+      <app-error-list [errors]="state.currentErrors()" />
+
+      <app-action-bar [availableActions]="state.currentAvailableActions()" [pendingAction]="null" />
+    </div>
+  }
+</div>

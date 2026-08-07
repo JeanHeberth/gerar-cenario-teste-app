@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { AutoQaService } from './autoqa.service';
 import { environment } from '../enviroment/enviroment.prd';
@@ -11,7 +11,7 @@ describe('AutoQaService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [AutoQaService, provideHttpClient(), provideHttpClientTesting()],
+      providers: [AutoQaService, provideHttpClient(withXhr()), provideHttpClientTesting()],
     });
     service = TestBed.inject(AutoQaService);
     httpMock = TestBed.inject(HttpTestingController);

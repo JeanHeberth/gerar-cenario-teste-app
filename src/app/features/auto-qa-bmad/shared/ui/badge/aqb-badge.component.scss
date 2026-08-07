@@ -1,0 +1,31 @@
+.aqb-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--aq-font-family);
+  font-size: var(--aq-font-size-xs);
+  line-height: var(--aq-line-height-tight);
+  border-radius: var(--aq-radius-pill);
+  padding: var(--aq-space-1) var(--aq-space-3);
+  border: var(--aq-border-width) solid transparent;
+
+  &--neutral {
+    background: var(--aq-panel);
+    color: var(--aq-text-secondary);
+    border-color: var(--aq-border);
+  }
+
+  &--success {
+    background: rgba(47, 166, 107, 0.15);
+    color: var(--aq-success);
+  }
+
+  &--warning {
+    background: rgba(217, 164, 65, 0.15);
+    color: var(--aq-warning);
+  }
+
+  &--danger {
+    background: rgba(224, 90, 79, 0.15);
+    color: var(--aq-danger);
+  }
+}

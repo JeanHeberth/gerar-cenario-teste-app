@@ -1,0 +1,15 @@
+@if (open()) {
+  <div class="aqb-modal__overlay">
+    <div class="aqb-modal" role="dialog" aria-modal="true" [attr.aria-label]="title()">
+      <header class="aqb-modal__header">
+        @if (title()) {
+          <h2 class="aqb-modal__title">{{ title() }}</h2>
+        }
+        <button type="button" class="aqb-modal__close" aria-label="Fechar" (click)="onClose()">×</button>
+      </header>
+      <div class="aqb-modal__body">
+        <ng-content />
+      </div>
+    </div>
+  </div>
+}

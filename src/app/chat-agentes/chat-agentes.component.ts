@@ -1,5 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild, AfterViewChecked } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, OnInit, ViewChild, AfterViewChecked, ChangeDetectionStrategy } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../enviroment/enviroment.prd';
@@ -23,8 +23,9 @@ function generateSessionId(): string {
 @Component({
   selector: 'app-chat-agentes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './chat-agentes.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-agentes.component.css'
 })
 export class ChatAgentesComponent implements OnInit, AfterViewChecked {

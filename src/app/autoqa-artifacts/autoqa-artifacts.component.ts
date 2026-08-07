@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
@@ -43,6 +43,7 @@ type AutoQaForm = FormGroup<{
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './autoqa-artifacts.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./autoqa-artifacts.component.css'],
 })
 export class AutoqaArtifactsComponent {

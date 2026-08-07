@@ -1,0 +1,23 @@
+.aqb-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--aq-space-2);
+  font-family: var(--aq-font-family);
+  font-size: var(--aq-font-size-sm);
+  color: var(--aq-text-muted);
+
+  &__spinner {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--aq-border);
+    border-top-color: var(--aq-primary);
+    animation: aqb-loading-spin 0.7s linear infinite;
+  }
+}
+
+@keyframes aqb-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

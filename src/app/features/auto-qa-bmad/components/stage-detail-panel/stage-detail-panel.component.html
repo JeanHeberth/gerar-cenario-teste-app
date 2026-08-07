@@ -1,0 +1,25 @@
+<div class="stage-detail-panel" role="region" [attr.aria-label]="'Detalhes da etapa ' + metadata().title">
+  <aqb-panel>
+    <h3 class="stage-detail-panel__title">{{ metadata().title }}</h3>
+    <p class="stage-detail-panel__description">{{ metadata().description }}</p>
+
+    <aqb-badge [tone]="visualState().tone">{{ visualState().label }}</aqb-badge>
+
+    <p class="stage-detail-panel__message">{{ contextMessage() }}</p>
+
+    @if (execution(); as exec) {
+      <p class="stage-detail-panel__updated-at">
+        Última atualização da execução: {{ exec.updatedAt | date: 'short' }}
+      </p>
+    }
+
+    <div class="stage-detail-panel__future">
+      <p>Detalhes adicionais estarão disponíveis em uma etapa futura.</p>
+      <ul>
+        @for (section of metadata().detailSections; track section) {
+          <li>{{ section }}</li>
+        }
+      </ul>
+    </div>
+  </aqb-panel>
+</div>

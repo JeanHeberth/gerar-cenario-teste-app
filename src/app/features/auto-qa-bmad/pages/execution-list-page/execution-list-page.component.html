@@ -1,0 +1,43 @@
+<div class="execution-list-page">
+  <aqb-page-header title="Execuções Auto QA" subtitle="Acompanhe o andamento dos workflows de automação de testes." />
+
+  <app-new-execution-form [submitting]="state.creating()" (created)="onCreate($event)" />
+
+  @if (state.error()) {
+    <p class="execution-list-page__error" role="alert">{{ state.error() }}</p>
+  }
+
+  @if (state.loading()) {
+    <aqb-loading label="Carregando execuções..." />
+  } @else if (!state.hasExecutions()) {
+    <aqb-empty-state title="Nenhuma execução encontrada" description="Crie a primeira execução preenchendo o formulário acima." />
+  } @else {
+    <div class="execution-list-page__grid">
+      @for (execution of state.list(); track execution.executionId) {
+        <a class="execution-list-page__item" [routerLink]="[execution.executionId]">
+          <app-execution-card [execution]="execution" />
+        </a>
+      }
+    </div>
+
+    <div class="execution-list-page__pagination">
+      <aqb-button
+        class="execution-list-page__prev"
+        variant="secondary"
+        [disabled]="!canGoPrevious()"
+        (clicked)="goToPreviousPage()"
+      >
+        Anterior
+      </aqb-button>
+      <span>Página {{ state.pagination().page + 1 }}</span>
+      <aqb-button
+        class="execution-list-page__next"
+        variant="secondary"
+        [disabled]="!canGoNext()"
+        (clicked)="goToNextPage()"
+      >
+        Próxima
+      </aqb-button>
+    </div>
+  }
+</div>

@@ -1,7 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
-import {NgForOf, NgIf} from '@angular/common';
+
 import {Router} from '@angular/router';
 import {environment} from '../enviroment/enviroment.prd';
 import {firstValueFrom} from 'rxjs';
@@ -27,12 +27,11 @@ interface AgentInfoResponse {
 @Component({
   selector: 'app-cenario',
   imports: [
-    ReactiveFormsModule,
-    NgIf,
-    NgForOf
-  ],
+    ReactiveFormsModule
+],
   templateUrl: './cenario.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cenario.component.css'
 })
 export class CenarioComponent implements OnInit {

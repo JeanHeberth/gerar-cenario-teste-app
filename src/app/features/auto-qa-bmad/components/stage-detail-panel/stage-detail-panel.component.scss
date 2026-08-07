@@ -1,0 +1,40 @@
+.stage-detail-panel {
+  font-family: var(--aq-font-family);
+
+  &__title {
+    margin: 0 0 var(--aq-space-2);
+    font-size: var(--aq-font-size-lg);
+    color: var(--aq-text-primary);
+  }
+
+  &__description {
+    margin: 0 0 var(--aq-space-3);
+    font-size: var(--aq-font-size-sm);
+    color: var(--aq-text-secondary);
+  }
+
+  &__message {
+    margin: var(--aq-space-3) 0 0;
+    font-size: var(--aq-font-size-sm);
+    color: var(--aq-text-secondary);
+  }
+
+  &__updated-at {
+    margin: var(--aq-space-2) 0 0;
+    font-size: var(--aq-font-size-xs);
+    color: var(--aq-text-muted);
+  }
+
+  &__future {
+    margin-top: var(--aq-space-4);
+    padding-top: var(--aq-space-3);
+    border-top: var(--aq-border-width) solid var(--aq-border);
+    font-size: var(--aq-font-size-xs);
+    color: var(--aq-text-muted);
+
+    ul {
+      margin: var(--aq-space-2) 0 0;
+      padding-left: var(--aq-space-4);
+    }
+  }
+}

@@ -30,28 +30,36 @@
           <label>
             Tipo de automação
             <select formControlName="automationType">
-              <option *ngFor="let type of automationTypes" [value]="type">{{ type }}</option>
+              @for (type of automationTypes; track type) {
+                <option [value]="type">{{ type }}</option>
+              }
             </select>
           </label>
 
           <label>
             Framework
             <select formControlName="framework" (change)="onFrameworkChange()">
-              <option *ngFor="let fw of frameworks" [value]="fw">{{ fw }}</option>
+              @for (fw of frameworks; track fw) {
+                <option [value]="fw">{{ fw }}</option>
+              }
             </select>
           </label>
 
           <label>
             Linguagem
             <select formControlName="language">
-              <option *ngFor="let lang of filteredLanguages" [value]="lang">{{ lang }}</option>
+              @for (lang of filteredLanguages; track lang) {
+                <option [value]="lang">{{ lang }}</option>
+              }
             </select>
           </label>
 
           <label>
             Modo
             <select formControlName="mode">
-              <option *ngFor="let mode of modes" [value]="mode">{{ mode }}</option>
+              @for (mode of modes; track mode) {
+                <option [value]="mode">{{ mode }}</option>
+              }
             </select>
           </label>
         </div>
@@ -81,18 +89,19 @@
           </label>
         </div>
 
-        <div *ngIf="hasScenarioTextMode; else byId">
-          <label>
-            Texto do cenário
-            <textarea rows="4" formControlName="scenarioText" placeholder="Descreva o cenário funcional"></textarea>
-          </label>
-        </div>
-        <ng-template #byId>
+        @if (hasScenarioTextMode) {
+          <div>
+            <label>
+              Texto do cenário
+              <textarea rows="4" formControlName="scenarioText" placeholder="Descreva o cenário funcional"></textarea>
+            </label>
+          </div>
+        } @else {
           <label>
             ID do cenário
             <input type="text" formControlName="scenarioId" placeholder="ID salvo no sistema" />
           </label>
-        </ng-template>
+        }
       </section>
 
       <section class="section">
@@ -115,13 +124,17 @@
     <section class="section status-bar">
       <h3>Etapas</h3>
       <div class="steps">
-        <div *ngFor="let step of steps" class="step" [ngClass]="stepState(step)">
-          <span>{{ step.label }}</span>
+        @for (step of steps; track step) {
+          <div class="step" [ngClass]="stepState(step)">
+            <span>{{ step.label }}</span>
+          </div>
+        }
+      </div>
+      @if (execution) {
+        <div class="status-line">
+          Status atual: <strong>{{ execution.status }}</strong> — {{ execution.statusDescricao || execution.message }}
         </div>
-      </div>
-      <div *ngIf="execution" class="status-line">
-        Status atual: <strong>{{ execution.status }}</strong> — {{ execution.statusDescricao || execution.message }}
-      </div>
+      }
     </section>
 
     <section class="section">
@@ -134,133 +147,165 @@
         <button type="button" (click)="downloadZip()" [disabled]="!executionIdInput && !execution">Download ZIP</button>
       </div>
 
-      <div *ngIf="pathValidation" class="box">
-        <h4>Validação da pasta</h4>
-        <div>Válido: <strong>{{ pathValidation.valid }}</strong></div>
-        <div>Caminho normalizado: <strong>{{ pathValidation.normalizedPath || '—' }}</strong></div>
-        <div>Leitura: <strong>{{ pathValidation.readable }}</strong></div>
-        <div>Escrita: <strong>{{ pathValidation.writable }}</strong></div>
-        <div>Framework detectado: <strong>{{ pathValidation.detectedFramework || '—' }}</strong></div>
-        <div>Linguagem detectada: <strong>{{ pathValidation.detectedLanguage || '—' }}</strong></div>
-        <div>Package Manager: <strong>{{ pathValidation.packageManager || '—' }}</strong></div>
-        <div>Arquivo de configuração: <strong>{{ pathValidation.configurationFile || '—' }}</strong></div>
-        <div *ngIf="pathValidation.warnings.length">Avisos: {{ pathValidation.warnings.join(' | ') }}</div>
-      </div>
+      @if (pathValidation) {
+        <div class="box">
+          <h4>Validação da pasta</h4>
+          <div>Válido: <strong>{{ pathValidation.valid }}</strong></div>
+          <div>Caminho normalizado: <strong>{{ pathValidation.normalizedPath || '—' }}</strong></div>
+          <div>Leitura: <strong>{{ pathValidation.readable }}</strong></div>
+          <div>Escrita: <strong>{{ pathValidation.writable }}</strong></div>
+          <div>Framework detectado: <strong>{{ pathValidation.detectedFramework || '—' }}</strong></div>
+          <div>Linguagem detectada: <strong>{{ pathValidation.detectedLanguage || '—' }}</strong></div>
+          <div>Package Manager: <strong>{{ pathValidation.packageManager || '—' }}</strong></div>
+          <div>Arquivo de configuração: <strong>{{ pathValidation.configurationFile || '—' }}</strong></div>
+          @if (pathValidation.warnings.length) {
+            <div>Avisos: {{ pathValidation.warnings.join(' | ') }}</div>
+          }
+        </div>
+      }
 
-      <div *ngIf="execution" class="box">
-        <h4>Resumo da execução</h4>
-        <div>ExecutionId: <strong>{{ execution.executionId }}</strong></div>
-        <div>Título: <strong>{{ execution.title || '—' }}</strong></div>
-        <div>ScenarioId: <strong>{{ execution.scenarioId || '—' }}</strong></div>
-        <div>Projeto: <strong>{{ execution.projectPath || '—' }}</strong></div>
-        <div>Modo: <strong>{{ execution.mode || '—' }}</strong></div>
-        <div>Framework: <strong>{{ execution.framework || '—' }}</strong></div>
-        <div>Linguagem: <strong>{{ execution.language || '—' }}</strong></div>
-        <div>Permite UPDATE: <strong>{{ execution.allowFileUpdate ? 'Sim' : 'Não' }}</strong></div>
-        <div>Executar após geração: <strong>{{ execution.executeAfterGeneration ? 'Sim' : 'Não' }}</strong></div>
-        <div>Início: <strong>{{ execution.startedAt || '—' }}</strong></div>
-        <div>Fim: <strong>{{ execution.finishedAt || '—' }}</strong></div>
-      </div>
+      @if (execution) {
+        <div class="box">
+          <h4>Resumo da execução</h4>
+          <div>ExecutionId: <strong>{{ execution.executionId }}</strong></div>
+          <div>Título: <strong>{{ execution.title || '—' }}</strong></div>
+          <div>ScenarioId: <strong>{{ execution.scenarioId || '—' }}</strong></div>
+          <div>Projeto: <strong>{{ execution.projectPath || '—' }}</strong></div>
+          <div>Modo: <strong>{{ execution.mode || '—' }}</strong></div>
+          <div>Framework: <strong>{{ execution.framework || '—' }}</strong></div>
+          <div>Linguagem: <strong>{{ execution.language || '—' }}</strong></div>
+          <div>Permite UPDATE: <strong>{{ execution.allowFileUpdate ? 'Sim' : 'Não' }}</strong></div>
+          <div>Executar após geração: <strong>{{ execution.executeAfterGeneration ? 'Sim' : 'Não' }}</strong></div>
+          <div>Início: <strong>{{ execution.startedAt || '—' }}</strong></div>
+          <div>Fim: <strong>{{ execution.finishedAt || '—' }}</strong></div>
+        </div>
+      }
 
-      <div *ngIf="execution?.discoveryResult" class="box">
-        <h4>Descoberta</h4>
-        <div>Framework informado: <strong>{{ execution?.discoveryResult?.informedFramework || '—' }}</strong></div>
-        <div>Framework detectado: <strong>{{ execution?.discoveryResult?.detectedFramework || '—' }}</strong></div>
-        <div>Linguagem informada: <strong>{{ execution?.discoveryResult?.informedLanguage || '—' }}</strong></div>
-        <div>Linguagem detectada: <strong>{{ execution?.discoveryResult?.detectedLanguage || '—' }}</strong></div>
-        <div>Package manager: <strong>{{ execution?.discoveryResult?.packageManager || '—' }}</strong></div>
-        <div>Arquivo de configuração: <strong>{{ execution?.discoveryResult?.configurationFile || '—' }}</strong></div>
-        <div>Comandos detectados: {{ listValue(discoveredCommands()) }}</div>
-        <div>Evidências: {{ listValue(execution?.discoveryResult?.detectionEvidences) }}</div>
-        <div>Divergências: {{ listValue(execution?.discoveryResult?.divergences) }}</div>
-      </div>
+      @if (execution?.discoveryResult) {
+        <div class="box">
+          <h4>Descoberta</h4>
+          <div>Framework informado: <strong>{{ execution?.discoveryResult?.informedFramework || '—' }}</strong></div>
+          <div>Framework detectado: <strong>{{ execution?.discoveryResult?.detectedFramework || '—' }}</strong></div>
+          <div>Linguagem informada: <strong>{{ execution?.discoveryResult?.informedLanguage || '—' }}</strong></div>
+          <div>Linguagem detectada: <strong>{{ execution?.discoveryResult?.detectedLanguage || '—' }}</strong></div>
+          <div>Package manager: <strong>{{ execution?.discoveryResult?.packageManager || '—' }}</strong></div>
+          <div>Arquivo de configuração: <strong>{{ execution?.discoveryResult?.configurationFile || '—' }}</strong></div>
+          <div>Comandos detectados: {{ listValue(discoveredCommands()) }}</div>
+          <div>Evidências: {{ listValue($safeNavigationMigration(execution?.discoveryResult?.detectionEvidences)) }}</div>
+          <div>Divergências: {{ listValue($safeNavigationMigration(execution?.discoveryResult?.divergences)) }}</div>
+        </div>
+      }
 
-      <div *ngIf="execution?.projectAnalysis" class="box">
-        <h4>Análise técnica</h4>
-        <div>Classes encontradas: <strong>{{ execution?.projectAnalysis?.classes?.length || 0 }}</strong></div>
-        <div>Page Objects: <strong>{{ execution?.projectAnalysis?.pageObjects?.length || 0 }}</strong></div>
-        <div>Métodos (aprox.): <strong>{{ totalMethods() }}</strong></div>
-        <div>Fixtures: {{ listValue(execution?.projectAnalysis?.fixtureFiles) }}</div>
-        <div>Custom commands: {{ listValue(execution?.projectAnalysis?.customCommands) }}</div>
-        <div>Convenções: {{ listValue(execution?.projectAnalysis?.conventions) }}</div>
-        <div>Gaps: {{ listValue(execution?.projectAnalysis?.gaps) }}</div>
-      </div>
+      @if (execution?.projectAnalysis) {
+        <div class="box">
+          <h4>Análise técnica</h4>
+          <div>Classes encontradas: <strong>{{ execution?.projectAnalysis?.classes?.length || 0 }}</strong></div>
+          <div>Page Objects: <strong>{{ execution?.projectAnalysis?.pageObjects?.length || 0 }}</strong></div>
+          <div>Métodos (aprox.): <strong>{{ totalMethods() }}</strong></div>
+          <div>Fixtures: {{ listValue($safeNavigationMigration(execution?.projectAnalysis?.fixtureFiles)) }}</div>
+          <div>Custom commands: {{ listValue($safeNavigationMigration(execution?.projectAnalysis?.customCommands)) }}</div>
+          <div>Convenções: {{ listValue($safeNavigationMigration(execution?.projectAnalysis?.conventions)) }}</div>
+          <div>Gaps: {{ listValue($safeNavigationMigration(execution?.projectAnalysis?.gaps)) }}</div>
+        </div>
+      }
     </section>
 
-    <section class="section" *ngIf="plan">
-      <h3>Plano técnico</h3>
-      <div class="box">
-        <div>Nome do teste: <strong>{{ plan.testName || '—' }}</strong></div>
-        <div>Objetivo: <strong>{{ plan.objective || '—' }}</strong></div>
-        <div>Bloqueado: <strong>{{ plan.blocked ? 'Sim' : 'Não' }}</strong></div>
-        <div *ngIf="plan.blocked">Motivo do bloqueio: <strong>{{ plan.blockedReason || '—' }}</strong></div>
-        <div>Pré-condições: {{ listValue(plan.preconditions) }}</div>
-        <div>Dados necessários: {{ listValue(plan.requiredData) }}</div>
-        <div>Page Objects/componentes reutilizados: {{ listValue(plan.existingComponentsToReuse) }}</div>
-        <div>Classes reutilizadas: {{ listValue(plan.existingClassesToUse) }}</div>
-        <div>Métodos reutilizados: {{ listValue(plan.existingMethodsToUse) }}</div>
-        <div>Arquivos para criar: {{ listValue(plan.filesToCreate) }}</div>
-        <div>Arquivos para atualizar: {{ listValue(plan.filesToUpdate) }}</div>
-        <div>Asserções: {{ listValue(plan.assertions) }}</div>
-        <div>Riscos: {{ listValue(plan.risks) }}</div>
-        <div>Pendências: {{ listValue(plan.pendingItems) }}</div>
-        <div>Elementos não encontrados: {{ listValue(plan.missingElements) }}</div>
-      </div>
-    </section>
+    @if (plan) {
+      <section class="section">
+        <h3>Plano técnico</h3>
+        <div class="box">
+          <div>Nome do teste: <strong>{{ plan.testName || '—' }}</strong></div>
+          <div>Objetivo: <strong>{{ plan.objective || '—' }}</strong></div>
+          <div>Bloqueado: <strong>{{ plan.blocked ? 'Sim' : 'Não' }}</strong></div>
+          @if (plan.blocked) {
+            <div>Motivo do bloqueio: <strong>{{ plan.blockedReason || '—' }}</strong></div>
+          }
+          <div>Pré-condições: {{ listValue(plan.preconditions) }}</div>
+          <div>Dados necessários: {{ listValue(plan.requiredData) }}</div>
+          <div>Page Objects/componentes reutilizados: {{ listValue(plan.existingComponentsToReuse) }}</div>
+          <div>Classes reutilizadas: {{ listValue(plan.existingClassesToUse) }}</div>
+          <div>Métodos reutilizados: {{ listValue(plan.existingMethodsToUse) }}</div>
+          <div>Arquivos para criar: {{ listValue(plan.filesToCreate) }}</div>
+          <div>Arquivos para atualizar: {{ listValue(plan.filesToUpdate) }}</div>
+          <div>Asserções: {{ listValue(plan.assertions) }}</div>
+          <div>Riscos: {{ listValue(plan.risks) }}</div>
+          <div>Pendências: {{ listValue(plan.pendingItems) }}</div>
+          <div>Elementos não encontrados: {{ listValue(plan.missingElements) }}</div>
+        </div>
+      </section>
+    }
 
     <section class="section">
       <h3>Arquivos gerados</h3>
-      <div *ngIf="!fileItems.length" class="box">Nenhum arquivo carregado. Clique em "Visualizar arquivos".</div>
+      @if (!fileItems.length) {
+        <div class="box">Nenhum arquivo carregado. Clique em "Visualizar arquivos".</div>
+      }
 
-      <div *ngIf="fileItems.length" class="files">
-        <div class="file-row" *ngFor="let file of fileItems">
-          <div class="file-meta">
-            <strong>{{ file.relativePath }}</strong>
-            <span>Operação: {{ file.operation || 'CREATE' }} | Hash: {{ file.generatedHash || file.hash || '—' }}</span>
-          </div>
-          <div class="file-actions">
-            <button type="button" (click)="previewFile(file.relativePath)" [disabled]="loadingPreview">Ver conteúdo</button>
-            <button type="button" (click)="downloadFile(file.relativePath)">Download</button>
-          </div>
+      @if (fileItems.length) {
+        <div class="files">
+          @for (file of fileItems; track file) {
+            <div class="file-row">
+              <div class="file-meta">
+                <strong>{{ file.relativePath }}</strong>
+                <span>Operação: {{ file.operation || 'CREATE' }} | Hash: {{ file.generatedHash || file.hash || '—' }}</span>
+              </div>
+              <div class="file-actions">
+                <button type="button" (click)="previewFile(file.relativePath)" [disabled]="loadingPreview">Ver conteúdo</button>
+                <button type="button" (click)="downloadFile(file.relativePath)">Download</button>
+              </div>
+            </div>
+          }
         </div>
-      </div>
+      }
 
-      <div *ngIf="previewContent !== null" class="box">
-        <h4>Pré-visualização: {{ previewFilePath }}</h4>
-        <pre>{{ previewContent }}</pre>
-      </div>
+      @if (previewContent !== null) {
+        <div class="box">
+          <h4>Pré-visualização: {{ previewFilePath }}</h4>
+          <pre>{{ previewContent }}</pre>
+        </div>
+      }
     </section>
 
-    <section class="section" *ngIf="execution?.codeReviewResult || execution?.executionResult || execution?.failureAnalysisResult">
-      <h3>Resultado final</h3>
-      <div class="box" *ngIf="execution?.codeReviewResult">
-        <h4>Revisão de código</h4>
-        <div>Aprovado: <strong>{{ execution?.codeReviewResult?.approved ? 'Sim' : 'Não' }}</strong></div>
-        <div>Revisão: <strong>{{ execution?.codeReviewResult?.revisionNumber }}</strong></div>
-        <div>Sugestões: {{ listValue(execution?.codeReviewResult?.suggestions) }}</div>
-      </div>
+    @if (execution?.codeReviewResult || execution?.executionResult || execution?.failureAnalysisResult) {
+      <section class="section">
+        <h3>Resultado final</h3>
+        @if (execution?.codeReviewResult) {
+          <div class="box">
+            <h4>Revisão de código</h4>
+            <div>Aprovado: <strong>{{ execution?.codeReviewResult?.approved ? 'Sim' : 'Não' }}</strong></div>
+            <div>Revisão: <strong>{{ execution?.codeReviewResult?.revisionNumber }}</strong></div>
+            <div>Sugestões: {{ listValue($safeNavigationMigration(execution?.codeReviewResult?.suggestions)) }}</div>
+          </div>
+        }
+        @if (execution?.executionResult) {
+          <div class="box">
+            <h4>Execução de teste</h4>
+            <div>Comando: <strong>{{ execution?.executionResult?.command || '—' }}</strong></div>
+            <div>Exit code: <strong>{{ execution?.executionResult?.exitCode }}</strong></div>
+            <div>Stdout:</div>
+            <pre>{{ execution?.executionResult?.stdout || '' }}</pre>
+            <div>Stderr:</div>
+            <pre>{{ execution?.executionResult?.stderr || '' }}</pre>
+          </div>
+        }
+        @if (execution?.failureAnalysisResult) {
+          <div class="box">
+            <h4>Análise de falha</h4>
+            <div>Tipo: <strong>{{ execution?.failureAnalysisResult?.failureType || '—' }}</strong></div>
+            <div>Resumo: <strong>{{ execution?.failureAnalysisResult?.summary || '—' }}</strong></div>
+            <div>Causa provável: <strong>{{ execution?.failureAnalysisResult?.probableCause || '—' }}</strong></div>
+            <div>Arquivos afetados: {{ listValue($safeNavigationMigration(execution?.failureAnalysisResult?.affectedFiles)) }}</div>
+            <div>Sugestões: {{ listValue($safeNavigationMigration(execution?.failureAnalysisResult?.suggestedChanges)) }}</div>
+          </div>
+        }
+      </section>
+    }
 
-      <div class="box" *ngIf="execution?.executionResult">
-        <h4>Execução de teste</h4>
-        <div>Comando: <strong>{{ execution?.executionResult?.command || '—' }}</strong></div>
-        <div>Exit code: <strong>{{ execution?.executionResult?.exitCode }}</strong></div>
-        <div>Stdout:</div>
-        <pre>{{ execution?.executionResult?.stdout || '' }}</pre>
-        <div>Stderr:</div>
-        <pre>{{ execution?.executionResult?.stderr || '' }}</pre>
-      </div>
-
-      <div class="box" *ngIf="execution?.failureAnalysisResult">
-        <h4>Análise de falha</h4>
-        <div>Tipo: <strong>{{ execution?.failureAnalysisResult?.failureType || '—' }}</strong></div>
-        <div>Resumo: <strong>{{ execution?.failureAnalysisResult?.summary || '—' }}</strong></div>
-        <div>Causa provável: <strong>{{ execution?.failureAnalysisResult?.probableCause || '—' }}</strong></div>
-        <div>Arquivos afetados: {{ listValue(execution?.failureAnalysisResult?.affectedFiles) }}</div>
-        <div>Sugestões: {{ listValue(execution?.failureAnalysisResult?.suggestedChanges) }}</div>
-      </div>
-    </section>
-
-    <div *ngIf="message" class="feedback success">{{ message }}</div>
-    <div *ngIf="error" class="feedback error">{{ error }}</div>
+    @if (message) {
+      <div class="feedback success">{{ message }}</div>
+    }
+    @if (error) {
+      <div class="feedback error">{{ error }}</div>
+    }
   </div>
 </div>
