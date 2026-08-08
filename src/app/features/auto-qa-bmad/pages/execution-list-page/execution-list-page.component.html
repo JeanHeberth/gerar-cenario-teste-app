@@ -14,7 +14,12 @@
   }
 
   @if (state.loading()) {
-    <aqb-loading label="Carregando execuções..." />
+    <div class="execution-list-page__grid execution-list-page__skeleton" role="status" aria-label="Carregando execuções...">
+      <span class="aq-sr-only">Carregando execuções...</span>
+      <aqb-skeleton variant="block" />
+      <aqb-skeleton variant="block" />
+      <aqb-skeleton variant="block" />
+    </div>
   } @else if (!state.hasExecutions()) {
     <aqb-empty-state title="Nenhuma execução disponível." description="Crie a primeira execução preenchendo o formulário acima." />
   } @else {

@@ -1,9 +1,19 @@
 @if (open()) {
   <div class="aqb-modal__overlay">
-    <div class="aqb-modal" role="dialog" aria-modal="true" [attr.aria-label]="title()">
+    <div
+      class="aqb-modal"
+      role="dialog"
+      aria-modal="true"
+      tabindex="-1"
+      [attr.aria-labelledby]="title() ? titleId : null"
+      [attr.aria-describedby]="describedBy() || null"
+      (keydown.escape)="onEscape()"
+      (keydown.tab)="onTab($event)"
+      (keydown.shift.tab)="onShiftTab($event)"
+    >
       <header class="aqb-modal__header">
         @if (title()) {
-          <h2 class="aqb-modal__title">{{ title() }}</h2>
+          <h2 class="aqb-modal__title" [id]="titleId">{{ title() }}</h2>
         }
         <button type="button" class="aqb-modal__close" aria-label="Fechar" (click)="onClose()">×</button>
       </header>

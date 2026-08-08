@@ -13,10 +13,10 @@ describe('resolveExecutionFinalMessage', () => {
     expect(resolveExecutionFinalMessage('CANCELLED')).toBe('Execução cancelada.');
   });
 
-  it('retorna "Execução interrompida." para os estados de espera de aprovação (BLOCKED)', () => {
-    expect(resolveExecutionFinalMessage('WAITING_GENERATION_APPROVAL')).toBe('Execução interrompida.');
-    expect(resolveExecutionFinalMessage('WAITING_APPLY_APPROVAL')).toBe('Execução interrompida.');
-    expect(resolveExecutionFinalMessage('WAITING_EXECUTION_APPROVAL')).toBe('Execução interrompida.');
+  it('retorna "Execução aguardando aprovação." para os estados de espera de aprovação (WAITING)', () => {
+    expect(resolveExecutionFinalMessage('WAITING_GENERATION_APPROVAL')).toBe('Execução aguardando aprovação.');
+    expect(resolveExecutionFinalMessage('WAITING_APPLY_APPROVAL')).toBe('Execução aguardando aprovação.');
+    expect(resolveExecutionFinalMessage('WAITING_EXECUTION_APPROVAL')).toBe('Execução aguardando aprovação.');
   });
 
   it('retorna "Execução em andamento." para CREATED e RUNNING (IN_PROGRESS)', () => {

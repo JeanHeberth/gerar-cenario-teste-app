@@ -18,9 +18,10 @@
     border-radius: var(--aq-radius-md);
     padding: var(--aq-space-2) var(--aq-space-3);
 
-    &:focus {
+    &:focus-visible {
       outline: none;
-      border-color: var(--aq-primary);
+      border-color: var(--aq-focus-ring-color);
+      box-shadow: 0 0 0 var(--aq-focus-ring-width) var(--aq-focus-ring-shadow);
     }
 
     &[aria-invalid='true'] {

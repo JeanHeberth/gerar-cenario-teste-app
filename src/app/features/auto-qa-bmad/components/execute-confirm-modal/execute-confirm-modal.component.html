@@ -1,5 +1,13 @@
-<aqb-modal [open]="open()" title="Executar testes" (closed)="onDismiss()">
-  <p class="execute-confirm-modal__warning">Os testes automatizados serão executados pelo backend.</p>
+<aqb-modal
+  [open]="open()"
+  [busy]="submitting()"
+  title="Executar testes"
+  describedBy="execute-confirm-modal-description"
+  (closed)="onDismiss()"
+>
+  <p id="execute-confirm-modal-description" class="execute-confirm-modal__warning">
+    Os testes automatizados serão executados pelo backend.
+  </p>
 
   <ul class="execute-confirm-modal__details">
     <li>A operação pode levar algum tempo até ser concluída.</li>

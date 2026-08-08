@@ -13,6 +13,24 @@ describe('ActionBarComponent', () => {
     return Array.from(fixture.nativeElement.querySelectorAll('.action-bar__item'));
   }
 
+  it('aplica classe visual por categoria (primary/approval/destructive/inspection) sem alterar ordem/disponibilidade', () => {
+    fixture.componentRef.setInput('availableActions', ['START', 'APPROVE_EXECUTION', 'CANCEL', 'VIEW_LOGS']);
+    fixture.detectChanges();
+
+    const items = buttons();
+    expect(items[0].classList).toContain('action-bar__item--primary');
+    expect(items[1].classList).toContain('action-bar__item--approval');
+    expect(items[2].classList).toContain('action-bar__item--destructive');
+    expect(items[3].classList).toContain('action-bar__item--inspection');
+    // ordem preservada exatamente como availableActions, apesar das classes visuais diferentes
+    expect(items.map((i) => i.textContent?.trim())).toEqual([
+      jasmine.stringMatching('Iniciar'),
+      jasmine.stringMatching('Aprovar execução'),
+      jasmine.stringMatching('Cancelar'),
+      jasmine.stringMatching('Ver logs'),
+    ]);
+  });
+
   it('renderiza um botão por ação recebida, exatamente na ordem recebida', () => {
     fixture.componentRef.setInput('availableActions', ['START', 'CANCEL']);
     fixture.detectChanges();

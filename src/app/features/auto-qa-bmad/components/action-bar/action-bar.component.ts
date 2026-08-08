@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { AqbLoadingComponent } from '../../shared/ui/loading/aqb-loading.component';
 import { AutoQaAvailableAction } from '../../models/auto-qa-enums.model';
-import { getActionLabel } from '../../models/auto-qa-action-catalog';
+import { getActionLabel, getActionVisualKind } from '../../models/auto-qa-action-catalog';
 
 /**
  * Ações com comportamento real definido para além do hint genérico.
@@ -49,6 +49,15 @@ export class ActionBarComponent {
 
   protected labelFor(action: AutoQaAvailableAction): string {
     return getActionLabel(action);
+  }
+
+  /**
+   * Puramente visual (hierarquia/peso do botão) — nunca influencia
+   * isDisabled/isFunctional, que continuam vindo exclusivamente de
+   * availableActions.
+   */
+  protected visualKind(action: AutoQaAvailableAction): string {
+    return getActionVisualKind(action);
   }
 
   protected isFunctional(action: AutoQaAvailableAction): boolean {

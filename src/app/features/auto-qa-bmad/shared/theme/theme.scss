@@ -51,4 +51,60 @@
   --aq-transition-normal: 200ms ease;
   --aq-panel-max-width: 480px;
   --aq-content-max-width: 1120px;
+
+  // Foco — token único para consistência visual de :focus-visible em toda
+  // a feature (Fase 12.3.8). Nunca remover o indicador de foco sem
+  // substituir por este token.
+  --aq-focus-ring-color: var(--aq-primary);
+  --aq-focus-ring-width: 2px;
+  --aq-focus-ring-offset: 2px;
+  // Mesma cor de --aq-primary (#10a37f) em rgba, para uso em box-shadow de
+  // foco (inputs/textarea) sem duplicar HEX solto fora deste arquivo.
+  --aq-focus-ring-shadow: rgba(16, 163, 127, 0.35);
+}
+
+// Foco visível consistente para elementos interativos (Fase 12.3.8). Este
+// arquivo já é carregado como estilo global pelo Angular CLI (ver
+// angular.json "styles"), não escoped por componente — por isso a regra
+// abaixo é global de propósito, e não uma tentativa de seletor de atributo
+// (que seria impreciso). Substitui a dependência do outline padrão do
+// navegador (inconsistente entre navegadores/temas) sem exigir que cada
+// componente da feature declare sua própria regra de :focus-visible.
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role='tab']:focus-visible,
+[role='button']:focus-visible,
+[tabindex]:focus-visible {
+  outline: var(--aq-focus-ring-width) solid var(--aq-focus-ring-color);
+  outline-offset: var(--aq-focus-ring-offset);
+}
+
+// Respeita a preferência do usuário por menos movimento — neutraliza
+// animações/transições (spinner, hover, seleção de tab, abertura de
+// modal) sem remover o feedback visual em si (ele continua existindo,
+// só sem a transição/animação).
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Texto acessível para leitor de tela, visualmente oculto — usado junto de
+// elementos decorativos (ex.: aqb-skeleton, aria-hidden) que precisam de um
+// anúncio textual equivalente em role="status".
+.aq-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

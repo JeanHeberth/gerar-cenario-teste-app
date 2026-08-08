@@ -42,3 +42,9 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Playwright E2E (Fase 12.3.8)
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache

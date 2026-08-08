@@ -93,4 +93,26 @@ describe('ExecuteConfirmModalComponent', () => {
     );
     expect(confirmButton.disabled).toBeTrue();
   });
+
+  it('propaga submitting como busy para o aqb-modal (Escape não fecha durante a execução)', () => {
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('submitting', true);
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('[role="dialog"]');
+    dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="dialog"]')).not.toBeNull();
+  });
+
+  it('aria-describedby do diálogo aponta para a descrição visual da execução', () => {
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    const dialog: HTMLElement = fixture.nativeElement.querySelector('[role="dialog"]');
+    const describedBy = dialog.getAttribute('aria-describedby');
+    expect(describedBy).toBe('execute-confirm-modal-description');
+    expect(fixture.nativeElement.querySelector('#' + describedBy)).not.toBeNull();
+  });
 });
