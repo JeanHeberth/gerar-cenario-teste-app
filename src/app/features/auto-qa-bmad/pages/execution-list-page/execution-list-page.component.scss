@@ -12,29 +12,46 @@
     gap: var(--aq-space-4);
   }
 
-  &__item {
-    text-decoration: none;
-    color: inherit;
+  // Placeholders do mesmo tamanho aproximado de um app-execution-card real.
+  &__skeleton .aqb-skeleton__item--block {
+    height: 160px;
   }
 
-  &__scenario {
-    margin: 0 0 var(--aq-space-3);
-    font-size: var(--aq-font-size-sm);
-    color: var(--aq-text-primary);
+  &__item {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--aq-radius-lg);
+
+    // O card em si (aqb-card) tem sua própria borda — reforçamos com a cor
+    // primária no hover/foco do link que o envolve, para comunicar
+    // clicabilidade sem precisar de sombra pesada.
+    &:hover .aqb-card,
+    &:focus-visible .aqb-card {
+      border-color: var(--aq-primary);
+    }
   }
 
   &__error {
-    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--aq-space-3);
     padding: var(--aq-space-3) var(--aq-space-4);
     border-radius: var(--aq-radius-md);
     border: var(--aq-border-width) solid var(--aq-danger);
     background: rgba(224, 90, 79, 0.1);
     color: var(--aq-text-secondary);
     font-size: var(--aq-font-size-sm);
+
+    p {
+      margin: 0;
+    }
   }
 
   &__pagination {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--aq-space-3);
     font-size: var(--aq-font-size-sm);

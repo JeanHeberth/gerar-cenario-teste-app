@@ -1,15 +1,24 @@
 .execution-approval-panel {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-4);
 
   &__fieldset {
     border: none;
     padding: 0;
-    margin: var(--aq-space-3) 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--aq-space-1);
 
     legend {
       font-size: var(--aq-font-size-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
       color: var(--aq-text-muted);
-      margin-bottom: var(--aq-space-1);
+      margin-bottom: var(--aq-space-2);
+      padding: 0;
     }
   }
 
@@ -20,11 +29,22 @@
     font-family: var(--aq-font-family);
     font-size: var(--aq-font-size-sm);
     color: var(--aq-text-secondary);
-    margin-bottom: var(--aq-space-1);
+    padding: var(--aq-space-1) var(--aq-space-2);
+    border-radius: var(--aq-radius-sm);
+    cursor: pointer;
+    transition: background var(--aq-transition-fast);
+
+    &:hover {
+      background: var(--aq-panel);
+      color: var(--aq-text-primary);
+    }
+
+    input[type='checkbox'] {
+      accent-color: var(--aq-primary);
+    }
   }
 
   &__submit {
     display: inline-block;
-    margin-top: var(--aq-space-3);
   }
 }

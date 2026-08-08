@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AutoQaExecutionStateService } from '../../state/auto-qa-execution-state.service';
 import { AqbPageHeaderComponent } from '../../shared/ui/page-header/aqb-page-header.component';
-import { AqbLoadingComponent } from '../../shared/ui/loading/aqb-loading.component';
+import { AqbSkeletonComponent } from '../../shared/ui/skeleton/aqb-skeleton.component';
 import { AqbButtonComponent } from '../../shared/ui/button/aqb-button.component';
 import { AqbStatusChipComponent } from '../../shared/ui/status-chip/aqb-status-chip.component';
 import { WorkflowOverviewComponent } from '../../components/workflow-overview/workflow-overview.component';
@@ -13,7 +13,10 @@ import { StageDetailPanelComponent } from '../../components/stage-detail-panel/s
 import { ExecutionSummaryComponent } from '../../components/execution-summary/execution-summary.component';
 import { ActionBarComponent } from '../../components/action-bar/action-bar.component';
 import { ExecutionStatusHeaderComponent } from '../../components/execution-status-header/execution-status-header.component';
-import { ExecutionResultSummaryComponent } from '../../components/execution-result-summary/execution-result-summary.component';
+import {
+  ExecutionInspectionPanelComponent,
+  InspectionTabId,
+} from '../../components/execution-inspection-panel/execution-inspection-panel.component';
 import { CancelConfirmModalComponent } from '../../components/cancel-confirm-modal/cancel-confirm-modal.component';
 import { ApplyConfirmModalComponent } from '../../components/apply-confirm-modal/apply-confirm-modal.component';
 import { ExecuteConfirmModalComponent } from '../../components/execute-confirm-modal/execute-confirm-modal.component';
@@ -43,7 +46,7 @@ import {
   imports: [
     RouterLink,
     AqbPageHeaderComponent,
-    AqbLoadingComponent,
+    AqbSkeletonComponent,
     AqbButtonComponent,
     AqbStatusChipComponent,
     WorkflowOverviewComponent,
@@ -52,7 +55,7 @@ import {
     ExecutionSummaryComponent,
     ActionBarComponent,
     ExecutionStatusHeaderComponent,
-    ExecutionResultSummaryComponent,
+    ExecutionInspectionPanelComponent,
     CancelConfirmModalComponent,
     ApplyApprovalPanelComponent,
     ExecutionApprovalPanelComponent,
@@ -75,6 +78,9 @@ export class ExecutionDetailPageComponent implements OnInit {
   protected readonly showExecutionApprovalPanel = signal(false);
   protected readonly showApplyConfirm = signal(false);
   protected readonly showExecuteConfirm = signal(false);
+
+  /** Aba selecionada do Inspection Panel — estado de UI puro, nunca vai para o state service. */
+  protected readonly selectedInspectionResource = signal<InspectionTabId>('RESUMO');
 
   /** Seleção efetiva: escolha explícita do usuário, com fallback currentStage → lastStageCompleted → primeira etapa do catálogo. */
   protected readonly selectedStage = computed<AutoQaStageId>(() => {
@@ -140,6 +146,23 @@ export class ExecutionDetailPageComponent implements OnInit {
         break;
       case 'EXECUTE':
         this.showExecuteConfirm.set(true);
+        break;
+      case 'VIEW_GENERATED_FILES':
+        // Navegação de UI pura — abre a aba correspondente do Inspection
+        // Panel. Nenhuma chamada HTTP: o recurso é UNAVAILABLE no contrato
+        // atual, e o próprio painel comunica isso.
+        this.selectedInspectionResource.set('GENERATED_FILES');
+        break;
+      case 'VIEW_DIFF':
+        this.selectedInspectionResource.set('DIFF');
+        break;
+      case 'VIEW_LOGS':
+        this.selectedInspectionResource.set('LOGS');
+        break;
+      case 'VIEW_LEARNING':
+        // Também navegação de UI pura — reaproveita a seleção de etapa já
+        // existente para apontar o StageDetailPanel para LEARNING.
+        this._selectedStage.set('LEARNING');
         break;
       default:
         // Ação ainda não suportada — a ActionBar já a mantém desabilitada,

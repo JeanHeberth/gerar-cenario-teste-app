@@ -10,6 +10,9 @@
     gap: var(--aq-space-1);
   }
 
+  // Peso visual por categoria da ação (Fase 12.3.8) — nunca decide se a
+  // ação está disponível, só a hierarquia visual do botão. Ordem e
+  // presença continuam vindo exatamente de availableActions.
   &__item {
     font-family: var(--aq-font-family);
     font-size: var(--aq-font-size-sm);
@@ -19,7 +22,7 @@
     color: var(--aq-primary);
     padding: var(--aq-space-2) var(--aq-space-4);
     cursor: pointer;
-    transition: background var(--aq-transition-fast), opacity var(--aq-transition-fast);
+    transition: background var(--aq-transition-fast), opacity var(--aq-transition-fast), border-color var(--aq-transition-fast);
 
     &:hover:not(:disabled) {
       background: var(--aq-primary);
@@ -32,6 +35,51 @@
       color: var(--aq-text-muted);
       cursor: not-allowed;
     }
+  }
+
+  // primary (START/CONTINUE/GENERATE/APPLY/EXECUTE) usa o estilo base
+  // acima — é a ação mais destacada, preenchida ao passar o mouse.
+
+  &__item--approval {
+    border-color: var(--aq-warning);
+    color: var(--aq-warning);
+
+    &:hover:not(:disabled) {
+      background: var(--aq-warning);
+      color: var(--aq-background);
+    }
+  }
+
+  &__item--destructive {
+    border-color: transparent;
+    background: transparent;
+    color: var(--aq-danger);
+
+    &:hover:not(:disabled) {
+      background: rgba(224, 90, 79, 0.12);
+    }
+  }
+
+  // inspection (VIEW_*) é navegação secundária — discreta, sem preencher
+  // no hover, para não competir com as ações principais.
+  &__item--inspection {
+    border-color: var(--aq-border);
+    color: var(--aq-text-secondary);
+
+    &:hover:not(:disabled) {
+      background: var(--aq-panel);
+      color: var(--aq-text-primary);
+    }
+  }
+
+  // Reforço: desabilitado sempre vence a cor de categoria, independente da
+  // ordem de declaração dos modificadores acima (mesma especificidade).
+  &__item--approval:disabled,
+  &__item--destructive:disabled,
+  &__item--inspection:disabled {
+    border-color: var(--aq-border);
+    background: var(--aq-panel);
+    color: var(--aq-text-muted);
   }
 
   &__hint {

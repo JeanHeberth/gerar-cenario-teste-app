@@ -1,5 +1,11 @@
-<aqb-modal [open]="open()" title="Cancelar execução" (closed)="onDismiss()">
-  <p class="cancel-confirm-modal__warning">
+<aqb-modal
+  [open]="open()"
+  [busy]="submitting()"
+  title="Cancelar execução"
+  describedBy="cancel-confirm-modal-description"
+  (closed)="onDismiss()"
+>
+  <p id="cancel-confirm-modal-description" class="cancel-confirm-modal__warning">
     Esta ação vai cancelar a execução. Ela não poderá continuar depois disso.
   </p>
 

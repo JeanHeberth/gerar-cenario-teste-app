@@ -1,0 +1,61 @@
+.execution-inspection-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-3);
+
+  &__tablist {
+    display: flex;
+    gap: var(--aq-space-2);
+    overflow-x: auto;
+    border-bottom: var(--aq-border-width) solid var(--aq-border);
+    padding-bottom: var(--aq-space-1);
+  }
+
+  &__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--aq-space-2);
+    flex: none;
+    padding: var(--aq-space-2) var(--aq-space-3);
+    border: none;
+    background: transparent;
+    border-radius: var(--aq-radius-md) var(--aq-radius-md) 0 0;
+    color: var(--aq-text-secondary);
+    font-family: var(--aq-font-family);
+    font-size: var(--aq-font-size-sm);
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--aq-panel);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--aq-primary);
+      outline-offset: 2px;
+    }
+
+    &[aria-selected='true'] {
+      color: var(--aq-text-primary);
+      background: var(--aq-panel);
+      box-shadow: inset 0 -2px 0 var(--aq-primary);
+    }
+  }
+
+  &__tab-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &__panel {
+    &:focus-visible {
+      outline: 2px solid var(--aq-primary);
+      outline-offset: 2px;
+    }
+  }
+}

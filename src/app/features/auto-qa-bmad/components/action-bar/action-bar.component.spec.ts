@@ -13,6 +13,24 @@ describe('ActionBarComponent', () => {
     return Array.from(fixture.nativeElement.querySelectorAll('.action-bar__item'));
   }
 
+  it('aplica classe visual por categoria (primary/approval/destructive/inspection) sem alterar ordem/disponibilidade', () => {
+    fixture.componentRef.setInput('availableActions', ['START', 'APPROVE_EXECUTION', 'CANCEL', 'VIEW_LOGS']);
+    fixture.detectChanges();
+
+    const items = buttons();
+    expect(items[0].classList).toContain('action-bar__item--primary');
+    expect(items[1].classList).toContain('action-bar__item--approval');
+    expect(items[2].classList).toContain('action-bar__item--destructive');
+    expect(items[3].classList).toContain('action-bar__item--inspection');
+    // ordem preservada exatamente como availableActions, apesar das classes visuais diferentes
+    expect(items.map((i) => i.textContent?.trim())).toEqual([
+      jasmine.stringMatching('Iniciar'),
+      jasmine.stringMatching('Aprovar execução'),
+      jasmine.stringMatching('Cancelar'),
+      jasmine.stringMatching('Ver logs'),
+    ]);
+  });
+
   it('renderiza um botão por ação recebida, exatamente na ordem recebida', () => {
     fixture.componentRef.setInput('availableActions', ['START', 'CANCEL']);
     fixture.detectChanges();
@@ -35,8 +53,8 @@ describe('ActionBarComponent', () => {
     expect(buttons().length).toBe(1);
   });
 
-  it('ações ainda não suportadas (ex.: VIEW_LOGS) permanecem desabilitadas com o aviso', () => {
-    fixture.componentRef.setInput('availableActions', ['VIEW_LOGS']);
+  it('ações ainda não suportadas (ex.: RETRY) permanecem desabilitadas com o aviso', () => {
+    fixture.componentRef.setInput('availableActions', ['RETRY']);
     fixture.detectChanges();
 
     const item = buttons()[0];
@@ -44,7 +62,7 @@ describe('ActionBarComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Disponível em uma próxima etapa.');
   });
 
-  it('ações funcionais (START/CONTINUE/GENERATE/CANCEL/APPROVE_FILE_UPDATE/APPROVE_EXECUTION/APPLY/EXECUTE) ficam habilitadas, sem o aviso', () => {
+  it('ações funcionais (START/CONTINUE/GENERATE/CANCEL/APPROVE_FILE_UPDATE/APPROVE_EXECUTION/APPLY/EXECUTE/VIEW_GENERATED_FILES/VIEW_DIFF/VIEW_LOGS/VIEW_LEARNING) ficam habilitadas, sem o aviso', () => {
     fixture.componentRef.setInput('availableActions', [
       'START',
       'CONTINUE',
@@ -54,6 +72,10 @@ describe('ActionBarComponent', () => {
       'APPROVE_EXECUTION',
       'APPLY',
       'EXECUTE',
+      'VIEW_GENERATED_FILES',
+      'VIEW_DIFF',
+      'VIEW_LOGS',
+      'VIEW_LEARNING',
     ]);
     fixture.detectChanges();
 
@@ -61,6 +83,54 @@ describe('ActionBarComponent', () => {
       expect(item.disabled).toBeFalse();
     }
     expect(fixture.nativeElement.textContent).not.toContain('Disponível em uma próxima etapa.');
+  });
+
+  it('emite actionTriggered ao clicar em VIEW_GENERATED_FILES quando presente em availableActions', () => {
+    fixture.componentRef.setInput('availableActions', ['VIEW_GENERATED_FILES']);
+    fixture.detectChanges();
+
+    let emitted: string | undefined;
+    fixture.componentInstance.actionTriggered.subscribe((action) => (emitted = action));
+
+    buttons()[0].click();
+
+    expect(emitted).toBe('VIEW_GENERATED_FILES');
+  });
+
+  it('emite actionTriggered ao clicar em VIEW_DIFF quando presente em availableActions', () => {
+    fixture.componentRef.setInput('availableActions', ['VIEW_DIFF']);
+    fixture.detectChanges();
+
+    let emitted: string | undefined;
+    fixture.componentInstance.actionTriggered.subscribe((action) => (emitted = action));
+
+    buttons()[0].click();
+
+    expect(emitted).toBe('VIEW_DIFF');
+  });
+
+  it('emite actionTriggered ao clicar em VIEW_LOGS quando presente em availableActions', () => {
+    fixture.componentRef.setInput('availableActions', ['VIEW_LOGS']);
+    fixture.detectChanges();
+
+    let emitted: string | undefined;
+    fixture.componentInstance.actionTriggered.subscribe((action) => (emitted = action));
+
+    buttons()[0].click();
+
+    expect(emitted).toBe('VIEW_LOGS');
+  });
+
+  it('emite actionTriggered ao clicar em VIEW_LEARNING quando presente em availableActions', () => {
+    fixture.componentRef.setInput('availableActions', ['VIEW_LEARNING']);
+    fixture.detectChanges();
+
+    let emitted: string | undefined;
+    fixture.componentInstance.actionTriggered.subscribe((action) => (emitted = action));
+
+    buttons()[0].click();
+
+    expect(emitted).toBe('VIEW_LEARNING');
   });
 
   it('emite actionTriggered ao clicar em APPLY quando presente em availableActions', () => {
@@ -100,7 +170,7 @@ describe('ActionBarComponent', () => {
   });
 
   it('não emite actionTriggered ao clicar em uma ação ainda não suportada', () => {
-    fixture.componentRef.setInput('availableActions', ['VIEW_LOGS']);
+    fixture.componentRef.setInput('availableActions', ['RETRY']);
     fixture.detectChanges();
 
     let emitted = false;

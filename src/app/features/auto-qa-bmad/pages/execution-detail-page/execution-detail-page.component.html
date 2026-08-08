@@ -10,7 +10,11 @@
   }
 
   @if (state.loading() && !state.current()) {
-    <aqb-loading label="Carregando execução..." />
+    <div class="execution-detail-page__skeleton" role="status" aria-label="Carregando execução...">
+      <span class="aq-sr-only">Carregando execução...</span>
+      <aqb-skeleton variant="block" />
+      <aqb-skeleton variant="text" [count]="3" />
+    </div>
   }
 
   @if (state.current(); as execution) {
@@ -49,7 +53,11 @@
     <div class="execution-detail-page__footer">
       <app-execution-summary [execution]="execution" />
 
-      <app-execution-result-summary [execution]="execution" />
+      <app-execution-inspection-panel
+        [execution]="execution"
+        [selected]="selectedInspectionResource()"
+        (selectedChange)="selectedInspectionResource.set($event)"
+      />
 
       <app-action-bar
         [availableActions]="state.currentAvailableActions()"

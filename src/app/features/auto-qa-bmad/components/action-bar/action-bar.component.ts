@@ -1,12 +1,16 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { AqbLoadingComponent } from '../../shared/ui/loading/aqb-loading.component';
 import { AutoQaAvailableAction } from '../../models/auto-qa-enums.model';
-import { getActionLabel } from '../../models/auto-qa-action-catalog';
+import { getActionLabel, getActionVisualKind } from '../../models/auto-qa-action-catalog';
 
 /**
- * Ações que já têm despacho real no state service. APPLY/EXECUTE passaram a
- * ser funcionais na Fase 12.3.5. RETRY e as ações de visualização
- * (Preview/Diff/Logs/Learning) continuam fora.
+ * Ações com comportamento real definido para além do hint genérico.
+ * APPLY/EXECUTE passaram a ser funcionais (com despacho real no state
+ * service) na Fase 12.3.5. Na Fase 12.3.7, VIEW_GENERATED_FILES/VIEW_DIFF/
+ * VIEW_LOGS/VIEW_LEARNING também passaram a ser funcionais — mas como
+ * navegação de UI pura (abrem uma aba do Inspection Panel ou selecionam um
+ * stage), nunca chamando service/HttpClient. RETRY continua fora: não há
+ * endpoint/contrato público que o suporte.
  */
 const FUNCTIONAL_ACTIONS: ReadonlySet<AutoQaAvailableAction> = new Set([
   'START',
@@ -17,6 +21,10 @@ const FUNCTIONAL_ACTIONS: ReadonlySet<AutoQaAvailableAction> = new Set([
   'APPROVE_EXECUTION',
   'APPLY',
   'EXECUTE',
+  'VIEW_GENERATED_FILES',
+  'VIEW_DIFF',
+  'VIEW_LOGS',
+  'VIEW_LEARNING',
 ]);
 
 /**
@@ -41,6 +49,15 @@ export class ActionBarComponent {
 
   protected labelFor(action: AutoQaAvailableAction): string {
     return getActionLabel(action);
+  }
+
+  /**
+   * Puramente visual (hierarquia/peso do botão) — nunca influencia
+   * isDisabled/isFunctional, que continuam vindo exclusivamente de
+   * availableActions.
+   */
+  protected visualKind(action: AutoQaAvailableAction): string {
+    return getActionVisualKind(action);
   }
 
   protected isFunctional(action: AutoQaAvailableAction): boolean {

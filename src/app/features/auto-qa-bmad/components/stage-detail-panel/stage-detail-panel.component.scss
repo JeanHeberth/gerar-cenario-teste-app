@@ -4,6 +4,7 @@
   &__title {
     margin: 0 0 var(--aq-space-2);
     font-size: var(--aq-font-size-lg);
+    font-weight: 600;
     color: var(--aq-text-primary);
   }
 
@@ -13,10 +14,13 @@
     color: var(--aq-text-secondary);
   }
 
+  // Mensagem contextual é a informação mais acionável do painel — mais
+  // peso que a descrição estática da etapa.
   &__message {
     margin: var(--aq-space-3) 0 0;
     font-size: var(--aq-font-size-sm);
-    color: var(--aq-text-secondary);
+    font-weight: 500;
+    color: var(--aq-text-primary);
   }
 
   &__updated-at {

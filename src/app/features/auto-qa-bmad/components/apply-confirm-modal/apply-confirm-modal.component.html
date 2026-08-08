@@ -1,5 +1,13 @@
-<aqb-modal [open]="open()" title="Aplicar alterações" (closed)="onDismiss()">
-  <p class="apply-confirm-modal__warning">Esta ação poderá criar ou alterar arquivos do projeto.</p>
+<aqb-modal
+  [open]="open()"
+  [busy]="submitting()"
+  title="Aplicar alterações"
+  describedBy="apply-confirm-modal-description"
+  (closed)="onDismiss()"
+>
+  <p id="apply-confirm-modal-description" class="apply-confirm-modal__warning">
+    Esta ação poderá criar ou alterar arquivos do projeto.
+  </p>
 
   <ul class="apply-confirm-modal__details">
     <li>A operação utiliza a aprovação previamente registrada para esta execução.</li>

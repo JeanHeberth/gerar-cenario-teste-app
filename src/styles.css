@@ -4,6 +4,14 @@ body {
   color: #0f172a;
 }
 
+/* A nav global (.app-nav, em app.component.css) é fixa e tem 48px de
+   altura. Sem scroll-padding-top, rolar/focar um elemento pode deixá-lo
+   posicionado atrás dela (WCAG 2.4.11 Focus Not Obscured) — encontrado
+   pelos testes E2E de acessibilidade da Fase 12.3.8 do Auto QA BMAD. */
+html {
+  scroll-padding-top: 48px;
+}
+
 body {
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }

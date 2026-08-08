@@ -88,7 +88,9 @@ describe('ExecutionListPageComponent', () => {
 
   it('mostra estado vazio quando não está carregando e a lista está vazia', () => {
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.aqb-empty-state')).not.toBeNull();
+    const emptyState = fixture.nativeElement.querySelector('.aqb-empty-state');
+    expect(emptyState).not.toBeNull();
+    expect(emptyState.textContent).toContain('Nenhuma execução disponível.');
   });
 
   it('mostra o erro em uma região role="alert" quando error() está definido', () => {
@@ -96,6 +98,28 @@ describe('ExecutionListPageComponent', () => {
     fixture.detectChanges();
     const alert = fixture.nativeElement.querySelector('[role="alert"]');
     expect(alert?.textContent).toContain('Não foi possível carregar a lista de execuções.');
+  });
+
+  it('oferece "Tentar novamente" no error state, reaproveitando loadList() com a página atual', () => {
+    paginationSignal.set({ page: 1, size: 20, totalElements: 30 });
+    errorSignal.set('Não foi possível carregar a lista de execuções.');
+    fixture.detectChanges();
+    loadListSpy.calls.reset();
+
+    const alert = fixture.nativeElement.querySelector('[role="alert"]');
+    const retryButton: HTMLButtonElement = alert.querySelector('button');
+    retryButton.click();
+
+    expect(loadListSpy).toHaveBeenCalledWith(1, 20);
+  });
+
+  it('título é neutro ("Histórico de execuções"), sem sugerir ordenação garantida', () => {
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.aqb-page-header__title')?.textContent).toContain(
+      'Histórico de execuções'
+    );
+    expect(fixture.nativeElement.textContent).not.toContain('mais recentes');
+    expect(fixture.nativeElement.textContent).not.toContain('Últimas execuções');
   });
 
   it('renderiza um app-execution-card por execução, dentro de um link para o detalhe', () => {
