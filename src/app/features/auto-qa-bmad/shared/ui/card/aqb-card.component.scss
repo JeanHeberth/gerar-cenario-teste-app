@@ -2,6 +2,7 @@
   background: var(--aq-surface);
   border: var(--aq-border-width) solid var(--aq-border);
   border-radius: var(--aq-radius-lg);
+  transition: border-color var(--aq-transition-fast);
 
   &--sm {
     padding: var(--aq-space-3);

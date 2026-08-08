@@ -1,9 +1,16 @@
 .aqb-page-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--aq-space-4);
   max-width: var(--aq-content-max-width);
+  padding-bottom: var(--aq-space-4);
+  border-bottom: var(--aq-border-width) solid var(--aq-border);
+
+  &__text {
+    min-width: 0;
+  }
 
   &__title {
     margin: 0;
@@ -22,6 +29,7 @@
 
   &__actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--aq-space-2);
   }

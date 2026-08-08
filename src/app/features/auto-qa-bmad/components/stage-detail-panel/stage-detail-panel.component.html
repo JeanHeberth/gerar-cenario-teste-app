@@ -16,7 +16,7 @@
     <div class="stage-detail-panel__future">
       <p>Detalhes adicionais estarão disponíveis em uma etapa futura.</p>
       <ul>
-        @for (section of metadata().detailSections; track section) {
+        @for (section of metadata().detailSections; track $index) {
           <li>{{ section }}</li>
         }
       </ul>

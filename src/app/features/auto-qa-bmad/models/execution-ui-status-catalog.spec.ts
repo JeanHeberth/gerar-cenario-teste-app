@@ -29,10 +29,10 @@ describe('execution-ui-status-catalog', () => {
       expect(resolveExecutionUiStatus('RUNNING')).toBe('IN_PROGRESS');
     });
 
-    it('mapeia os três estados de espera de aprovação para BLOCKED', () => {
-      expect(resolveExecutionUiStatus('WAITING_GENERATION_APPROVAL')).toBe('BLOCKED');
-      expect(resolveExecutionUiStatus('WAITING_APPLY_APPROVAL')).toBe('BLOCKED');
-      expect(resolveExecutionUiStatus('WAITING_EXECUTION_APPROVAL')).toBe('BLOCKED');
+    it('mapeia os três estados de espera de aprovação para WAITING', () => {
+      expect(resolveExecutionUiStatus('WAITING_GENERATION_APPROVAL')).toBe('WAITING');
+      expect(resolveExecutionUiStatus('WAITING_APPLY_APPROVAL')).toBe('WAITING');
+      expect(resolveExecutionUiStatus('WAITING_EXECUTION_APPROVAL')).toBe('WAITING');
     });
 
     it('cobre todos os 8 status do backend sem lançar erro', () => {
@@ -45,8 +45,14 @@ describe('execution-ui-status-catalog', () => {
   describe('EXECUTION_UI_STATUS_CATALOG', () => {
     it('possui exatamente os 5 estados de UI exigidos', () => {
       expect(Object.keys(EXECUTION_UI_STATUS_CATALOG).sort()).toEqual(
-        ['BLOCKED', 'CANCELLED', 'COMPLETED', 'FAILED', 'IN_PROGRESS'].sort()
+        ['WAITING', 'CANCELLED', 'COMPLETED', 'FAILED', 'IN_PROGRESS'].sort()
       );
+    });
+
+    it('WAITING e IN_PROGRESS não são nomes de status de domínio (só COMPLETED/FAILED/CANCELLED coincidem, por mapeamento direto intencional)', () => {
+      const domainStatuses = new Set(ALL_WORKFLOW_STATUSES);
+      expect(domainStatuses.has('WAITING' as AutoQaWorkflowStatus)).toBeFalse();
+      expect(domainStatuses.has('IN_PROGRESS' as AutoQaWorkflowStatus)).toBeFalse();
     });
 
     it('cada entrada possui label, description, tone e icon não vazios', () => {
@@ -68,7 +74,7 @@ describe('execution-ui-status-catalog', () => {
   describe('getExecutionUiStatusMetadata', () => {
     it('retorna os metadados corretos combinando o mapeamento e o catálogo', () => {
       expect(getExecutionUiStatusMetadata('RUNNING')).toBe(EXECUTION_UI_STATUS_CATALOG.IN_PROGRESS);
-      expect(getExecutionUiStatusMetadata('WAITING_APPLY_APPROVAL')).toBe(EXECUTION_UI_STATUS_CATALOG.BLOCKED);
+      expect(getExecutionUiStatusMetadata('WAITING_APPLY_APPROVAL')).toBe(EXECUTION_UI_STATUS_CATALOG.WAITING);
       expect(getExecutionUiStatusMetadata('COMPLETED')).toBe(EXECUTION_UI_STATUS_CATALOG.COMPLETED);
     });
   });

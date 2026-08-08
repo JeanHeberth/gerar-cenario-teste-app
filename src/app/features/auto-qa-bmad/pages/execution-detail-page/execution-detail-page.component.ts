@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AutoQaExecutionStateService } from '../../state/auto-qa-execution-state.service';
 import { AqbPageHeaderComponent } from '../../shared/ui/page-header/aqb-page-header.component';
-import { AqbLoadingComponent } from '../../shared/ui/loading/aqb-loading.component';
+import { AqbSkeletonComponent } from '../../shared/ui/skeleton/aqb-skeleton.component';
 import { AqbButtonComponent } from '../../shared/ui/button/aqb-button.component';
 import { AqbStatusChipComponent } from '../../shared/ui/status-chip/aqb-status-chip.component';
 import { WorkflowOverviewComponent } from '../../components/workflow-overview/workflow-overview.component';
@@ -46,7 +46,7 @@ import {
   imports: [
     RouterLink,
     AqbPageHeaderComponent,
-    AqbLoadingComponent,
+    AqbSkeletonComponent,
     AqbButtonComponent,
     AqbStatusChipComponent,
     WorkflowOverviewComponent,

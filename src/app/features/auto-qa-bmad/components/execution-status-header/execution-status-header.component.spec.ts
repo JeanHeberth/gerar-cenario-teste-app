@@ -40,10 +40,12 @@ describe('ExecutionStatusHeaderComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('A execução foi cancelada pelo usuário.');
   });
 
-  it('WAITING_APPLY_APPROVAL (BLOCKED) exibe texto "Interrompida" e a descrição', () => {
+  it('WAITING_APPLY_APPROVAL (WAITING) exibe texto "Aguardando aprovação" e a descrição, sem soar como erro técnico', () => {
     setStatus('WAITING_APPLY_APPROVAL');
-    expect(fixture.nativeElement.textContent).toContain('Interrompida');
-    expect(fixture.nativeElement.textContent).toContain('A execução está aguardando uma aprovação para continuar.');
+    expect(fixture.nativeElement.textContent).toContain('Aguardando aprovação');
+    expect(fixture.nativeElement.textContent).toContain('A execução está aguardando aprovação humana para continuar.');
+    expect(fixture.nativeElement.textContent).not.toContain('Interrompida');
+    expect(fixture.nativeElement.textContent).not.toContain('Bloqueada');
   });
 
   it('RUNNING (IN_PROGRESS) exibe texto "Em andamento" e a descrição', () => {

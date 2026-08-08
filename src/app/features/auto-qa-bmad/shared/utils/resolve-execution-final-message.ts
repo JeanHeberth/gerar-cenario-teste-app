@@ -14,8 +14,8 @@ export function resolveExecutionFinalMessage(status: AutoQaWorkflowStatus): stri
       return 'Execução finalizada com falhas funcionais.';
     case 'CANCELLED':
       return 'Execução cancelada.';
-    case 'BLOCKED':
-      return 'Execução interrompida.';
+    case 'WAITING':
+      return 'Execução aguardando aprovação.';
     case 'IN_PROGRESS':
       return 'Execução em andamento.';
   }
