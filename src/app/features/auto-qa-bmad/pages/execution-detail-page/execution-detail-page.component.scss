@@ -5,6 +5,14 @@
   max-width: var(--aq-content-max-width);
   margin: 0 auto;
   padding: var(--aq-space-6) var(--aq-space-4);
+  // H2 (Fase 12.3.9): o body global do app usa fundo claro; sem isto, todo
+  // texto fora de cards/painéis (título, "Voltar", labels) herdava cor
+  // clara sobre fundo claro, ficando ilegível. 48px = altura de .app-nav +
+  // :host padding-top já aplicados globalmente (app.component.css) — cobre
+  // a área visível sem criar scroll vertical artificial.
+  background: var(--aq-background);
+  color: var(--aq-text-primary);
+  min-height: calc(100vh - 48px);
 
   &__back {
     align-self: flex-start;
@@ -40,6 +48,22 @@
     grid-template-columns: minmax(260px, 320px) 1fr;
     gap: var(--aq-space-5);
     align-items: start;
+    // H1 (Fase 12.3.9): sem min-width:0 aqui, este item (filho de um flex
+    // column) não pode encolher abaixo da largura intrínseca do conteúdo
+    // dos grid items abaixo, propagando o "grid blowout" para a página
+    // inteira.
+    min-width: 0;
+  }
+
+  // H1 (Fase 12.3.9): grid items com min-width:auto (padrão) não encolhem
+  // abaixo do conteúdo intrínseco — a Timeline (que tem overflow-x:auto
+  // interno) só consegue conter seu próprio scroll se o item do grid que a
+  // hospeda puder encolher até a largura da coluna (1fr no mobile), em vez
+  // de crescer para caber tudo. Sem isto, a página inteira estica
+  // horizontalmente em vez de a Timeline rolar internamente.
+  &__timeline,
+  &__detail {
+    min-width: 0;
   }
 
   &__footer {

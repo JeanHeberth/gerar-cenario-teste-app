@@ -5,6 +5,10 @@
   max-width: var(--aq-content-max-width);
   margin: 0 auto;
   padding: var(--aq-space-6) var(--aq-space-4);
+  // H2 (Fase 12.3.9): ver mesma explicação em execution-detail-page.component.scss.
+  background: var(--aq-background);
+  color: var(--aq-text-primary);
+  min-height: calc(100vh - 48px);
 
   &__grid {
     display: grid;
