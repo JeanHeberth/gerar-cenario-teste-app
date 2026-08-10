@@ -23,9 +23,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build Angular App
+  test:
+    name: Frontend Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --prefer-offline
+
+      - name: Run tests
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
+
+  build:
+    name: Frontend Build
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -49,28 +72,3 @@ jobs:
           name: dist-gerar-cenario-teste-app
           path: dist/gerar-cenario-teste-app
           if-no-files-found: error
-
-  test:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    # Roda sempre quando este pipeline é chamado como etapa de outro workflow
-    # (ex.: o gate develop -> main), e também quando disparado manualmente
-    # com a opção "run_tests" marcada.
-    if: ${{ github.event_name == 'workflow_call' || (github.event_name == 'workflow_dispatch' && inputs.run_tests == true) }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --no-audit --prefer-offline
-
-      - name: Run tests
-        run: npm run test -- --watch=false --browsers=ChromeHeadless
-
