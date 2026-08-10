@@ -15,7 +15,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env['CI'],
   retries: process.env['CI'] ? 1 : 0,
-  reporter: [['list']],
+  // 'html' só para diagnóstico em CI (artifact navegável em caso de falha,
+  // Fase 13.6) — nunca abre automaticamente, 'list' continua no console.
+  reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL,
     screenshot: 'only-on-failure',
