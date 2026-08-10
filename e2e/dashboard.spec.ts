@@ -20,7 +20,19 @@ test.describe('Dashboard (histórico de execuções)', () => {
   });
 
   test('mostra histórico real (grid) ou estado vazio, conforme o backend responder', async ({ page }) => {
-    await page.goto('/auto-qa');
+    // Observa a resposta HTTP real da listagem: sem isso, uma falha de
+    // rede (backend fora do ar) produz a mesma UI de "vazio"/erro e o
+    // teste passaria mesmo sem o backend estar de pé — waitForResponse
+    // falha por timeout nesse cenário, em vez de aceitar silenciosamente
+    // (Fase 13.6).
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (res) => res.url().includes('/api/auto-qa/executions') && res.request().method() === 'GET',
+        { timeout: 15_000 }
+      ),
+      page.goto('/auto-qa'),
+    ]);
+    expect(response.status()).toBe(200);
 
     const grid = page.locator('.execution-list-page__grid');
     const emptyState = page.locator('.aqb-empty-state');
