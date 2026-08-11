@@ -198,4 +198,19 @@ describe('ActionBarComponent', () => {
       expect(item.disabled).toBeTrue();
     }
   });
+
+  it('o indicador de carregamento possui texto acessível não vazio (Fase 13.8 — role="status" não pode ficar vazio)', () => {
+    fixture.componentRef.setInput('availableActions', ['CANCEL']);
+    fixture.componentRef.setInput('pendingAction', 'CANCEL');
+    fixture.detectChanges();
+
+    const status = fixture.nativeElement.querySelector('[role="status"]');
+    expect(status.textContent?.trim()).toBeTruthy();
+  });
+
+  it('não renderiza indicador de carregamento quando nenhuma ação está pendente', () => {
+    fixture.componentRef.setInput('availableActions', ['CANCEL']);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="status"]')).toBeNull();
+  });
 });

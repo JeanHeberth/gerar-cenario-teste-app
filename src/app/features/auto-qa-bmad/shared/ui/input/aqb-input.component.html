@@ -7,9 +7,10 @@
     [value]="value()"
     [placeholder]="placeholder()"
     [attr.aria-invalid]="hasError()"
+    [attr.aria-describedby]="hasError() ? errorId() : null"
     (input)="onInput($event)"
   />
   @if (error()) {
-    <p class="aqb-input__error">{{ error() }}</p>
+    <p class="aqb-input__error" [id]="errorId()">{{ error() }}</p>
   }
 </div>

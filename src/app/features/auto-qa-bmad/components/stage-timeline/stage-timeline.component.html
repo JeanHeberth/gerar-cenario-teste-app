@@ -1,9 +1,10 @@
-<div class="stage-timeline" role="listbox" aria-label="Etapas do workflow Auto QA">
-  @for (entry of entries(); track entry.metadata.stage) {
+<div class="stage-timeline" role="listbox" aria-label="Etapas do workflow Auto QA" (keydown)="onKeydown($event)">
+  @for (entry of entries(); track entry.metadata.stage; let i = $index) {
     <app-stage-timeline-item
       [metadata]="entry.metadata"
       [state]="entry.state"
       [selected]="entry.metadata.stage === selectedStage()"
+      [active]="i === activeIndex()"
       (stageSelected)="onSelect(entry.metadata.stage)"
     />
   }

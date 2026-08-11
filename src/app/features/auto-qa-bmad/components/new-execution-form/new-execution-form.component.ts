@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AqbTextareaComponent } from '../../shared/ui/textarea/aqb-textarea.component';
 import { AqbInputComponent } from '../../shared/ui/input/aqb-input.component';
@@ -42,6 +42,8 @@ export class NewExecutionFormComponent {
     }),
   });
 
+  private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
+
   protected scenarioError(): string | undefined {
     const control = this.form.controls.scenario;
     if (!control.touched && !control.dirty) {
@@ -83,12 +85,34 @@ export class NewExecutionFormComponent {
 
   onSubmit(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid || this.submitting()) {
+    if (this.form.invalid) {
+      this.focusFirstInvalidField();
+      return;
+    }
+    if (this.submitting()) {
       return;
     }
     this.created.emit({
       scenario: this.form.controls.scenario.value.trim(),
       projectPath: this.form.controls.projectPath.value.trim(),
     });
+  }
+
+  /**
+   * Fase 13.8/MEDIUM: sem isto, um submit inválido (clique bloqueado pelo
+   * botão desabilitado, mas ainda alcançável via Enter no input de
+   * "Caminho do projeto") revelava mensagens de erro sem mover o foco,
+   * deixando quem usa teclado/leitor de tela sem indicação de para onde ir.
+   * Ordem de checagem = ordem visual/DOM dos campos (cenário antes de
+   * caminho do projeto).
+   */
+  private focusFirstInvalidField(): void {
+    if (this.form.controls.scenario.invalid) {
+      this.elementRef.nativeElement.querySelector<HTMLElement>('textarea')?.focus();
+      return;
+    }
+    if (this.form.controls.projectPath.invalid) {
+      this.elementRef.nativeElement.querySelector<HTMLElement>('input')?.focus();
+    }
   }
 }
