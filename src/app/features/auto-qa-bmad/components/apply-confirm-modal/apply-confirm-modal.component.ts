@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { AqbModalComponent } from '../../shared/ui/modal/aqb-modal.component';
-import { AqbButtonComponent } from '../../shared/ui/button/aqb-button.component';
+import { AqbModalComponent } from '../../../../shared/ui/modal/aqb-modal.component';
+import { AqbButtonComponent } from '../../../../shared/ui/button/aqb-button.component';
 
 /**
  * Confirmação antes de aplicar arquivos no projeto real. Não chama service —
