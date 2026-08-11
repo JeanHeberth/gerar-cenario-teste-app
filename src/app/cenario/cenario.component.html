@@ -5,37 +5,43 @@
   </aqb-page-header>
 
   <aqb-card class="cenario-page__card" padding="lg">
-    <form [formGroup]="form" (ngSubmit)="gerar()">
+    <form [formGroup]="form" (ngSubmit)="gerar()" [attr.aria-busy]="loading ? 'true' : null">
       <div class="cenario-page__section-title">Dados do cenário</div>
       <div class="cenario-page__field">
-        <label class="cenario-page__label">Título</label>
+        <label class="cenario-page__label" for="cenario-titulo">Título</label>
         <input
+          id="cenario-titulo"
           type="text"
           formControlName="titulo"
           class="cenario-page__input"
           placeholder="Digite o título do cenário"
+          [attr.aria-invalid]="campoInvalido('titulo') ? 'true' : null"
+          [attr.aria-describedby]="campoInvalido('titulo') ? 'cenario-titulo-erro' : null"
           />
         @if (campoInvalido('titulo')) {
-          <small class="cenario-page__helper cenario-page__helper--danger">Informe o título do cenário.</small>
+          <small id="cenario-titulo-erro" class="cenario-page__helper cenario-page__helper--danger">Informe o título do cenário.</small>
         }
       </div>
 
       <div class="cenario-page__field">
-        <label class="cenario-page__label">Regra de Negócio</label>
+        <label class="cenario-page__label" for="cenario-regra-negocio">Regra de Negócio</label>
         <textarea
+          id="cenario-regra-negocio"
           formControlName="regraDeNegocio"
           rows="3"
           class="cenario-page__textarea"
           placeholder="Descreva a regra de negócio"
+          [attr.aria-invalid]="campoInvalido('regraDeNegocio') ? 'true' : null"
+          [attr.aria-describedby]="campoInvalido('regraDeNegocio') ? 'cenario-regra-negocio-erro' : null"
         ></textarea>
         @if (campoInvalido('regraDeNegocio')) {
-          <small class="cenario-page__helper cenario-page__helper--danger">Informe a regra de negócio.</small>
+          <small id="cenario-regra-negocio-erro" class="cenario-page__helper cenario-page__helper--danger">Informe a regra de negócio.</small>
         }
       </div>
 
       <div class="cenario-page__field">
-        <label class="cenario-page__label">Agente</label>
-        <select class="cenario-page__select" formControlName="agent" [disabled]="agentsLoading">
+        <label class="cenario-page__label" for="cenario-agent">Agente</label>
+        <select id="cenario-agent" class="cenario-page__select" formControlName="agent">
           <option value="">Sem agente (padrão)</option>
           @for (agente of agents; track agente) {
             <option [value]="agente.id">
@@ -54,9 +60,10 @@
       <div class="cenario-page__section-title">Integração Jira</div>
 
       <div class="cenario-page__field">
-        <label class="cenario-page__label">Task Jira</label>
+        <label class="cenario-page__label" for="cenario-jira-task-key">Task Jira</label>
         <div class="cenario-page__jira-row">
           <input
+            id="cenario-jira-task-key"
             type="text"
             formControlName="jiraTaskKey"
             class="cenario-page__input"
@@ -105,11 +112,12 @@
       </div>
 
       <div class="cenario-page__field">
-        <label class="cenario-page__label">
+        <label class="cenario-page__label" for="cenario-upload-pdfs">
           <span aria-hidden="true">📎</span> Anexar PDFs (um ou mais arquivos, Devbox, Estimativas, etc.)
         </label>
 
         <input
+          id="cenario-upload-pdfs"
           type="file"
           accept="application/pdf"
           multiple
@@ -129,11 +137,12 @@
       </div>
 
       <div class="cenario-page__field">
-        <label class="cenario-page__label">
+        <label class="cenario-page__label" for="cenario-upload-pasta">
           <span aria-hidden="true">📁</span> Selecionar pasta com PDFs
         </label>
 
         <input
+          id="cenario-upload-pasta"
           type="file"
           accept="application/pdf"
           multiple
@@ -179,8 +188,14 @@
     </form>
 
     @if (successMessage) {
-      <div class="cenario-page__alert cenario-page__alert--success cenario-page__alert--centered">
+      <div class="cenario-page__alert cenario-page__alert--success cenario-page__alert--centered" role="status">
         {{ successMessage }}
+      </div>
+    }
+
+    @if (erroGeracao) {
+      <div class="cenario-page__alert cenario-page__alert--danger cenario-page__alert--centered" role="alert">
+        {{ erroGeracao }}
       </div>
     }
 
