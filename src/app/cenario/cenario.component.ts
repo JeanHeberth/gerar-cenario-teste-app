@@ -5,6 +5,9 @@ import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {environment} from '../enviroment/enviroment.prd';
 import {firstValueFrom} from 'rxjs';
+import {AqbPageHeaderComponent} from '../shared/ui/page-header/aqb-page-header.component';
+import {AqbButtonComponent} from '../shared/ui/button/aqb-button.component';
+import {AqbCardComponent} from '../shared/ui/card/aqb-card.component';
 
 interface JiraAttachmentResponse {
   id: string;
@@ -27,7 +30,10 @@ interface AgentInfoResponse {
 @Component({
   selector: 'app-cenario',
   imports: [
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AqbPageHeaderComponent,
+    AqbButtonComponent,
+    AqbCardComponent
 ],
   templateUrl: './cenario.component.html',
   standalone: true,
