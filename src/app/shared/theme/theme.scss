@@ -51,6 +51,11 @@
   --aq-transition-normal: 200ms ease;
   --aq-panel-max-width: 480px;
   --aq-content-max-width: 1120px;
+  // Altura da nav global fixa (Fase 14.3) — token único para eliminar a
+  // duplicação do valor 48px entre app.component.css (altura da nav e
+  // padding-top do shell) e styles.css (scroll-padding-top, que evita foco
+  // ficar escondido atrás da nav fixa).
+  --aq-nav-height: 48px;
 
   // Foco — token único para consistência visual de :focus-visible em toda
   // a aplicação (Fase 12.3.8). Nunca remover o indicador de foco sem
