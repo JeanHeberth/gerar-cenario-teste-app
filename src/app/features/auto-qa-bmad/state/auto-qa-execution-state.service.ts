@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { EMPTY, Observable, finalize, tap } from 'rxjs';
+import { EMPTY, Observable, TimeoutError, finalize, tap } from 'rxjs';
 import { AutoQaExecutionService } from '../services/auto-qa-execution.service';
 import {
   AutoQaApplyApprovalRequest,
@@ -53,7 +53,12 @@ export class AutoQaExecutionStateService {
   readonly currentWarnings = computed(() => this._current()?.warnings ?? []);
   readonly currentErrors = computed(() => this._current()?.errors ?? []);
   readonly currentAvailableActions = computed(() => this._current()?.availableActions ?? []);
-  readonly canRefresh = computed(() => this.hasCurrentExecution() && !this._loading());
+  // Fase 13.7/M2: também considera pendingAction — sem isso, "Atualizar"
+  // clicado durante uma ação em andamento podia sobrescrever current() com
+  // um estado pré-ação, sem nenhum erro visível (F21-3/M2).
+  readonly canRefresh = computed(
+    () => this.hasCurrentExecution() && !this._loading() && !this._pendingAction()
+  );
 
   readonly isTerminal = computed(() => {
     const status = this._current()?.status;
@@ -74,7 +79,7 @@ export class AutoQaExecutionStateService {
           this._list.set(response.items);
           this._pagination.set({ page: response.page, size: response.size, totalElements: response.totalElements });
         },
-        error: (err: HttpErrorResponse) => {
+        error: (err: HttpErrorResponse | TimeoutError) => {
           this._error.set(mapHttpErrorToUiError(err).message);
         },
       });
@@ -94,7 +99,7 @@ export class AutoQaExecutionStateService {
           this._current.set(response);
           this._selectedExecutionId.set(executionId);
         },
-        error: (err: HttpErrorResponse) => {
+        error: (err: HttpErrorResponse | TimeoutError) => {
           this._error.set(mapHttpErrorToUiError(err).message);
         },
       });
@@ -109,7 +114,7 @@ export class AutoQaExecutionStateService {
     return this.executionService.create(scenario, projectPath).pipe(
       tap((response) => this._current.set(response)),
       tap({
-        error: (err: HttpErrorResponse) => this._error.set(mapHttpErrorToUiError(err).message),
+        error: (err: HttpErrorResponse | TimeoutError) => this._error.set(mapHttpErrorToUiError(err).message),
       }),
       finalize(() => this._creating.set(false))
     );
@@ -168,7 +173,7 @@ export class AutoQaExecutionStateService {
     return call().pipe(
       tap((response) => this._current.set(response)),
       tap({
-        error: (err: HttpErrorResponse) => this._actionError.set(mapHttpErrorToUiError(err).message),
+        error: (err: HttpErrorResponse | TimeoutError) => this._actionError.set(mapHttpErrorToUiError(err).message),
       }),
       finalize(() => this._pendingAction.set(null))
     );

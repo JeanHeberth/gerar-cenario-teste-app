@@ -1,7 +1,8 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { AutoQaExecutionService } from './auto-qa-execution.service';
+import { TimeoutError } from 'rxjs';
+import { AUTO_QA_HTTP_TIMEOUT_MS, AutoQaExecutionService } from './auto-qa-execution.service';
 import { environment } from '../../../enviroment/enviroment.prd';
 import { AutoQaExecutionResponse } from '../models/auto-qa-execution.model';
 
@@ -175,4 +176,34 @@ describe('AutoQaExecutionService', () => {
     req.flush({ message: 'transição inválida' }, { status: 409, statusText: 'Conflict' });
     expect(capturedStatus).toBe(409);
   });
+
+  // Fase 13.7/M1: nenhuma chamada HTTP desta feature pode ficar pendente
+  // indefinidamente. fakeAsync/tick avança o tempo deterministicamente —
+  // não espera os 30s reais.
+  it(`get() emite TimeoutError se o backend não responder em ${AUTO_QA_HTTP_TIMEOUT_MS}ms`, fakeAsync(() => {
+    let capturedError: unknown;
+    service.get('exec-1').subscribe({ error: (err) => (capturedError = err) });
+
+    httpMock.expectOne(`${baseUrl}/exec-1`);
+    tick(AUTO_QA_HTTP_TIMEOUT_MS);
+
+    expect(capturedError).toBeInstanceOf(TimeoutError);
+  }));
+
+  it('get() não emite TimeoutError se o backend responder antes do timeout', fakeAsync(() => {
+    let capturedError: unknown;
+    let capturedResponse: AutoQaExecutionResponse | undefined;
+    service.get('exec-1').subscribe({
+      next: (resp) => (capturedResponse = resp),
+      error: (err) => (capturedError = err),
+    });
+
+    const req = httpMock.expectOne(`${baseUrl}/exec-1`);
+    tick(AUTO_QA_HTTP_TIMEOUT_MS - 1);
+    req.flush(sampleResponse);
+    tick(1);
+
+    expect(capturedError).toBeUndefined();
+    expect(capturedResponse).toEqual(sampleResponse);
+  }));
 });

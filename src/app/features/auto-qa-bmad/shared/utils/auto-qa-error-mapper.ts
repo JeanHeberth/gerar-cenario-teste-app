@@ -1,7 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { TimeoutError } from 'rxjs';
 
 export interface AutoQaUiError {
-  status: number;
+  /** null quando a origem do erro não é uma resposta HTTP (ex.: timeout). */
+  status: number | null;
   code: string;
   title: string;
   message: string;
@@ -9,10 +11,10 @@ export interface AutoQaUiError {
 }
 
 /**
- * Único ponto de tradução de erro HTTP para mensagem de UI. Nunca repassa
- * `error.error` (mensagem/stacktrace/payload cru do backend) — sempre usa
- * texto estático em português por status, mesmo que o backend já sanitize
- * a própria resposta (defesa em profundidade).
+ * Único ponto de tradução de erro (HTTP ou timeout do RxJS) para mensagem
+ * de UI. Nunca repassa `error.error` (mensagem/stacktrace/payload cru do
+ * backend) — sempre usa texto estático em português por status, mesmo que
+ * o backend já sanitize a própria resposta (defesa em profundidade).
  */
 const ERROR_CATALOG: Record<string, Omit<AutoQaUiError, 'status'>> = {
   BAD_REQUEST: {
@@ -53,8 +55,19 @@ const ERROR_CATALOG: Record<string, Omit<AutoQaUiError, 'status'>> = {
   },
   NETWORK_ERROR: {
     code: 'NETWORK_ERROR',
-    title: 'Falha de conexão',
-    message: 'Não foi possível conectar ao servidor. Verifique sua conexão.',
+    title: 'Falha de comunicação',
+    // Mensagem deliberadamente neutra (Fase 13.7/M3): status 0 pode ser
+    // backend fora do ar, rede do usuário, OU uma origem bloqueada por
+    // CORS (o navegador nunca expõe ao JS qual dos casos ocorreu) — nunca
+    // afirmar "verifique sua conexão", que culpa especificamente o lado
+    // do usuário, nem mencionar CORS, um detalhe técnico interno.
+    message: 'Não foi possível completar a comunicação com o servidor. Ele pode estar indisponível ou inacessível no momento.',
+    recoverable: true,
+  },
+  TIMEOUT_ERROR: {
+    code: 'TIMEOUT_ERROR',
+    title: 'Tempo de resposta excedido',
+    message: 'O servidor demorou mais que o esperado para responder. Tente novamente.',
     recoverable: true,
   },
   UNKNOWN_ERROR: {
@@ -75,7 +88,16 @@ const STATUS_TO_CODE: Record<number, string> = {
   0: 'NETWORK_ERROR',
 };
 
-export function mapHttpErrorToUiError(error: HttpErrorResponse): AutoQaUiError {
+/**
+ * Aceita tanto HttpErrorResponse (erro HTTP real) quanto TimeoutError (RxJS
+ * `timeout()`, Fase 13.7/M1) — nunca faz cast inseguro entre os dois; um
+ * TimeoutError não tem `status` (não é uma resposta HTTP), por isso o
+ * catálogo de timeout é tratado antes de qualquer acesso a `error.status`.
+ */
+export function mapHttpErrorToUiError(error: HttpErrorResponse | TimeoutError): AutoQaUiError {
+  if (error instanceof TimeoutError) {
+    return { status: null, ...ERROR_CATALOG['TIMEOUT_ERROR'] };
+  }
   const code = STATUS_TO_CODE[error.status] ?? 'UNKNOWN_ERROR';
   const entry = ERROR_CATALOG[code];
   return { status: error.status, ...entry };
