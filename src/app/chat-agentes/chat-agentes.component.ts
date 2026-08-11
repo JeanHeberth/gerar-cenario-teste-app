@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../enviroment/enviroment.prd';
 import { firstValueFrom } from 'rxjs';
+import { AqbButtonComponent } from '../shared/ui/button/aqb-button.component';
 
 interface AgentInfo {
   id: string;
@@ -23,7 +24,7 @@ function generateSessionId(): string {
 @Component({
   selector: 'app-chat-agentes',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, AqbButtonComponent],
   templateUrl: './chat-agentes.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-agentes.component.css'
@@ -129,13 +130,31 @@ export class ChatAgentesComponent implements OnInit, AfterViewChecked {
   }
 
   formatContent(content: string): string {
-    return content
+    return this.escapeHtml(content)
       .replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code class="code-block">$2</code></pre>')
       .replace(/`([^`\n]+)`/g, '<code class="inline-code">$1</code>')
       .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
       .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
       .replace(/^- (.+)/gm, '<li>$1</li>')
       .replace(/\n/g, '<br>');
+  }
+
+  /**
+   * Defesa em profundidade (Fase 14.6/Etapa 2): escapa HTML bruto ANTES de
+   * aplicar as transformações markdown-like. O sanitizer automático do
+   * [innerHTML] do Angular já bloqueava execução (nenhum
+   * bypassSecurityTrustHtml é usado), mas sem este escaping HTML cru virava
+   * markup real (ex.: <img onerror>). Delimitadores de markdown (`, *, -)
+   * não são caracteres HTML especiais, então continuam intactos após o
+   * escaping e as regras subsequentes seguem funcionando normalmente.
+   */
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   private scrollToBottom(): void {
