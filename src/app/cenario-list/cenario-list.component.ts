@@ -8,11 +8,26 @@ import * as XLSX from 'xlsx-js-style';
 import jsPDF from 'jspdf';
 import {DOC_EXPORT_STYLES} from './doc-export.styles';
 import {environment} from '../enviroment/enviroment.prd';
+import {AqbPageHeaderComponent} from '../shared/ui/page-header/aqb-page-header.component';
+import {AqbButtonComponent} from '../shared/ui/button/aqb-button.component';
+import {AqbInputComponent} from '../shared/ui/input/aqb-input.component';
+import {AqbEmptyStateComponent} from '../shared/ui/empty-state/aqb-empty-state.component';
+import {AqbSkeletonComponent} from '../shared/ui/skeleton/aqb-skeleton.component';
+import {AqbCardComponent} from '../shared/ui/card/aqb-card.component';
 
 @Component({
   selector: 'app-cenario-list',
   standalone: true,
-  imports: [RouterModule, FormsModule],
+  imports: [
+    RouterModule,
+    FormsModule,
+    AqbPageHeaderComponent,
+    AqbButtonComponent,
+    AqbInputComponent,
+    AqbEmptyStateComponent,
+    AqbSkeletonComponent,
+    AqbCardComponent,
+  ],
   templateUrl: './cenario-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./cenario-list.component.css']
@@ -30,6 +45,18 @@ export class CenarioListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.carregarCenarios();
+  }
+
+  /**
+   * Extraído do ngOnInit (Fase 14.4/Etapa 2) para ser reaproveitado pelo
+   * botão "Tentar novamente" do estado de erro — mesma chamada real,
+   * nenhum endpoint/parâmetro novo, sem window.location.reload().
+   */
+  carregarCenarios(): void {
+    this.carregandoLista = true;
+    this.erroCarregamento = '';
+
     this.http.get<any[]>(`${environment.apiUrl}/cenario`).subscribe({
       next: (res) => {
         this.cenarios = res.reverse();
@@ -37,7 +64,7 @@ export class CenarioListComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Erro ao buscar cenários:', err);
-        this.erroCarregamento = 'Nao foi possivel carregar a lista de cenarios.';
+        this.erroCarregamento = 'Não foi possível carregar a lista de cenários.';
         this.carregandoLista = false;
       }
     });
@@ -95,6 +122,11 @@ export class CenarioListComponent implements OnInit, OnDestroy {
 
   private chaveCenario(cenario: any): string {
     return cenario?.id || cenario?._id || cenario?.titulo || JSON.stringify(cenario);
+  }
+
+  /** Id estável do bloco de detalhes expandido, usado por aria-controls (Fase 14.4/Etapa 2). */
+  detalhesId(cenario: any): string {
+    return `cenario-detalhes-${this.chaveCenario(cenario).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
   }
 
   private normalizarTexto(texto: string): string {

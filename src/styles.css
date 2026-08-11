@@ -4,12 +4,13 @@ body {
   color: #0f172a;
 }
 
-/* A nav global (.app-nav, em app.component.css) é fixa e tem 48px de
-   altura. Sem scroll-padding-top, rolar/focar um elemento pode deixá-lo
-   posicionado atrás dela (WCAG 2.4.11 Focus Not Obscured) — encontrado
-   pelos testes E2E de acessibilidade da Fase 12.3.8 do Auto QA BMAD. */
+/* A nav global (.app-nav, em app.component.css) é fixa. Sem
+   scroll-padding-top, rolar/focar um elemento pode deixá-lo posicionado
+   atrás dela (WCAG 2.4.11 Focus Not Obscured) — encontrado pelos testes
+   E2E de acessibilidade da Fase 12.3.8 do Auto QA BMAD. Fase 14.3: consome
+   --aq-nav-height (tema global) em vez de duplicar o valor 48px. */
 html {
-  scroll-padding-top: 48px;
+  scroll-padding-top: var(--aq-nav-height);
 }
 
 body {
