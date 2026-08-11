@@ -4,6 +4,15 @@ body {
   color: #0f172a;
 }
 
+/* Fase 14.7: reset mínimo antes tacitamente fornecido pelo <link> do
+   Bootstrap (removido por estar 100% sem uso — zero classes Bootstrap
+   restantes em qualquer template, ver relatório da Fase 14.7). Sem isto, a
+   margem padrão do navegador para <body> (8px) reaparece, expondo uma
+   faixa fina do fundo claro nas bordas de toda a aplicação. */
+body {
+  margin: 0;
+}
+
 /* A nav global (.app-nav, em app.component.css) é fixa. Sem
    scroll-padding-top, rolar/focar um elemento pode deixá-lo posicionado
    atrás dela (WCAG 2.4.11 Focus Not Obscured) — encontrado pelos testes
