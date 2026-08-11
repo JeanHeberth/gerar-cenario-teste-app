@@ -1,201 +1,192 @@
-<div class="container mt-4 page-shell">
-  <div class="card shadow scenario-card">
-    <div class="card-header header-gradient d-flex justify-content-between align-items-center">
-      <div>
-        <span class="me-2">🖊️</span>
-        <strong>Gerador de Cenário de Teste</strong>
+<div class="cenario-page">
+  <div class="cenario-page__content">
+  <aqb-page-header title="Gerador de Cenário de Teste">
+    <aqb-button class="cenario-page__view-btn" variant="secondary" (clicked)="irParaCenarios()">👀 Visualizar Cenários</aqb-button>
+  </aqb-page-header>
+
+  <aqb-card class="cenario-page__card" padding="lg">
+    <form [formGroup]="form" (ngSubmit)="gerar()">
+      <div class="cenario-page__section-title">Dados do cenário</div>
+      <div class="cenario-page__field">
+        <label class="cenario-page__label">Título</label>
+        <input
+          type="text"
+          formControlName="titulo"
+          class="cenario-page__input"
+          placeholder="Digite o título do cenário"
+          />
+        @if (campoInvalido('titulo')) {
+          <small class="cenario-page__helper cenario-page__helper--danger">Informe o título do cenário.</small>
+        }
       </div>
 
-      <button class="btn btn-outline-light btn-sm top-action" (click)="irParaCenarios()">
-        👀 Visualizar Cenários
+      <div class="cenario-page__field">
+        <label class="cenario-page__label">Regra de Negócio</label>
+        <textarea
+          formControlName="regraDeNegocio"
+          rows="3"
+          class="cenario-page__textarea"
+          placeholder="Descreva a regra de negócio"
+        ></textarea>
+        @if (campoInvalido('regraDeNegocio')) {
+          <small class="cenario-page__helper cenario-page__helper--danger">Informe a regra de negócio.</small>
+        }
+      </div>
 
+      <div class="cenario-page__field">
+        <label class="cenario-page__label">Agente</label>
+        <select class="cenario-page__select" formControlName="agent" [disabled]="agentsLoading">
+          <option value="">Sem agente (padrão)</option>
+          @for (agente of agents; track agente) {
+            <option [value]="agente.id">
+              {{ agente.id }}
+            </option>
+          }
+        </select>
+        @if (agentsLoading) {
+          <small class="cenario-page__helper cenario-page__helper--muted">Carregando agentes...</small>
+        }
+        @if (agentsMessage) {
+          <small class="cenario-page__helper cenario-page__helper--danger">{{ agentsMessage }}</small>
+        }
+      </div>
 
-      </button>
-    </div>
+      <div class="cenario-page__section-title">Integração Jira</div>
 
-    <div class="card-body scenario-body">
-      <form [formGroup]="form" (ngSubmit)="gerar()">
-        <div class="section-title">Dados do cenário</div>
-        <div class="mb-3 form-block">
-          <label class="form-label">Título</label>
+      <div class="cenario-page__field">
+        <label class="cenario-page__label">Task Jira</label>
+        <div class="cenario-page__jira-row">
           <input
             type="text"
-            formControlName="titulo"
-            class="form-control"
-            placeholder="Digite o título do cenário"
+            formControlName="jiraTaskKey"
+            class="cenario-page__input"
+            placeholder="Ex.: OP-1122"
             />
-          @if (campoInvalido('titulo')) {
-            <small class="text-danger helper">Informe o título do cenário.</small>
-          }
+          <aqb-button
+            type="button"
+            variant="secondary"
+            [disabled]="jiraLoading"
+            (clicked)="buscarArquivosDaTaskJira()"
+            >
+            {{ jiraLoading ? 'Buscando...' : 'Buscar anexos da task' }}
+          </aqb-button>
+          <aqb-button
+            type="button"
+            variant="ghost"
+            [disabled]="jiraDownloadLoading"
+            (clicked)="baixarTodosAnexosDaTaskJira()"
+            >
+            {{ jiraDownloadLoading ? 'Baixando...' : 'Baixar anexos (.zip)' }}
+          </aqb-button>
         </div>
-
-        <div class="mb-3 form-block">
-          <label class="form-label">Regra de Negócio</label>
-          <textarea
-            formControlName="regraDeNegocio"
-            rows="3"
-            class="form-control"
-            placeholder="Descreva a regra de negócio"
-          ></textarea>
-          @if (campoInvalido('regraDeNegocio')) {
-            <small class="text-danger helper">Informe a regra de negócio.</small>
-          }
-        </div>
-
-        <div class="mb-3 form-block">
-          <label class="form-label">Agente</label>
-          <select class="form-select" formControlName="agent" [disabled]="agentsLoading">
-            <option value="">Sem agente (padrão)</option>
-            @for (agente of agents; track agente) {
-              <option [value]="agente.id">
-                {{ agente.id }}
-              </option>
-            }
-          </select>
-          @if (agentsLoading) {
-            <small class="text-muted helper">Carregando agentes...</small>
-          }
-          @if (agentsMessage) {
-            <small class="text-danger helper">{{ agentsMessage }}</small>
-          }
-        </div>
-
-        <div class="section-title">Integração Jira</div>
-
-        <div class="mb-3 form-block">
-          <label class="form-label">Task Jira</label>
-          <div class="input-group jira-group">
-            <input
-              type="text"
-              formControlName="jiraTaskKey"
-              class="form-control"
-              placeholder="Ex.: OP-1122"
-              />
-            <button
-              type="button"
-              class="btn btn-outline-primary"
-              [disabled]="jiraLoading"
-              (click)="buscarArquivosDaTaskJira()"
-              >
-              {{ jiraLoading ? 'Buscando...' : 'Buscar anexos da task' }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-secondary"
-              [disabled]="jiraDownloadLoading"
-              (click)="baixarTodosAnexosDaTaskJira()"
-              >
-              {{ jiraDownloadLoading ? 'Baixando...' : 'Baixar anexos (.zip)' }}
-            </button>
-          </div>
-          <small class="text-muted helper">Ao informar a task (ex.: OP-1122), o download sera salvo como OP-1122.zip e os PDFs podem ser importados.</small>
-          @if (jiraMessage) {
-            <div class="alert mt-2 mb-0 jira-alert"
-              [class.alert-success]="jiraMessageType === 'success'"
-              [class.alert-danger]="jiraMessageType === 'error'"
-              [class.alert-info]="jiraMessageType === 'info'"
-              role="alert">
-              {{ jiraMessage }}
-            </div>
-          }
-        </div>
-
-        <div class="section-title">Anexos</div>
-
-        <div
-          class="dropzone mb-3"
-          [class.dropzone-active]="dragOver"
-          (dragover)="aoArrastarSobre($event)"
-          (dragleave)="aoSairArrasto($event)"
-          (drop)="aoSoltarArquivos($event)"
-          >
-          <div class="dropzone-title">Arraste e solte seus PDFs aqui</div>
-          <div class="dropzone-subtitle">Ou use os campos de upload abaixo.</div>
-        </div>
-
-        <div class="mb-3 form-block">
-          <label class="form-label">
-            📎 Anexar PDFs (um ou mais arquivos, Devbox, Estimativas, etc.)
-          </label>
-
-          <input
-            type="file"
-            accept="application/pdf"
-            multiple
-            class="form-control"
-            (change)="selecionarPdf($event)"
-            />
-
-          @if (uploadMessage) {
-            <div class="alert mt-2 mb-0 jira-alert"
-              [class.alert-success]="uploadMessageType === 'success'"
-              [class.alert-danger]="uploadMessageType === 'error'"
-              [class.alert-info]="uploadMessageType === 'info'"
-              role="alert">
-              {{ uploadMessage }}
-            </div>
-          }
-        </div>
-
-        <div class="mb-3 form-block">
-          <label class="form-label">
-            📁 Selecionar pasta com PDFs
-          </label>
-
-          <input
-            type="file"
-            accept="application/pdf"
-            multiple
-            webkitdirectory
-            directory
-            class="form-control"
-            (change)="selecionarPdf($event)"
-            />
-        </div>
-
-        @if (arquivosPdfSelecionados.length > 0) {
-          <div class="mt-2 selected-files">
-            <small class="text-success d-block">
-              PDFs selecionados:
-            </small>
-            <div class="file-chips mb-2">
-              @for (arquivo of arquivosPdfSelecionados; track arquivo; let i = $index) {
-                <div class="file-chip">
-                  <span class="file-chip-name" [title]="arquivo.name">{{ arquivo.name }}</span>
-                  <button type="button" class="file-chip-remove" (click)="removerPdf(i)" aria-label="Remover arquivo">x</button>
-                </div>
-              }
-            </div>
-            <button
-              type="button"
-              class="btn btn-outline-danger btn-sm"
-              (click)="limparPdfs()"
-              >
-              🗑️ Limpar PDFs
-            </button>
+        <small class="cenario-page__helper cenario-page__helper--muted">Ao informar a task (ex.: OP-1122), o download sera salvo como OP-1122.zip e os PDFs podem ser importados.</small>
+        @if (jiraMessage) {
+          <div class="cenario-page__alert"
+            [class.cenario-page__alert--success]="jiraMessageType === 'success'"
+            [class.cenario-page__alert--danger]="jiraMessageType === 'error'"
+            [class.cenario-page__alert--info]="jiraMessageType === 'info'"
+            role="alert">
+            {{ jiraMessage }}
           </div>
         }
+      </div>
 
-        <div class="d-grid submit-row">
-          <button
-            type="submit"
-            class="btn btn-success submit-btn"
-            [disabled]="form.invalid || loading"
+      <div class="cenario-page__section-title">Anexos</div>
+
+      <div
+        class="cenario-page__dropzone"
+        [class.cenario-page__dropzone--active]="dragOver"
+        (dragover)="aoArrastarSobre($event)"
+        (dragleave)="aoSairArrasto($event)"
+        (drop)="aoSoltarArquivos($event)"
+        >
+        <div class="cenario-page__dropzone-title">Arraste e solte seus PDFs aqui</div>
+        <div class="cenario-page__dropzone-subtitle">Ou use os campos de upload abaixo.</div>
+      </div>
+
+      <div class="cenario-page__field">
+        <label class="cenario-page__label">
+          <span aria-hidden="true">📎</span> Anexar PDFs (um ou mais arquivos, Devbox, Estimativas, etc.)
+        </label>
+
+        <input
+          type="file"
+          accept="application/pdf"
+          multiple
+          class="cenario-page__file-input"
+          (change)="selecionarPdf($event)"
+          />
+
+        @if (uploadMessage) {
+          <div class="cenario-page__alert"
+            [class.cenario-page__alert--success]="uploadMessageType === 'success'"
+            [class.cenario-page__alert--danger]="uploadMessageType === 'error'"
+            [class.cenario-page__alert--info]="uploadMessageType === 'info'"
+            role="alert">
+            {{ uploadMessage }}
+          </div>
+        }
+      </div>
+
+      <div class="cenario-page__field">
+        <label class="cenario-page__label">
+          <span aria-hidden="true">📁</span> Selecionar pasta com PDFs
+        </label>
+
+        <input
+          type="file"
+          accept="application/pdf"
+          multiple
+          webkitdirectory
+          directory
+          class="cenario-page__file-input"
+          (change)="selecionarPdf($event)"
+          />
+      </div>
+
+      @if (arquivosPdfSelecionados.length > 0) {
+        <div class="cenario-page__selected-files">
+          <small class="cenario-page__helper cenario-page__helper--success cenario-page__helper--block">
+            PDFs selecionados:
+          </small>
+          <div class="cenario-page__file-chips">
+            @for (arquivo of arquivosPdfSelecionados; track arquivo; let i = $index) {
+              <div class="cenario-page__file-chip">
+                <span class="cenario-page__file-chip-name" [title]="arquivo.name">{{ arquivo.name }}</span>
+                <button type="button" class="cenario-page__file-chip-remove" (click)="removerPdf(i)" aria-label="Remover arquivo">x</button>
+              </div>
+            }
+          </div>
+          <aqb-button
+            type="button"
+            variant="danger"
+            (clicked)="limparPdfs()"
             >
-            {{ loading ? '⏳ Gerando...' : '🚀 Gerar Cenário' }}
-          </button>
-        </div>
-      </form>
-
-      @if (successMessage) {
-        <div class="alert alert-success mt-3 text-center success-alert">
-          {{ successMessage }}
+            🗑️ Limpar PDFs
+          </aqb-button>
         </div>
       }
 
-      <div class="ux-note mt-3">
-        <small class="text-muted">Dica: preencha título e regra de negócio para habilitar a geração.</small>
+      <div class="cenario-page__submit-row">
+        <aqb-button
+          type="submit"
+          variant="primary"
+          [disabled]="form.invalid || loading"
+          >
+          {{ loading ? '⏳ Gerando...' : '🚀 Gerar Cenário' }}
+        </aqb-button>
       </div>
+    </form>
+
+    @if (successMessage) {
+      <div class="cenario-page__alert cenario-page__alert--success cenario-page__alert--centered">
+        {{ successMessage }}
+      </div>
+    }
+
+    <div class="cenario-page__ux-note">
+      <small class="cenario-page__helper cenario-page__helper--muted">Dica: preencha título e regra de negócio para habilitar a geração.</small>
     </div>
+  </aqb-card>
   </div>
 </div>
