@@ -13,7 +13,10 @@ html {
 }
 
 body {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  /* Fase 14.1: consome o token do tema global em vez de declarar a pilha
+     aqui — evita uma segunda fonte de verdade divergente (antes: "Inter",
+     que nunca era de fato carregada por nenhum <link>). */
+  font-family: var(--aq-font-family);
 }
 
 langflow-chat {

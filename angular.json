@@ -21,7 +21,7 @@
             "assets": [
               { "glob": "**/*", "input": "public" }
             ],
-            "styles": ["src/styles.css", "src/app/features/auto-qa-bmad/shared/theme/theme.scss"],
+            "styles": ["src/styles.css", "src/app/shared/theme/theme.scss"],
             "scripts": [],
             "allowedCommonJsDependencies": [
               "file-saver",
@@ -88,7 +88,7 @@
             "assets": [
               { "glob": "**/*", "input": "public" }
             ],
-            "styles": ["src/styles.css", "src/app/features/auto-qa-bmad/shared/theme/theme.scss"],
+            "styles": ["src/styles.css", "src/app/shared/theme/theme.scss"],
             "scripts": []
           }
         }

@@ -1,8 +1,8 @@
-// Tema centralizado do Auto QA BMAD (Fase 12.3.1).
+// Tema centralizado do frontend (Fase 14.1 — movido de
+// features/auto-qa-bmad/shared/theme/theme.scss, origem do Design System).
 // Único ponto de verdade para cor, espaçamento, raio, tipografia, borda,
-// transição e limites de layout usados pelos componentes de
-// features/auto-qa-bmad/**. Nenhum componente deve declarar HEX, px de
-// espaçamento/raio ou família de fonte fora daqui.
+// transição e limites de layout do app inteiro. Nenhum componente deve
+// declarar HEX, px de espaçamento/raio ou família de fonte fora daqui.
 
 :root {
   // Cor — segue a identidade dark já usada no nav global (app.component.css)
@@ -53,7 +53,7 @@
   --aq-content-max-width: 1120px;
 
   // Foco — token único para consistência visual de :focus-visible em toda
-  // a feature (Fase 12.3.8). Nunca remover o indicador de foco sem
+  // a aplicação (Fase 12.3.8). Nunca remover o indicador de foco sem
   // substituir por este token.
   --aq-focus-ring-color: var(--aq-primary);
   --aq-focus-ring-width: 2px;
@@ -69,7 +69,7 @@
 // abaixo é global de propósito, e não uma tentativa de seletor de atributo
 // (que seria impreciso). Substitui a dependência do outline padrão do
 // navegador (inconsistente entre navegadores/temas) sem exigir que cada
-// componente da feature declare sua própria regra de :focus-visible.
+// componente declare sua própria regra de :focus-visible.
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
