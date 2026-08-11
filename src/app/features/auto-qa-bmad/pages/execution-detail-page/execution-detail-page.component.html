@@ -3,6 +3,19 @@
 
   @if (state.error()) {
     <p class="execution-detail-page__error" role="alert">{{ state.error() }}</p>
+    @if (!state.current()) {
+      <!-- Fase 13.7/M4: só existe enquanto o carregamento inicial nunca teve
+           sucesso — uma vez que current() existe, "Atualizar" no cabeçalho
+           assume esse papel. -->
+      <aqb-button
+        class="execution-detail-page__retry-load"
+        variant="secondary"
+        [disabled]="state.loading()"
+        (clicked)="onRetryLoad()"
+      >
+        Tentar novamente
+      </aqb-button>
+    }
   }
 
   @if (state.actionError()) {

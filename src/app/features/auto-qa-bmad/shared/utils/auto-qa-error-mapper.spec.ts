@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { TimeoutError } from 'rxjs';
 import { mapHttpErrorToUiError } from './auto-qa-error-mapper';
 
 describe('mapHttpErrorToUiError', () => {
@@ -49,6 +50,29 @@ describe('mapHttpErrorToUiError', () => {
     const uiError = mapHttpErrorToUiError(errorResponse(0));
     expect(uiError.code).toBe('NETWORK_ERROR');
     expect(uiError.recoverable).toBeTrue();
+  });
+
+  it('NETWORK_ERROR (status 0) nunca afirma que o problema é a conexão do usuário nem menciona CORS (Fase 13.7/M3)', () => {
+    const uiError = mapHttpErrorToUiError(errorResponse(0));
+    const text = `${uiError.title} ${uiError.message}`.toLowerCase();
+    expect(text).not.toContain('verifique sua conexão');
+    expect(text).not.toContain('cors');
+  });
+
+  it('mapeia TimeoutError (RxJS) para TIMEOUT_ERROR, recuperável, sem status HTTP (Fase 13.7/M1)', () => {
+    const uiError = mapHttpErrorToUiError(new TimeoutError());
+    expect(uiError.status).toBeNull();
+    expect(uiError.code).toBe('TIMEOUT_ERROR');
+    expect(uiError.recoverable).toBeTrue();
+    expect(uiError.title).toBeTruthy();
+    expect(uiError.message).toBeTruthy();
+  });
+
+  it('mensagem de TIMEOUT_ERROR nunca expõe o nome da classe RxJS nem detalhes técnicos internos', () => {
+    const uiError = mapHttpErrorToUiError(new TimeoutError());
+    const serialized = JSON.stringify(uiError);
+    expect(serialized).not.toContain('TimeoutError');
+    expect(serialized).not.toContain('rxjs');
   });
 
   it('mapeia status não catalogado para UNKNOWN_ERROR, recuperável', () => {

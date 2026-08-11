@@ -253,6 +253,22 @@ describe('AutoQaExecutionStateService', () => {
       });
       state.loadExecution('exec-1');
     });
+
+    it('canRefresh é falso enquanto pendingAction está ativo, mesmo com execução carregada e sem loading (Fase 13.7/M2)', () => {
+      serviceSpy.get.and.returnValue(of(execution()));
+      state.loadExecution('exec-1');
+      expect(state.canRefresh()).toBeTrue();
+
+      let canRefreshDuringAction: boolean | undefined;
+      serviceSpy.start.and.callFake(() => {
+        canRefreshDuringAction = state.canRefresh();
+        return of(execution({ status: 'RUNNING' }));
+      });
+      state.start('exec-1').subscribe();
+
+      expect(canRefreshDuringAction).toBeFalse();
+      expect(state.canRefresh()).toBeTrue();
+    });
   });
 
   describe('ações de workflow (start/continue/generate/cancel/aprovações)', () => {

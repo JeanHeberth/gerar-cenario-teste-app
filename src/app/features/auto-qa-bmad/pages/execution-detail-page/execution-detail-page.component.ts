@@ -72,6 +72,12 @@ export class ExecutionDetailPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
+  // Fase 13.7/M4: guardado a partir da rota independentemente de o
+  // carregamento ter tido sucesso — diferente de state.selectedExecutionId(),
+  // que só é setado DENTRO do next() de loadExecution (nunca em falha), então
+  // não serviria para retry após uma falha de carregamento inicial.
+  protected readonly executionId = signal<string | null>(null);
+
   private readonly _selectedStage = signal<AutoQaStageId | null>(null);
   protected readonly showCancelModal = signal(false);
   protected readonly showApplyApprovalPanel = signal(false);
@@ -100,6 +106,7 @@ export class ExecutionDetailPageComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const executionId = params.get('executionId');
+      this.executionId.set(executionId);
       if (executionId) {
         this.state.loadExecution(executionId);
       }
@@ -112,6 +119,21 @@ export class ExecutionDetailPageComponent implements OnInit {
 
   onRefresh(): void {
     const executionId = this.state.selectedExecutionId();
+    if (executionId) {
+      this.state.loadExecution(executionId);
+    }
+  }
+
+  /**
+   * Fase 13.7/M4: retry manual para quando o carregamento inicial falha
+   * antes de current() existir — nesse caso "Atualizar" (que só aparece
+   * dentro do cabeçalho, renderizado apenas com current() já presente)
+   * nunca fica visível. Reutiliza loadExecution (mesmo guard interno contra
+   * chamada duplicada enquanto loading() já está ativo) — nenhum endpoint
+   * novo, nenhuma lógica HTTP duplicada.
+   */
+  onRetryLoad(): void {
+    const executionId = this.executionId();
     if (executionId) {
       this.state.loadExecution(executionId);
     }

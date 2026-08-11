@@ -129,6 +129,54 @@ describe('ExecutionDetailPageComponent', () => {
     );
   });
 
+  describe('retry do carregamento inicial (Fase 13.7/M4)', () => {
+    it('mostra "Tentar novamente" quando error() está definido e current() ainda não existe', () => {
+      errorSignal.set('Não foi possível completar a comunicação com o servidor.');
+      fixture.detectChanges();
+      const retry = fixture.nativeElement.querySelector('.execution-detail-page__retry-load button');
+      expect(retry).not.toBeNull();
+    });
+
+    it('não mostra "Tentar novamente" quando current() já existe, mesmo que error() esteja definido', () => {
+      currentSignal.set(execution());
+      errorSignal.set('Falha ao atualizar.');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.execution-detail-page__retry-load')).toBeNull();
+    });
+
+    it('clicar em "Tentar novamente" chama loadExecution com o executionId da rota', () => {
+      errorSignal.set('Não foi possível completar a comunicação com o servidor.');
+      fixture.detectChanges();
+      loadExecutionSpy.calls.reset();
+
+      fixture.nativeElement.querySelector('.execution-detail-page__retry-load button').click();
+
+      expect(loadExecutionSpy).toHaveBeenCalledWith('exec-1');
+    });
+
+    it('desabilita "Tentar novamente" enquanto loading() é verdadeiro (proteção contra duplo clique)', () => {
+      errorSignal.set('Não foi possível completar a comunicação com o servidor.');
+      loadingSignal.set(true);
+      fixture.detectChanges();
+      const retry: HTMLButtonElement = fixture.nativeElement.querySelector('.execution-detail-page__retry-load button');
+      expect(retry.disabled).toBeTrue();
+    });
+
+    it('após retry com sucesso, current() passa a existir e o botão de retry desaparece', () => {
+      errorSignal.set('Não foi possível completar a comunicação com o servidor.');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.execution-detail-page__retry-load')).not.toBeNull();
+
+      // Simula o sucesso do retry: state real limparia error() e definiria
+      // current() — aqui simulamos exatamente esse efeito no fake state.
+      errorSignal.set(null);
+      currentSignal.set(execution());
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.execution-detail-page__retry-load')).toBeNull();
+    });
+  });
+
   describe('com execução carregada', () => {
     beforeEach(() => {
       currentSignal.set(execution());
