@@ -76,4 +76,32 @@ describe('NewExecutionFormComponent', () => {
   it('desabilita o botão de envio quando o formulário está inválido', () => {
     expect(submitButton().disabled).toBeTrue();
   });
+
+  describe('foco no primeiro campo inválido ao submeter (Fase 13.8)', () => {
+    it('move o foco para o campo "Cenário de teste" quando ambos os campos estão vazios', () => {
+      submitForm();
+      expect(document.activeElement).toBe(scenarioField());
+    });
+
+    it('move o foco para "Caminho do projeto" quando só o cenário é válido', () => {
+      scenarioField().value = 'Dado que o usuário está logado, quando acessa o perfil';
+      scenarioField().dispatchEvent(new Event('input'));
+
+      submitForm();
+
+      expect(document.activeElement).toBe(projectPathField());
+    });
+
+    it('não move o foco quando o formulário é submetido com sucesso (nenhum campo inválido)', () => {
+      scenarioField().value = 'Dado que o usuário está logado, quando acessa o perfil';
+      scenarioField().dispatchEvent(new Event('input'));
+      projectPathField().value = '/tmp/projeto';
+      projectPathField().dispatchEvent(new Event('input'));
+      projectPathField().focus();
+
+      submitForm();
+
+      expect(document.activeElement).toBe(projectPathField());
+    });
+  });
 });

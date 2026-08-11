@@ -20,6 +20,7 @@ export class AqbInputComponent {
 
   protected readonly inputId = signal(`aqb-input-${++nextId}`);
   protected readonly hasError = computed(() => !!this.error());
+  protected readonly errorId = computed(() => `${this.inputId()}-error`);
 
   onInput(event: Event): void {
     const target = event.target as HTMLInputElement;

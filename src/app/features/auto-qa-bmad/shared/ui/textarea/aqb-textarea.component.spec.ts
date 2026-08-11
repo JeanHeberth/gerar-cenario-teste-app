@@ -38,4 +38,17 @@ describe('AqbTextareaComponent', () => {
       'Campo obrigatório'
     );
   });
+
+  it('associa a mensagem de erro ao textarea via aria-describedby (Fase 13.8)', () => {
+    fixture.componentRef.setInput('error', 'Campo obrigatório');
+    fixture.detectChanges();
+    const errorEl = fixture.nativeElement.querySelector('.aqb-textarea__error');
+    expect(errorEl.id).toBeTruthy();
+    expect(textarea().getAttribute('aria-describedby')).toBe(errorEl.id);
+  });
+
+  it('não aponta aria-describedby para nenhum elemento quando não há erro', () => {
+    fixture.detectChanges();
+    expect(textarea().getAttribute('aria-describedby')).toBeNull();
+  });
 });

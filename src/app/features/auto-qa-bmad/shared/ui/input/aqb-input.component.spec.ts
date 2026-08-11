@@ -43,4 +43,31 @@ describe('AqbInputComponent', () => {
     fixture.detectChanges();
     expect(input().getAttribute('aria-invalid')).toBe('false');
   });
+
+  it('associa a mensagem de erro ao input via aria-describedby (Fase 13.8)', () => {
+    fixture.componentRef.setInput('error', 'Campo obrigatório');
+    fixture.detectChanges();
+    const errorEl = fixture.nativeElement.querySelector('.aqb-input__error');
+    expect(errorEl.id).toBeTruthy();
+    expect(input().getAttribute('aria-describedby')).toBe(errorEl.id);
+  });
+
+  it('não aponta aria-describedby para nenhum elemento quando não há erro', () => {
+    fixture.detectChanges();
+    expect(input().getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('gera um id de erro único por instância do componente', () => {
+    fixture.componentRef.setInput('error', 'Campo obrigatório');
+    fixture.detectChanges();
+
+    const fixture2 = TestBed.createComponent(AqbInputComponent);
+    fixture2.componentRef.setInput('label', 'Outro campo');
+    fixture2.componentRef.setInput('error', 'Também obrigatório');
+    fixture2.detectChanges();
+
+    const error1 = fixture.nativeElement.querySelector('.aqb-input__error').id;
+    const error2 = fixture2.nativeElement.querySelector('.aqb-input__error').id;
+    expect(error1).not.toBe(error2);
+  });
 });

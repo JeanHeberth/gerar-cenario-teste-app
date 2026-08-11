@@ -47,9 +47,30 @@ describe('StageTimelineItemComponent', () => {
     expect(host().getAttribute('aria-selected')).toBe('true');
   });
 
-  it('é focável via teclado (tabindex="0")', () => {
+  it('não é tabbable por padrão quando não é o item ativo (roving tabindex, Fase 13.8)', () => {
+    fixture.detectChanges();
+    expect(host().getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('é tabbable (tabindex="0") quando é o item ativo (roving tabindex, Fase 13.8)', () => {
+    fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
     expect(host().getAttribute('tabindex')).toBe('0');
+  });
+
+  it('deixa de ser tabbable (tabindex="-1") quando active passa a false', () => {
+    fixture.componentRef.setInput('active', true);
+    fixture.detectChanges();
+    fixture.componentRef.setInput('active', false);
+    fixture.detectChanges();
+    expect(host().getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('expõe focus() para o container mover o foco programaticamente para o item', () => {
+    fixture.detectChanges();
+    const focusSpy = spyOn(host(), 'focus');
+    fixture.componentInstance.focus();
+    expect(focusSpy).toHaveBeenCalled();
   });
 
   it('emite stageSelected ao clicar', () => {
