@@ -1,5 +1,5 @@
 import { AutoQaWorkflowStatus } from './auto-qa-enums.model';
-import { AqbBadgeTone } from '../shared/ui/badge/aqb-badge.component';
+import { AqbBadgeTone } from '../../../shared/ui/badge/aqb-badge.component';
 
 /**
  * Fonte única de label/tone/descrição por AutoQaWorkflowStatus. Nenhum

@@ -1,5 +1,5 @@
 import { AutoQaWorkflowStatus } from './auto-qa-enums.model';
-import { AqbBadgeTone } from '../shared/ui/badge/aqb-badge.component';
+import { AqbBadgeTone } from '../../../shared/ui/badge/aqb-badge.component';
 
 /**
  * Estados de encerramento exibidos ao usuário (Fase 12.3.6, renomeado

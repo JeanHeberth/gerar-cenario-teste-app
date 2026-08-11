@@ -1,5 +1,5 @@
 import { StageVisualState } from './stage-visual-state.model';
-import { AqbBadgeTone } from '../shared/ui/badge/aqb-badge.component';
+import { AqbBadgeTone } from '../../../shared/ui/badge/aqb-badge.component';
 
 /**
  * Fonte única de tone/label por StageVisualState. Reaproveita os 4 tones já

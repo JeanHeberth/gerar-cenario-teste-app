@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import { AqbModalComponent } from '../../shared/ui/modal/aqb-modal.component';
-import { AqbTextareaComponent } from '../../shared/ui/textarea/aqb-textarea.component';
-import { AqbButtonComponent } from '../../shared/ui/button/aqb-button.component';
+import { AqbModalComponent } from '../../../../shared/ui/modal/aqb-modal.component';
+import { AqbTextareaComponent } from '../../../../shared/ui/textarea/aqb-textarea.component';
+import { AqbButtonComponent } from '../../../../shared/ui/button/aqb-button.component';
 
 /**
  * Confirmação de uma ação destrutiva (cancelar). Não chama service — só

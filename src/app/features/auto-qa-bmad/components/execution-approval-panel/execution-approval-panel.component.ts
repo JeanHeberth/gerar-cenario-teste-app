@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import { AqbPanelComponent } from '../../shared/ui/panel/aqb-panel.component';
-import { AqbInputComponent } from '../../shared/ui/input/aqb-input.component';
-import { AqbButtonComponent } from '../../shared/ui/button/aqb-button.component';
+import { AqbPanelComponent } from '../../../../shared/ui/panel/aqb-panel.component';
+import { AqbInputComponent } from '../../../../shared/ui/input/aqb-input.component';
+import { AqbButtonComponent } from '../../../../shared/ui/button/aqb-button.component';
 import { AutoQaExecutionApprovalRequest, ExecutionCommandId } from '../../models/auto-qa-execution.model';
 
 const COMMANDS: ExecutionCommandId[] = [

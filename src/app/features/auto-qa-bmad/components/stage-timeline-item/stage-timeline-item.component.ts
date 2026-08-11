@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, output } from '@angular/core';
 import { AqbStageIconComponent } from '../../shared/ui/stage-icon/aqb-stage-icon.component';
-import { AqbBadgeComponent } from '../../shared/ui/badge/aqb-badge.component';
+import { AqbBadgeComponent } from '../../../../shared/ui/badge/aqb-badge.component';
 import { AutoQaStageMetadata } from '../../models/auto-qa-stage-catalog';
 import { StageVisualState } from '../../models/stage-visual-state.model';
 import { STAGE_VISUAL_STATE_METADATA } from '../../models/stage-visual-state-catalog';

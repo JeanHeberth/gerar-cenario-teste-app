@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { AutoQaPublicWarning } from '../../models/auto-qa-execution.model';
-import { AqbEmptyStateComponent } from '../../shared/ui/empty-state/aqb-empty-state.component';
+import { AqbEmptyStateComponent } from '../../../../shared/ui/empty-state/aqb-empty-state.component';
 
 /**
  * Apresentacional. Só interpolação ({{ }}) — nunca innerHTML nem HTML vindo

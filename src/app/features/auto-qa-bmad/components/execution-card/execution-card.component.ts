@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { AqbCardComponent } from '../../shared/ui/card/aqb-card.component';
+import { AqbCardComponent } from '../../../../shared/ui/card/aqb-card.component';
 import { AqbStatusChipComponent } from '../../shared/ui/status-chip/aqb-status-chip.component';
 import { AutoQaExecutionResponse } from '../../models/auto-qa-execution.model';
 import { getStageMetadata } from '../../models/auto-qa-stage-catalog';
