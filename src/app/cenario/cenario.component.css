@@ -2,18 +2,28 @@
    tokens --aq-* (Fase 14.1) em vez de Bootstrap + hex hardcoded. Segue o
    mesmo padrão de superfície adotado em /cenarios (fundo --aq-background,
    card em --aq-surface via AqbCardComponent). Migração estritamente
-   visual: nenhum control/handler/validação foi alterado. */
+   visual: nenhum control/handler/validação foi alterado.
+
+   Correção Fase 14.4.1 (fundo): .cenario-page (fundo full-width) e
+   .cenario-page__content (max-width centralizado) são elementos
+   separados — antes, max-width e background estavam no mesmo elemento,
+   deixando o body claro (src/styles.css, congelado) visível nas laterais
+   em telas largas. */
 
 .cenario-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--aq-space-6);
-  max-width: 840px;
-  margin: 0 auto;
-  padding: var(--aq-space-6) var(--aq-space-4);
+  width: 100%;
   background: var(--aq-background);
   color: var(--aq-text-primary);
   min-height: calc(100vh - var(--aq-nav-height));
+}
+
+.cenario-page__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-6);
+  max-width: var(--aq-content-max-width);
+  margin-inline: auto;
+  padding: var(--aq-space-6) var(--aq-space-4);
 }
 
 .cenario-page__section-title {
@@ -224,7 +234,7 @@
 }
 
 @media (max-width: 768px) {
-  .cenario-page {
+  .cenario-page__content {
     padding: var(--aq-space-4);
   }
 
