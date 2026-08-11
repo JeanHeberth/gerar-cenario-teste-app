@@ -56,6 +56,7 @@ export class CenarioComponent implements OnInit {
   agentsMessage = '';
   uploadMessage = '';
   uploadMessageType: 'success' | 'error' | 'info' | '' = '';
+  erroGeracao = '';
 
   arquivosPdfSelecionados: File[] = [];
 
@@ -79,6 +80,7 @@ export class CenarioComponent implements OnInit {
   async carregarAgentes(): Promise<void> {
     this.agentsLoading = true;
     this.agentsMessage = '';
+    this.form.get('agent')?.disable({ emitEvent: false });
 
     try {
       const response = await firstValueFrom(
@@ -108,6 +110,7 @@ export class CenarioComponent implements OnInit {
       this.agents = [];
     } finally {
       this.agentsLoading = false;
+      this.form.get('agent')?.enable({ emitEvent: false });
     }
   }
 
@@ -351,10 +354,15 @@ export class CenarioComponent implements OnInit {
   }
 
   gerar(): void {
+    if (this.loading) {
+      return;
+    }
+
     this.submitted = true;
 
     if (!this.form.valid) return;
 
+    this.erroGeracao = '';
     this.loading = true;
 
     const titulo = this.form.get('titulo')?.value || '';
@@ -417,7 +425,7 @@ export class CenarioComponent implements OnInit {
   private erro(err: any): void {
     console.error('Erro ao gerar cenario:', err);
     this.loading = false;
-    alert('❌ Erro ao gerar cenario.');
+    this.erroGeracao = '❌ Erro ao gerar cenario.';
   }
 
   irParaCenarios(): void {
