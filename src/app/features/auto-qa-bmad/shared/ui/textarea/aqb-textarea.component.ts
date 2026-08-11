@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 
 let nextId = 0;
 
@@ -19,6 +19,7 @@ export class AqbTextareaComponent {
   readonly valueChange = output<string>();
 
   protected readonly inputId = signal(`aqb-textarea-${++nextId}`);
+  protected readonly errorId = computed(() => `${this.inputId()}-error`);
 
   onInput(event: Event): void {
     const target = event.target as HTMLTextAreaElement;

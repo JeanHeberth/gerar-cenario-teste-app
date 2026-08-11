@@ -2,7 +2,7 @@
   class="stage-timeline-item"
   [class.stage-timeline-item--selected]="selected()"
   role="option"
-  tabindex="0"
+  [attr.tabindex]="active() ? 0 : -1"
   [attr.aria-current]="state() === 'CURRENT' ? 'step' : null"
   [attr.aria-selected]="selected()"
   [attr.aria-label]="metadata().title + ' — ' + visualState().label"

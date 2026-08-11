@@ -12,7 +12,7 @@
           {{ labelFor(action) }}
         </button>
         @if (pendingAction() === action) {
-          <aqb-loading />
+          <aqb-loading label="Executando ação..." />
         }
         @if (!isFunctional(action)) {
           <span class="action-bar__hint">Disponível em uma próxima etapa.</span>

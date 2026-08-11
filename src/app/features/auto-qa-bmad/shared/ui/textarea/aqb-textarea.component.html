@@ -6,10 +6,11 @@
     [rows]="rows()"
     [placeholder]="placeholder()"
     [attr.aria-invalid]="!!error()"
+    [attr.aria-describedby]="error() ? errorId() : null"
     (input)="onInput($event)"
     >{{ value() }}</textarea
   >
   @if (error()) {
-    <p class="aqb-textarea__error">{{ error() }}</p>
+    <p class="aqb-textarea__error" [id]="errorId()">{{ error() }}</p>
   }
 </div>
