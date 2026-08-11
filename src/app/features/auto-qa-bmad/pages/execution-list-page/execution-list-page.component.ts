@@ -2,10 +2,10 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, injec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AutoQaExecutionStateService } from '../../state/auto-qa-execution-state.service';
-import { AqbPageHeaderComponent } from '../../shared/ui/page-header/aqb-page-header.component';
-import { AqbSkeletonComponent } from '../../shared/ui/skeleton/aqb-skeleton.component';
-import { AqbEmptyStateComponent } from '../../shared/ui/empty-state/aqb-empty-state.component';
-import { AqbButtonComponent } from '../../shared/ui/button/aqb-button.component';
+import { AqbPageHeaderComponent } from '../../../../shared/ui/page-header/aqb-page-header.component';
+import { AqbSkeletonComponent } from '../../../../shared/ui/skeleton/aqb-skeleton.component';
+import { AqbEmptyStateComponent } from '../../../../shared/ui/empty-state/aqb-empty-state.component';
+import { AqbButtonComponent } from '../../../../shared/ui/button/aqb-button.component';
 import { NewExecutionFormComponent, NewExecutionFormValue } from '../../components/new-execution-form/new-execution-form.component';
 import { ExecutionCardComponent } from '../../components/execution-card/execution-card.component';
 

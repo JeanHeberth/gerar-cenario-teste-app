@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, QueryList, ViewChildren, input, output } from '@angular/core';
 import { AutoQaExecutionResponse } from '../../models/auto-qa-execution.model';
 import { AUTO_QA_INSPECTION_RESOURCE_CATALOG } from '../../models/auto-qa-inspection-resource-catalog';
-import { AqbEmptyStateComponent } from '../../shared/ui/empty-state/aqb-empty-state.component';
+import { AqbEmptyStateComponent } from '../../../../shared/ui/empty-state/aqb-empty-state.component';
 import { ExecutionResultSummaryComponent } from '../execution-result-summary/execution-result-summary.component';
 
 export type InspectionTabId = 'RESUMO' | 'GENERATED_FILES' | 'DIFF' | 'LOGS';

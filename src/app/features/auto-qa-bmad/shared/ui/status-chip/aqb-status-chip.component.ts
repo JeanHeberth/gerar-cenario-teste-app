@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { AqbBadgeComponent } from '../badge/aqb-badge.component';
+import { AqbBadgeComponent } from '../../../../../shared/ui/badge/aqb-badge.component';
 import { AutoQaWorkflowStatus } from '../../../models/auto-qa-enums.model';
 import { getStatusMetadata } from '../../../models/auto-qa-status-catalog';
 

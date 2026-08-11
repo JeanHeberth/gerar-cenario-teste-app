@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { AqbLoadingComponent } from '../../shared/ui/loading/aqb-loading.component';
+import { AqbLoadingComponent } from '../../../../shared/ui/loading/aqb-loading.component';
 import { AutoQaAvailableAction } from '../../models/auto-qa-enums.model';
 import { getActionLabel, getActionVisualKind } from '../../models/auto-qa-action-catalog';
 

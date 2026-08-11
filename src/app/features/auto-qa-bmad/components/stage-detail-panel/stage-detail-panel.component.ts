@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { AqbPanelComponent } from '../../shared/ui/panel/aqb-panel.component';
-import { AqbBadgeComponent } from '../../shared/ui/badge/aqb-badge.component';
+import { AqbPanelComponent } from '../../../../shared/ui/panel/aqb-panel.component';
+import { AqbBadgeComponent } from '../../../../shared/ui/badge/aqb-badge.component';
 import { AutoQaStageMetadata } from '../../models/auto-qa-stage-catalog';
 import { AutoQaExecutionResponse } from '../../models/auto-qa-execution.model';
 import { StageVisualState } from '../../models/stage-visual-state.model';

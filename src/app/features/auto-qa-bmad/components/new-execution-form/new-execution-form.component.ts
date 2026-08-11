@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AqbTextareaComponent } from '../../shared/ui/textarea/aqb-textarea.component';
-import { AqbInputComponent } from '../../shared/ui/input/aqb-input.component';
-import { AqbButtonComponent } from '../../shared/ui/button/aqb-button.component';
+import { AqbTextareaComponent } from '../../../../shared/ui/textarea/aqb-textarea.component';
+import { AqbInputComponent } from '../../../../shared/ui/input/aqb-input.component';
+import { AqbButtonComponent } from '../../../../shared/ui/button/aqb-button.component';
 
 export interface NewExecutionFormValue {
   scenario: string;
