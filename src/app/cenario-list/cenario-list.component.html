@@ -1,102 +1,76 @@
-<div class="container list-shell">
-  <div class="list-header d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h1 class="list-title">Lista de Cenários de Teste</h1>
-      <p class="list-subtitle">Acompanhe cenários gerados e exporte no formato desejado.</p>
-    </div>
-    <button class="btn btn-primary btn-sm create-btn" (click)="irParaCriacao()">
-      ➕ Novo Cenário
-    </button>
-  </div>
+<div class="cenario-list-page">
+  <aqb-page-header title="Lista de Cenários de Teste" subtitle="Acompanhe cenários gerados e exporte no formato desejado.">
+    <aqb-button class="cenario-list-page__create-btn" variant="primary" (clicked)="irParaCriacao()">➕ Novo Cenário</aqb-button>
+  </aqb-page-header>
 
-  <div class="toolbar mb-3">
-    <div class="search-wrap">
-      <input
-        type="text"
-        class="form-control search-input"
+  <div class="cenario-list-page__toolbar">
+    <div class="cenario-list-page__search">
+      <aqb-input
+        class="cenario-list-page__search-input"
+        label="Buscar cenário"
+        [value]="termoBuscaDigitado"
         placeholder="Buscar por título"
-        [ngModel]="termoBuscaDigitado"
-        (ngModelChange)="onTermoBuscaChange($event)"
-        />
+        (valueChange)="onTermoBuscaChange($event)"
+      />
       @if (termoBuscaDigitado) {
-        <button type="button" class="btn btn-sm btn-outline-secondary clear-search" (click)="limparBusca()">
-          Limpar
-        </button>
+        <aqb-button class="cenario-list-page__clear-btn" variant="ghost" (clicked)="limparBusca()">Limpar</aqb-button>
       }
     </div>
-    <small class="results-counter">
+    <small class="cenario-list-page__counter">
       {{ cenariosFiltrados.length }} de {{ cenarios.length }} cenário(s)
     </small>
   </div>
 
-  <!--  &lt;!&ndash; Card de Configuração do Jira &ndash;&gt;-->
-  <!--  <div class="config-card">-->
-  <!--    <h2>Configuração do Jira / Zephyr Scale</h2>-->
-  <!--    <p>Preencha os campos abaixo para habilitar a exportação para o Jira.</p>-->
-  <!--    <div class="form-group">-->
-  <!--      <label for="jiraDomain">Domínio do Jira:</label>-->
-  <!--      <input type="text" id="jiraDomain" [(ngModel)]="jiraDomain" class="form-control" placeholder="https://seu-dominio.atlassian.net">-->
-<!--    </div>-->
-<!--    <div class="form-group">-->
-<!--      <label for="jiraProjectId">ID do Projeto (pid):</label>-->
-<!--      <input type="text" id="jiraProjectId" [(ngModel)]="jiraProjectId" class="form-control" placeholder="Ex: 10000">-->
-<!--    </div>-->
-<!--    <div class="form-group">-->
-<!--      <label for="jiraTestCaseIssueTypeId">ID do Tipo de Issue "Test Case" (issuetype):</label>-->
-<!--      <input type="text" id="jiraTestCaseIssueTypeId" [(ngModel)]="jiraTestCaseIssueTypeId" class="form-control" placeholder="Ex: 10003">-->
-<!--    </div>-->
-<!--  </div>-->
-
-@if (carregandoLista) {
-  <div class="skeleton-list" aria-hidden="true">
-    @for (item of [1,2,3]; track item) {
-      <div class="skeleton-item"></div>
-    }
-  </div>
-}
-
-@if (erroCarregamento) {
-  <div class="empty-state filtered-empty-state">
-    <h3>Falha ao carregar</h3>
-    <p>{{ erroCarregamento }}</p>
-  </div>
-}
-
-@if (!carregandoLista && !erroCarregamento && cenarios.length === 0) {
-  <div class="empty-state">
-    <h3>Nenhum cenário encontrado</h3>
-    <p>Gere um novo cenário para começar.</p>
-  </div>
-}
-
-@if (!carregandoLista && cenarios.length > 0 && cenariosFiltrados.length === 0) {
-  <div class="empty-state filtered-empty-state">
-    <h3>Nenhum resultado para a busca</h3>
-    <p>Tente outro termo para localizar os cenários.</p>
-  </div>
-}
-
-@for (cenario of cenariosFiltrados; track cenario) {
-  <div class="cenario-card" (click)="toggleDetalhes(cenario)">
-    <div class="cenario-toggle">
-      <h2 class="cenario-title">{{ cenario.titulo }}</h2>
-      <span class="click-hint" aria-hidden="true">🖱️</span>
+  @if (carregandoLista) {
+    <div class="cenario-list-page__skeleton" role="status" aria-label="Carregando cenários...">
+      <span class="aq-sr-only">Carregando cenários...</span>
+      <aqb-skeleton variant="block" [count]="3" />
     </div>
-    @if (estaAberto(cenario)) {
-      <div class="cenario-detalhes">
-        <div class="detail-box">
+  }
+
+  @if (erroCarregamento) {
+    <aqb-empty-state class="cenario-list-page__error" title="Falha ao carregar" [description]="erroCarregamento">
+      <aqb-button class="cenario-list-page__retry-btn" variant="secondary" (clicked)="carregarCenarios()">Tentar novamente</aqb-button>
+    </aqb-empty-state>
+  }
+
+  @if (!carregandoLista && !erroCarregamento && cenarios.length === 0) {
+    <aqb-empty-state class="cenario-list-page__empty" title="Nenhum cenário encontrado" description="Gere um novo cenário para começar." />
+  }
+
+  @if (!carregandoLista && cenarios.length > 0 && cenariosFiltrados.length === 0) {
+    <aqb-empty-state class="cenario-list-page__empty-filtered" title="Nenhum resultado para a busca" description="Tente outro termo para localizar os cenários." />
+  }
+
+  @for (cenario of cenariosFiltrados; track cenario) {
+    <aqb-card class="cenario-card" padding="md">
+      <button
+        type="button"
+        class="cenario-card__toggle"
+        [attr.aria-expanded]="estaAberto(cenario)"
+        [attr.aria-controls]="detalhesId(cenario)"
+        (click)="toggleDetalhes(cenario)"
+      >
+        <h2 class="cenario-card__title">{{ cenario.titulo }}</h2>
+        <span class="cenario-card__hint" aria-hidden="true">🖱️</span>
+      </button>
+
+      @if (estaAberto(cenario)) {
+        <div class="cenario-card__details" [id]="detalhesId(cenario)">
           <h3>Regra de Negócio completa:</h3>
-          <p class="rule-text">{{ cenario.regraDeNegocio }}</p>
+          <p class="cenario-card__rule-text">{{ cenario.regraDeNegocio }}</p>
         </div>
+      }
+
+      <div class="cenario-card__actions">
+        <aqb-button class="cenario-card__export-doc" variant="secondary" (clicked)="exportar(cenario, 'doc')" title="Exportar para .doc">📄 .doc</aqb-button>
+        <aqb-button class="cenario-card__export-xlsx" variant="secondary" (clicked)="exportar(cenario, 'xlsx')" title="Exportar para .xlsx">📊 .xlsx</aqb-button>
+        <aqb-button class="cenario-card__export-pdf" variant="secondary" (clicked)="exportar(cenario, 'pdf')" title="Exportar para .pdf">📊 .pdf</aqb-button>
+        <span class="cenario-card__jira">
+          <aqb-button class="cenario-card__export-jira" variant="ghost" [disabled]="true">🧩 Jira</aqb-button>
+          <span class="cenario-card__jira-hint">Indisponível</span>
+        </span>
       </div>
-    }
-    <!-- Exportação -->
-    <div class="export-buttons d-flex gap-2 mt-3">
-      <button (click)="exportar(cenario, 'doc')" class="btn btn-outline-success" title="Exportar para .doc">📄 .doc</button>
-      <button (click)="exportar(cenario, 'xlsx')" class="btn btn-outline-info" title="Exportar para .xlsx">📊 .xlsx</button>
-      <button (click)="exportar(cenario, 'pdf')" class="btn btn-outline-danger" title="Exportar para .pdf">📊 .pdf</button>
-      <button (click)="exportar(cenario, 'jira')" class="btn btn-outline-primary" title="Criar issue no Jira">🧩 Jira</button>
-    </div>
-  </div>
-}
+    </aqb-card>
+  }
 </div>
