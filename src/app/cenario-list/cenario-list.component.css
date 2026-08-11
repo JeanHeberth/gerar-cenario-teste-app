@@ -2,18 +2,28 @@
    tokens --aq-* (Fase 14.1) e os primitives Aqb* (Fase 14.2) em vez de
    Bootstrap + hex hardcoded. Superfícies seguem o mesmo padrão do Auto QA
    (fundo --aq-background, cards em --aq-surface via AqbCardComponent, sem
-   depender de box-shadow para hierarquia visual). */
+   depender de box-shadow para hierarquia visual).
+
+   Correção de fundo (padronização com Gerar Cenário, pós-14.4.1):
+   .cenario-list-page (fundo full-width) e .cenario-list-page__content
+   (max-width centralizado) são elementos separados — antes, max-width e
+   background estavam no mesmo elemento, deixando o body claro
+   (src/styles.css, congelado) visível nas laterais em telas largas. */
 
 .cenario-list-page {
+  width: 100%;
+  background: var(--aq-background);
+  color: var(--aq-text-primary);
+  min-height: calc(100vh - var(--aq-nav-height));
+}
+
+.cenario-list-page__content {
   display: flex;
   flex-direction: column;
   gap: var(--aq-space-6);
   max-width: var(--aq-content-max-width);
-  margin: 0 auto;
+  margin-inline: auto;
   padding: var(--aq-space-6) var(--aq-space-4);
-  background: var(--aq-background);
-  color: var(--aq-text-primary);
-  min-height: calc(100vh - var(--aq-nav-height));
 }
 
 .cenario-list-page__toolbar {
@@ -131,7 +141,7 @@
 }
 
 @media (max-width: 768px) {
-  .cenario-list-page {
+  .cenario-list-page__content {
     padding: var(--aq-space-4);
   }
 
