@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import * as FileSaver from 'file-saver';
+import * as XLSX from 'xlsx-js-style';
 import { CenarioListComponent } from './cenario-list.component';
 import { environment } from '../enviroment/enviroment.prd';
 
@@ -269,6 +270,63 @@ describe('CenarioListComponent (caracterização — Fase 14.4)', () => {
       const toggle = toggleButton();
       expect(toggle.querySelector('button')).toBeNull();
     });
+
+    it('FASE15-BUG-005B: exibe Status/Evidência/Fontes de cada cenário ao expandir os detalhes', () => {
+      fixture.detectChanges();
+      flushList([cenarioFixture({
+        cenarios: [
+          {
+            nome: 'CEP com 7 dígitos deve ser inválido',
+            status: 'APPROVED',
+            evidenceType: 'DOCUMENTED',
+            evidenceSources: 'RN-B-02',
+          },
+        ],
+      })]);
+
+      toggleButton().click();
+      fixture.detectChanges();
+
+      const detalhes = fixture.nativeElement.querySelector('.cenario-card__details');
+      expect(detalhes.textContent).toContain('CEP com 7 dígitos deve ser inválido');
+      expect(detalhes.textContent).toContain('Status: APPROVED');
+      expect(detalhes.textContent).toContain('Evidência: DOCUMENTED');
+      expect(detalhes.textContent).toContain('Fontes: RN-B-02');
+    });
+
+    it('FASE15-BUG-005B: cenário EXPLORATORY continua mostrando Status: REVIEW_REQUIRED na tela, com classe visual de alerta', () => {
+      fixture.detectChanges();
+      flushList([cenarioFixture({
+        cenarios: [
+          {
+            nome: 'Campo CEP deve ser ocultado para clientes no exterior',
+            status: 'REVIEW_REQUIRED',
+            evidenceType: 'EXPLORATORY',
+            evidenceSources: 'Não se aplica',
+          },
+        ],
+      })]);
+
+      toggleButton().click();
+      fixture.detectChanges();
+
+      const detalhes = fixture.nativeElement.querySelector('.cenario-card__details');
+      expect(detalhes.textContent).toContain('Status: REVIEW_REQUIRED');
+      expect(detalhes.textContent).toContain('Evidência: EXPLORATORY');
+      expect(detalhes.querySelector('.cenario-card__status--review')).not.toBeNull();
+    });
+
+    it('cenário legado sem evidenceType (dado anterior ao BUG-005B) continua exibindo Status normalmente, sem quebrar', () => {
+      fixture.detectChanges();
+      flushList([cenarioFixture()]);
+
+      toggleButton().click();
+      fixture.detectChanges();
+
+      const detalhes = fixture.nativeElement.querySelector('.cenario-card__details');
+      expect(detalhes.textContent).toContain('Status: APPROVED');
+      expect(detalhes.textContent).not.toContain('Evidência:');
+    });
   });
 
   describe('navegação para criação', () => {
@@ -341,6 +399,85 @@ describe('CenarioListComponent (caracterização — Fase 14.4)', () => {
       const jiraButton = button('.cenario-card__export-jira')!;
       expect(jiraButton.disabled).toBeTrue();
       expect(fixture.nativeElement.querySelector('.cenario-card__jira')?.textContent).toContain('Indisponível');
+    });
+  });
+
+  describe('FASE15-BUG-005B: rastreabilidade de evidência nas exportações', () => {
+    it('.doc: inclui "Tipo de Evidência" e "Fontes" quando o cenário possui evidenceType/evidenceSources', async () => {
+      const saveAsSpy = spyOn(FileSaver, 'saveAs');
+      fixture.detectChanges();
+      flushList([cenarioFixture({
+        titulo: 'Login válido',
+        cenarios: [{
+          nome: 'Login válido',
+          objetivo: 'Validar login',
+          scriptTeste: 'Dado...\nQuando...\nEntão...',
+          resultadoEsperado: 'Login realizado',
+          status: 'APPROVED',
+          evidenceType: 'DOCUMENTED',
+          evidenceSources: 'RN-A-01',
+        }],
+      })]);
+
+      button('.cenario-card__export-doc')!.click();
+
+      const [blob] = saveAsSpy.calls.mostRecent().args;
+      const conteudo = await (blob as Blob).text();
+
+      expect(conteudo).toContain('Tipo de Evidência');
+      expect(conteudo).toContain('DOCUMENTED');
+      expect(conteudo).toContain('Fontes');
+      expect(conteudo).toContain('RN-A-01');
+    });
+
+    it('.doc: não inclui bloco de evidência quando o cenário não possui esses campos (retrocompatibilidade com dados legados)', async () => {
+      const saveAsSpy = spyOn(FileSaver, 'saveAs');
+      fixture.detectChanges();
+      flushList([cenarioFixture({ titulo: 'Login válido' })]);
+
+      button('.cenario-card__export-doc')!.click();
+
+      const [blob] = saveAsSpy.calls.mostRecent().args;
+      const conteudo = await (blob as Blob).text();
+
+      expect(conteudo).not.toContain('Tipo de Evidência');
+    });
+
+    it('.xlsx: inclui as colunas "Tipo de Evidência" e "Fontes" no cabeçalho, preservando as colunas existentes', async () => {
+      const saveAsSpy = spyOn(FileSaver, 'saveAs');
+      fixture.detectChanges();
+      flushList([cenarioFixture({
+        titulo: 'Login válido',
+        cenarios: [{
+          nome: 'Login válido',
+          objetivo: 'Validar login',
+          scriptTeste: 'Dado...\nQuando...\nEntão...',
+          resultadoEsperado: 'Login realizado',
+          status: 'APPROVED',
+          evidenceType: 'DOCUMENTED',
+          evidenceSources: 'RN-A-01',
+        }],
+      })]);
+
+      button('.cenario-card__export-xlsx')!.click();
+
+      const [blob] = saveAsSpy.calls.mostRecent().args;
+      const buffer = await (blob as Blob).arrayBuffer();
+      const wb = XLSX.read(buffer, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const linhas = XLSX.utils.sheet_to_json(ws, { header: 1 }) as unknown[][];
+      const cabecalho = linhas[0] as string[];
+
+      expect(cabecalho).toContain('Tipo de Evidência');
+      expect(cabecalho).toContain('Fontes');
+      // colunas pré-existentes continuam presentes (não foram removidas/renomeadas)
+      expect(cabecalho).toContain('Nome');
+      expect(cabecalho).toContain('Status');
+
+      const indiceEvidencia = cabecalho.indexOf('Tipo de Evidência');
+      const indiceFontes = cabecalho.indexOf('Fontes');
+      expect((linhas[1] as string[])[indiceEvidencia]).toBe('DOCUMENTED');
+      expect((linhas[1] as string[])[indiceFontes]).toBe('RN-A-01');
     });
   });
 });

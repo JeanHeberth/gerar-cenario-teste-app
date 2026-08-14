@@ -60,6 +60,29 @@
         <div class="cenario-card__details" [id]="detalhesId(cenario)">
           <h3>Regra de Negócio completa:</h3>
           <p class="cenario-card__rule-text">{{ cenario.regraDeNegocio }}</p>
+
+          <h3>Cenários de teste:</h3>
+          <ul class="cenario-card__itens">
+            @for (item of itensDoCenario(cenario); track $index) {
+              <li class="cenario-card__item">
+                <p class="cenario-card__item-nome">{{ item.nome }}</p>
+                <p class="cenario-card__item-meta">
+                  <span
+                    class="cenario-card__status"
+                    [class.cenario-card__status--review]="item.status === 'REVIEW_REQUIRED'"
+                  >Status: {{ item.status }}</span>
+                  @if (item.evidenceType) {
+                    <span class="cenario-card__evidence">
+                      Evidência: {{ item.evidenceType }}
+                      @if (item.evidenceSources) {
+                        · Fontes: {{ item.evidenceSources }}
+                      }
+                    </span>
+                  }
+                </p>
+              </li>
+            }
+          </ul>
         </div>
       }
 

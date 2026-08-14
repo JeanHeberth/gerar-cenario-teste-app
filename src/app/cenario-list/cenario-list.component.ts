@@ -129,6 +129,12 @@ export class CenarioListComponent implements OnInit, OnDestroy {
     return `cenario-detalhes-${this.chaveCenario(cenario).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
   }
 
+  /** FASE15-BUG-005B: itens normalizados de um cenário para exibição na tela (Status/Evidência/Fontes inclusos). */
+  itensDoCenario(cenario: any): any[] {
+    const cenariosLista: any[] = Array.isArray(cenario?.cenarios) ? cenario.cenarios : [];
+    return cenariosLista.map((item) => this.normalizarCenario(item));
+  }
+
   private normalizarTexto(texto: string): string {
     return (texto || '')
       .normalize('NFD')
@@ -171,7 +177,9 @@ export class CenarioListComponent implements OnInit, OnDestroy {
         'Pasta',
         'Proprietário',
         'Cobertura',
-        'Status'
+        'Status',
+        'Tipo de Evidência',
+        'Fontes'
       ];
 
       const linhas: any[][] = [cabecalho];
@@ -198,7 +206,9 @@ export class CenarioListComponent implements OnInit, OnDestroy {
           c.pasta,
           'JIRAUSER23105',
           c.cobertura,
-          c.status
+          c.status,
+          c.evidenceType,
+          c.evidenceSources
         ]);
       });
 
@@ -251,7 +261,9 @@ export class CenarioListComponent implements OnInit, OnDestroy {
         {wch: 40},
         {wch: 22},
         {wch: 25},
-        {wch: 20}
+        {wch: 20},
+        {wch: 25},
+        {wch: 30}
       ];
 
       const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -322,6 +334,12 @@ export class CenarioListComponent implements OnInit, OnDestroy {
         adicionarTexto(`Proprietário: JIRAUSER23105`);
         adicionarTexto(`Cobertura: ${c.cobertura}`);
         adicionarTexto(`Status: ${c.status}`);
+        if (c.evidenceType) {
+          adicionarTexto(`Tipo de Evidência: ${c.evidenceType}`);
+          if (c.evidenceSources) {
+            adicionarTexto(`Fontes: ${c.evidenceSources}`);
+          }
+        }
       });
 
       doc.save(`${this.nomeArquivo(cenario?.titulo)}_ZephyrScale.pdf`);
@@ -354,6 +372,10 @@ export class CenarioListComponent implements OnInit, OnDestroy {
           <p><strong>Proprietário:</strong> JIRAUSER23105</p>
           <p><strong>Cobertura:</strong> ${this.escapeHtml(c.cobertura)}</p>
           <p><strong>Status:</strong> ${this.escapeHtml(c.status)}</p>
+          ${c.evidenceType ? `
+          <p><strong>Tipo de Evidência:</strong> ${this.escapeHtml(c.evidenceType)}</p>
+          ${c.evidenceSources ? `<p><strong>Fontes:</strong> ${this.escapeHtml(c.evidenceSources)}</p>` : ''}
+          ` : ''}
         `;
       }).join('<hr/>');
 
@@ -397,7 +419,9 @@ export class CenarioListComponent implements OnInit, OnDestroy {
         pasta: this.extrairCampoTexto(item, 'Pasta'),
         proprietario: 'JIRAUSER23105',
         cobertura: this.extrairCampoTexto(item, 'Cobertura'),
-        status: this.extrairCampoTexto(item, 'Status') || 'APPROVED'
+        status: this.extrairCampoTexto(item, 'Status') || 'APPROVED',
+        evidenceType: this.extrairCampoTexto(item, 'Evidência') || null,
+        evidenceSources: this.extrairCampoTexto(item, 'Fontes') || null
       };
     }
 
@@ -414,7 +438,9 @@ export class CenarioListComponent implements OnInit, OnDestroy {
       pasta: item?.pasta || '',
       proprietario: 'JIRAUSER23105',
       cobertura: item?.cobertura || '',
-      status: item?.status || 'APPROVED'
+      status: item?.status || 'APPROVED',
+      evidenceType: item?.evidenceType || null,
+      evidenceSources: item?.evidenceSources || null
     };
   }
 
@@ -432,6 +458,8 @@ export class CenarioListComponent implements OnInit, OnDestroy {
       'Pasta',
       'Proprietário',
       'Cobertura',
+      'Evidência',
+      'Fontes',
       'Status'
     ];
 
