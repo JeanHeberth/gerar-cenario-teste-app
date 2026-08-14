@@ -121,6 +121,40 @@
   line-height: var(--aq-line-height-normal);
 }
 
+.cenario-card__itens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-2);
+}
+
+.cenario-card__item {
+  border-top: var(--aq-border-width) solid var(--aq-border);
+  padding-top: var(--aq-space-2);
+}
+
+.cenario-card__item-nome {
+  margin: 0 0 var(--aq-space-1);
+  color: var(--aq-text-primary);
+  font-weight: 600;
+}
+
+.cenario-card__item-meta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aq-space-2);
+  font-size: var(--aq-font-size-sm);
+  color: var(--aq-text-secondary);
+}
+
+.cenario-card__status--review {
+  color: var(--aq-warning);
+  font-weight: 600;
+}
+
 .cenario-card__actions {
   display: flex;
   flex-wrap: wrap;
