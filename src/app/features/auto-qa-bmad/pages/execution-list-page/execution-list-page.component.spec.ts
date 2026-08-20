@@ -140,7 +140,12 @@ describe('ExecutionListPageComponent', () => {
     const form = fixture.debugElement.query((n) => n.name === 'app-new-execution-form');
     form.triggerEventHandler('created', { scenario: 'Cenário válido com texto suficiente', projectPath: '/tmp/x' });
 
-    expect(createExecutionSpy).toHaveBeenCalledWith('Cenário válido com texto suficiente', '/tmp/x');
+    expect(createExecutionSpy).toHaveBeenCalledWith(
+      { scenario: 'Cenário válido com texto suficiente' },
+      '/tmp/x',
+      undefined,
+      undefined,
+    );
     expect(router.navigate).toHaveBeenCalledWith(['exec-novo'], jasmine.any(Object));
   });
 

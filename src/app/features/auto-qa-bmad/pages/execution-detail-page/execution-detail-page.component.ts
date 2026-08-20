@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AutoQaExecutionStateService } from '../../state/auto-qa-execution-state.service';
+import { AutoQaCapabilitiesService, FrameworkOption } from '../../services/auto-qa-capabilities.service';
 import { AqbPageHeaderComponent } from '../../../../shared/ui/page-header/aqb-page-header.component';
 import { AqbSkeletonComponent } from '../../../../shared/ui/skeleton/aqb-skeleton.component';
 import { AqbButtonComponent } from '../../../../shared/ui/button/aqb-button.component';
@@ -69,6 +70,10 @@ import {
 })
 export class ExecutionDetailPageComponent implements OnInit {
   protected readonly state = inject(AutoQaExecutionStateService);
+  private readonly capabilitiesService = inject(AutoQaCapabilitiesService);
+
+  /** Matriz do backend; alimenta o painel de aprovação de execução. */
+  protected readonly frameworks = signal<FrameworkOption[]>([]);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -104,6 +109,15 @@ export class ExecutionDetailPageComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    this.capabilitiesService
+      .listarFrameworks()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (opcoes) => this.frameworks.set(opcoes),
+        // Sem a matriz, o painel oferece todos os comandos — comportamento anterior.
+        error: () => this.frameworks.set([]),
+      });
+
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const executionId = params.get('executionId');
       this.executionId.set(executionId);

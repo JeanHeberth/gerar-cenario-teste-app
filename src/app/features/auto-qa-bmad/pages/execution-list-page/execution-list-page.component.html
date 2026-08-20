@@ -5,7 +5,24 @@
     subtitle="Execuções anteriores do Auto QA BMAD, na ordem retornada pela API."
   />
 
-  <app-new-execution-form [submitting]="state.creating()" (created)="onCreate($event)" />
+  <app-new-execution-form
+    [submitting]="state.creating()"
+    [cenarioSelecionadoId]="cenarioSelecionadoId()"
+    [cenarioSelecionadoTitulo]="cenarioSelecionadoTitulo()"
+    [frameworks]="frameworks()"
+    (created)="onCreate($event)"
+    (abriuSeletorDePasta)="onAbrirSeletorDePasta()"
+  />
+
+  <app-folder-picker-modal
+    [open]="seletorAberto()"
+    [loading]="seletorCarregando()"
+    [nivel]="seletorNivel()"
+    [erro]="seletorErro()"
+    (navegou)="onNavegarPastas($event)"
+    (selecionou)="onSelecionarPasta($event)"
+    (dismissed)="onFecharSeletor()"
+  />
 
   @if (state.error()) {
     <div class="execution-list-page__error" role="alert">

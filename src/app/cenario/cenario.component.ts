@@ -9,6 +9,15 @@ import {AqbPageHeaderComponent} from '../shared/ui/page-header/aqb-page-header.c
 import {AqbButtonComponent} from '../shared/ui/button/aqb-button.component';
 import {AqbCardComponent} from '../shared/ui/card/aqb-card.component';
 
+interface DestinoPublicacaoResponse {
+  provedor: string | null;
+  identificador: string | null;
+  projectKey: string | null;
+  pastaRaiz: string | null;
+  valido: boolean;
+  motivo: string | null;
+}
+
 interface JiraAttachmentResponse {
   id: string;
   fileName: string;
@@ -50,6 +59,15 @@ export class CenarioComponent implements OnInit {
   jiraDownloadLoading = false;
   jiraMessage = '';
   jiraMessageType: 'success' | 'error' | 'info' | '' = '';
+
+  /**
+   * Destino resolvido pelo backend para a tarefa informada. Mostrado antes de
+   * gerar: descobrir que a referência está errada só depois da geração custa
+   * uma rodada inteira de chamadas de IA, e um caso publicado no lugar errado
+   * não tem desfazer barato (pasta no Zephyr não aceita DELETE).
+   */
+  destino: DestinoPublicacaoResponse | null = null;
+  destinoLoading = false;
 
   agents: AgentInfoResponse[] = [];
   agentsLoading = false;
@@ -111,6 +129,33 @@ export class CenarioComponent implements OnInit {
     } finally {
       this.agentsLoading = false;
       this.form.get('agent')?.enable({ emitEvent: false });
+    }
+  }
+
+  /**
+   * Consultado ao sair do campo da tarefa. Não bloqueia nada: se o preview
+   * falhar (backend fora, rede), o usuário ainda consegue gerar — a API
+   * revalida a referência de qualquer forma.
+   */
+  async atualizarDestino(): Promise<void> {
+    const taskRef = this.getTaskRef();
+
+    if (!taskRef) {
+      this.destino = null;
+      return;
+    }
+
+    this.destinoLoading = true;
+    try {
+      this.destino = await firstValueFrom(
+        this.http.get<DestinoPublicacaoResponse>(`${environment.apiUrl}/cenario/destino`, {
+          params: { taskRef }
+        })
+      );
+    } catch {
+      this.destino = null;
+    } finally {
+      this.destinoLoading = false;
     }
   }
 
@@ -317,8 +362,25 @@ export class CenarioComponent implements OnInit {
     return !!campo && campo.invalid && (campo.touched || this.submitted);
   }
 
+  /**
+   * O que o usuário digitou, sem normalizar. Pode ser a chave ("SCRUM-28") ou
+   * a URL colada do navegador — quem sabe interpretar as duas é o backend,
+   * então mandamos cru e não duplicamos aqui a regra de parsing.
+   *
+   * Antes isto aplicava toUpperCase(), o que arruinaria uma URL colada
+   * ("https://" viraria "HTTPS://").
+   */
+  private getTaskRef(): string {
+    return (this.form.get('jiraTaskKey')?.value || '').trim();
+  }
+
+  /**
+   * A chave normalizada pelo backend (via preview do destino), usada pelos
+   * endpoints de anexo, que exigem chave e não aceitam URL. Cai para o texto
+   * digitado enquanto o preview não respondeu.
+   */
   private getTaskKey(): string {
-    return (this.form.get('jiraTaskKey')?.value || '').trim().toUpperCase();
+    return (this.destino?.identificador || this.getTaskRef()).toUpperCase();
   }
 
   private getAgent(): string {
@@ -379,6 +441,11 @@ export class CenarioComponent implements OnInit {
         formData.append('agent', agent);
       }
 
+      const taskRef = this.getTaskRef();
+      if (taskRef) {
+        formData.append('taskRef', taskRef);
+      }
+
       this.arquivosPdfSelecionados.forEach((arquivo) => {
         formData.append('arquivos', arquivo);
       });
@@ -395,7 +462,9 @@ export class CenarioComponent implements OnInit {
     this.http.post(`${environment.apiUrl}/cenario`, {
       titulo,
       regraDeNegocio,
-      agent
+      agent,
+      // Vai cru: a API aceita URL ou chave e resolve o destino a partir daí.
+      taskRef: this.getTaskRef() || null
     }).subscribe({
       next: () => this.sucesso(),
       error: (err) => this.erro(err)

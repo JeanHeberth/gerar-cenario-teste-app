@@ -8,11 +8,12 @@
 
   <fieldset class="execution-approval-panel__fieldset">
     <legend>Comandos autorizados</legend>
-    @for (command of commands; track command) {
+    @for (command of commands(); track command) {
       <label class="execution-approval-panel__checkbox">
         <input
           type="checkbox"
           [value]="command"
+          [checked]="isCommandSelected(command)"
           (change)="toggleCommand(command, $any($event.target).checked)"
         />
         {{ command }}
@@ -24,6 +25,7 @@
     <input
       type="checkbox"
       name="allowTestExecution"
+      [checked]="allowTestExecution()"
       (change)="allowTestExecution.set($any($event.target).checked)"
     />
     Permitir execução de testes
@@ -33,13 +35,14 @@
     <input
       type="checkbox"
       name="allowInstallCommand"
+      [checked]="allowInstallCommand()"
       (change)="allowInstallCommand.set($any($event.target).checked)"
     />
     Permitir comando de instalação de dependências
   </label>
 
   <label class="execution-approval-panel__checkbox">
-    <input type="checkbox" name="allowBuildCommand" (change)="allowBuildCommand.set($any($event.target).checked)" />
+    <input type="checkbox" name="allowBuildCommand" [checked]="allowBuildCommand()" (change)="allowBuildCommand.set($any($event.target).checked)" />
     Permitir comando de build
   </label>
 

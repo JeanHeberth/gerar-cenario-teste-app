@@ -105,13 +105,18 @@ export class AutoQaExecutionStateService {
       });
   }
 
-  createExecution(scenario: string, projectPath: string): Observable<AutoQaExecutionResponse> {
+  createExecution(
+    origem: { scenario?: string; cenarioId?: string },
+    projectPath: string,
+    automationType?: string,
+    automationFramework?: string,
+  ): Observable<AutoQaExecutionResponse> {
     if (this._creating()) {
       return EMPTY;
     }
     this._creating.set(true);
     this._error.set(null);
-    return this.executionService.create(scenario, projectPath).pipe(
+    return this.executionService.create(origem, projectPath, automationType, automationFramework).pipe(
       tap((response) => this._current.set(response)),
       tap({
         error: (err: HttpErrorResponse | TimeoutError) => this._error.set(mapHttpErrorToUiError(err).message),

@@ -47,24 +47,71 @@ describe('ExecutionApprovalPanelComponent', () => {
     }
   });
 
+  it('já vem com os comandos de teste marcados e execução permitida', () => {
+    // Escolher entre 11 comandos era adivinhação: marcar o errado fazia o
+    // resolvedor não achar comando e devolver BLOCKED, já com os arquivos
+    // gerados e aplicados. Autorizar todos não amplia nada, porque o backend
+    // só monta candidatos do framework detectado.
+    expect(checkbox('PLAYWRIGHT_TEST').checked).toBeTrue();
+    expect(checkbox('PYTEST').checked).toBeTrue();
+    expect(namedCheckbox('allowTestExecution').checked).toBeTrue();
+    // Instalar e buildar são mais pesados e seguem exigindo escolha explícita.
+    expect(namedCheckbox('allowInstallCommand').checked).toBeFalse();
+    expect(namedCheckbox('allowBuildCommand').checked).toBeFalse();
+  });
+
+  it('oferece só os comandos do framework da execução', () => {
+    // Num projeto Playwright, oferecer MAVEN_TEST/PYTEST era ruído que levava a
+    // marcar o comando errado — e aí o resolvedor não achava nenhum e devolvia
+    // BLOCKED, depois de gerar e aplicar os arquivos.
+    fixture.componentRef.setInput('frameworks', [
+      { framework: 'PLAYWRIGHT', automationTypes: ['WEB_UI', 'API'], commands: ['PLAYWRIGHT_TEST', 'NPM_TEST'] },
+      { framework: 'REST_ASSURED', automationTypes: ['API'], commands: ['MAVEN_TEST'] },
+    ]);
+    fixture.componentRef.setInput('automationFramework', 'PLAYWRIGHT');
+    fixture.detectChanges();
+
+    expect(checkbox('PLAYWRIGHT_TEST')).not.toBeNull();
+    expect(checkbox('PLAYWRIGHT_TEST').checked).toBeTrue();
+    expect(checkbox('NPM_TEST').checked).toBeTrue();
+    expect(checkbox('MAVEN_TEST')).toBeNull();
+    expect(checkbox('PYTEST')).toBeNull();
+  });
+
+  it('sem framework conhecido, mantém os 11 comandos', () => {
+    fixture.componentRef.setInput('automationFramework', null);
+    fixture.detectChanges();
+    expect(checkbox('PLAYWRIGHT_TEST')).not.toBeNull();
+    expect(checkbox('MAVEN_TEST')).not.toBeNull();
+  });
+
   it('desabilita o envio quando approvedBy está vazio ou nenhum comando foi selecionado', () => {
-    expect(submitButton().disabled).toBeTrue();
+    expect(submitButton().disabled).toBeTrue(); // approvedBy vazio
 
     approvedByField().value = 'jean';
     approvedByField().dispatchEvent(new Event('input'));
     fixture.detectChanges();
-    expect(submitButton().disabled).toBeTrue();
+    expect(submitButton().disabled).toBeFalse();
+
+    for (const command of fixture.componentInstance['commands']()) {
+      checkbox(command).checked = false;
+      checkbox(command).dispatchEvent(new Event('change'));
+    }
+    fixture.detectChanges();
+    expect(submitButton().disabled).toBeTrue(); // nenhum comando selecionado
   });
 
   it('emite approved com o payload correto quando válido', () => {
     approvedByField().value = '  jean  ';
     approvedByField().dispatchEvent(new Event('input'));
 
-    checkbox('NPM_TEST').checked = true;
-    checkbox('NPM_TEST').dispatchEvent(new Event('change'));
-
-    namedCheckbox('allowTestExecution').checked = true;
-    namedCheckbox('allowTestExecution').dispatchEvent(new Event('change'));
+    // Desmarca todos e deixa só NPM_TEST, checando que o toggle continua
+    // funcionando sobre a seleção padrão.
+    for (const command of fixture.componentInstance['commands']()) {
+      if (command === 'NPM_TEST') continue;
+      checkbox(command).checked = false;
+      checkbox(command).dispatchEvent(new Event('change'));
+    }
 
     fixture.detectChanges();
 

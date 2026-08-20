@@ -3,3 +3,73 @@
   flex-direction: column;
   gap: var(--aq-space-4);
 }
+
+/* Campo e botão "Abrir" na mesma linha; o campo cresce e o botão fica no fim. */
+.new-execution-form__path {
+  display: flex;
+  gap: var(--aq-space-2);
+  /* Alinha pela base: o wrapper do input é mais alto que o botão porque
+     inclui o label acima. Com flex-start o botão descia ~9px; empurrá-lo com
+     padding fixo dependeria da altura do label, que muda com a tipografia. */
+  align-items: flex-end;
+}
+
+.new-execution-form__path-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Cartão do cenário vindo da Lista de Cenários, no lugar do textarea. */
+.new-execution-form__cenario-salvo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-1);
+  padding: var(--aq-space-3);
+  border: var(--aq-border-width) solid var(--aq-border);
+  border-radius: var(--aq-radius-md);
+  background-color: var(--aq-surface);
+}
+
+.new-execution-form__cenario-salvo-label {
+  font-size: var(--aq-font-size-sm);
+  color: var(--aq-text-muted);
+}
+
+.new-execution-form__cenario-salvo-titulo {
+  color: var(--aq-text-primary);
+}
+
+/* Espelha .aqb-input: não existe aqb-select no shared/ui, e criar um
+   componente novo só para um campo levaria variantes de design a decidir. */
+.new-execution-form__automation-type {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-1);
+  font-family: var(--aq-font-family);
+}
+
+.new-execution-form__automation-type-label {
+  font-size: var(--aq-font-size-sm);
+  color: var(--aq-text-secondary);
+}
+
+.new-execution-form__automation-type-field {
+  font-family: inherit;
+  font-size: var(--aq-font-size-sm);
+  color: var(--aq-text-primary);
+  background: var(--aq-surface);
+  border: var(--aq-border-width) solid var(--aq-border);
+  border-radius: var(--aq-radius-md);
+  padding: var(--aq-space-2) var(--aq-space-3);
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--aq-focus-ring-color);
+    box-shadow: 0 0 0 var(--aq-focus-ring-width) var(--aq-focus-ring-shadow);
+  }
+}
+
+.new-execution-form__automation-type-hint {
+  font-size: var(--aq-font-size-xs);
+  color: var(--aq-text-muted);
+}

@@ -3,6 +3,7 @@ import { AqbPanelComponent } from '../../../../shared/ui/panel/aqb-panel.compone
 import { AqbInputComponent } from '../../../../shared/ui/input/aqb-input.component';
 import { AqbButtonComponent } from '../../../../shared/ui/button/aqb-button.component';
 import { AutoQaExecutionApprovalRequest, ExecutionCommandId } from '../../models/auto-qa-execution.model';
+import { FrameworkOption } from '../../services/auto-qa-capabilities.service';
 
 const COMMANDS: ExecutionCommandId[] = [
   'NPM_TEST',
@@ -36,11 +37,57 @@ export class ExecutionApprovalPanelComponent {
   readonly submitting = input(false);
   readonly approved = output<AutoQaExecutionApprovalRequest>();
 
-  protected readonly commands = COMMANDS;
+  /** Matriz do backend: quais comandos fazem sentido em cada framework. */
+  readonly frameworks = input<FrameworkOption[]>([]);
+  /** Framework desta execução; null quando foi deduzido do projeto. */
+  readonly automationFramework = input<string | null>(null);
+
+  /**
+   * Só os comandos do framework desta execução. O CommandResolver nunca proporá
+   * um comando de outro framework, então oferecer os onze era ruído que levava a
+   * marcar o errado — e marcar errado devolvia BLOCKED com "MISSING_TEST_COMMAND"
+   * depois de todo o pipeline. Sem framework conhecido, oferece todos.
+   */
+  protected readonly commands = computed<ExecutionCommandId[]>(() => {
+    const framework = this.automationFramework();
+    if (!framework) {
+      return COMMANDS;
+    }
+    const doFramework = this.frameworks().find((f) => f.framework === framework)?.commands ?? [];
+    return doFramework.length > 0 ? (doFramework as ExecutionCommandId[]) : COMMANDS;
+  });
 
   protected readonly approvedBy = signal('');
-  protected readonly selectedCommands = signal<ReadonlySet<ExecutionCommandId>>(new Set());
-  protected readonly allowTestExecution = signal(false);
+
+  /**
+   * Todos os comandos de teste vêm marcados. Não é permissivo: o
+   * CommandResolver só monta candidatos do framework que o discovery detectou
+   * — num projeto Playwright ele nunca proporá um comando Cypress. Autorizar a
+   * lista inteira apenas evita que o usuário tenha de adivinhar qual dos onze
+   * corresponde ao projeto; errar essa escolha fazia o resolvedor não achar
+   * comando algum e devolver BLOCKED com "MISSING_TEST_COMMAND", depois de o
+   * pipeline já ter gerado e aplicado os arquivos.
+   */
+  private readonly desmarcados = signal<ReadonlySet<ExecutionCommandId>>(new Set());
+
+  /**
+   * Marcados por padrão = os comandos oferecidos, menos o que o usuário
+   * desmarcou. Derivar assim (em vez de guardar a seleção) faz a lista
+   * acompanhar o framework quando ele chega da API, sem perder a escolha manual.
+   */
+  protected readonly selectedCommands = computed<ReadonlySet<ExecutionCommandId>>(() => {
+    const fora = this.desmarcados();
+    return new Set(this.commands().filter((c) => !fora.has(c)));
+  });
+
+  /**
+   * Marcado: este painel É a aprovação para executar os testes, e o backend
+   * recusa a aprovação com allowTestExecution=false. Deixá-lo desmarcado por
+   * padrão só produzia uma aprovação inválida.
+   */
+  protected readonly allowTestExecution = signal(true);
+
+  /** Instalar dependências e buildar são mais pesados — seguem exigindo opt-in. */
   protected readonly allowInstallCommand = signal(false);
   protected readonly allowBuildCommand = signal(false);
 
@@ -52,14 +99,18 @@ export class ExecutionApprovalPanelComponent {
     this.approvedBy.set(value);
   }
 
+  protected isCommandSelected(command: ExecutionCommandId): boolean {
+    return this.selectedCommands().has(command);
+  }
+
   toggleCommand(command: ExecutionCommandId, checked: boolean): void {
-    const next = new Set(this.selectedCommands());
+    const next = new Set(this.desmarcados());
     if (checked) {
-      next.add(command);
-    } else {
       next.delete(command);
+    } else {
+      next.add(command);
     }
-    this.selectedCommands.set(next);
+    this.desmarcados.set(next);
   }
 
   onSubmit(): void {

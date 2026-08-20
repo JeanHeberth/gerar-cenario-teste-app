@@ -86,6 +86,8 @@
       @if (showExecutionApprovalPanel()) {
         <app-execution-approval-panel
           [submitting]="state.pendingAction() === 'APPROVE_EXECUTION'"
+          [frameworks]="frameworks()"
+          [automationFramework]="state.current()?.automationFramework ?? null"
           (approved)="onExecutionApproved($event)"
         />
       }

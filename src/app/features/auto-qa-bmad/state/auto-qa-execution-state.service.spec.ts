@@ -161,7 +161,7 @@ describe('AutoQaExecutionStateService', () => {
         return of(execution());
       });
 
-      state.createExecution('Cenário válido com texto suficiente', '/tmp/projeto').subscribe();
+      state.createExecution({ scenario: 'Cenário válido com texto suficiente' }, '/tmp/projeto').subscribe();
 
       expect(creatingDuringCall).toBeTrue();
       expect(state.creating()).toBeFalse();
@@ -172,9 +172,9 @@ describe('AutoQaExecutionStateService', () => {
       serviceSpy.create.and.returnValue(of(created));
 
       let emitted: AutoQaExecutionResponse | undefined;
-      state.createExecution('Cenário válido com texto suficiente', '/tmp/projeto').subscribe((r) => (emitted = r));
+      state.createExecution({ scenario: 'Cenário válido com texto suficiente' }, '/tmp/projeto').subscribe((r) => (emitted = r));
 
-      expect(serviceSpy.create).toHaveBeenCalledWith('Cenário válido com texto suficiente', '/tmp/projeto');
+      expect(serviceSpy.create).toHaveBeenCalledWith({ scenario: 'Cenário válido com texto suficiente' }, '/tmp/projeto', undefined, undefined);
       expect(state.current()).toEqual(created);
       expect(emitted).toEqual(created);
     });
@@ -183,7 +183,7 @@ describe('AutoQaExecutionStateService', () => {
       serviceSpy.create.and.returnValue(throwError(() => networkError()));
 
       let receivedError = false;
-      state.createExecution('Cenário válido com texto suficiente', '/tmp/projeto').subscribe({
+      state.createExecution({ scenario: 'Cenário válido com texto suficiente' }, '/tmp/projeto').subscribe({
         error: () => (receivedError = true),
       });
 
@@ -194,11 +194,11 @@ describe('AutoQaExecutionStateService', () => {
 
     it('ignora uma segunda chamada enquanto a primeira ainda está em andamento', () => {
       serviceSpy.create.and.callFake(() => {
-        state.createExecution('outro cenário com texto suficiente', '/tmp/outro').subscribe();
+        state.createExecution({ scenario: 'outro cenário com texto suficiente' }, '/tmp/outro').subscribe();
         return of(execution());
       });
 
-      state.createExecution('Cenário válido com texto suficiente', '/tmp/projeto').subscribe();
+      state.createExecution({ scenario: 'Cenário válido com texto suficiente' }, '/tmp/projeto').subscribe();
 
       expect(serviceSpy.create).toHaveBeenCalledTimes(1);
     });

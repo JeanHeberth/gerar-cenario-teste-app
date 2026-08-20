@@ -56,6 +56,13 @@
 .cenario-page__select,
 .cenario-page__file-input {
   width: 100%;
+  /*
+   * Sem isto os <input> ficam em content-box: width 100% + padding (24px) +
+   * borda (2px) estoura o container em 26px, e a borda direita deles não
+   * alinha com a do <select> de Agente, que já era border-box. Valia para
+   * Título e Regra de Negócio também.
+   */
+  box-sizing: border-box;
   border-radius: var(--aq-radius-md);
   border: var(--aq-border-width) solid var(--aq-border);
   background-color: var(--aq-surface);
@@ -94,6 +101,17 @@
 .cenario-page__jira-row > .cenario-page__input {
   flex: 1;
   min-width: 0;
+}
+
+/*
+ * Os botões ficam em linha própria, abaixo do campo. Enquanto o input dividia
+ * a linha com eles (flex: 1), sobrava pouca largura — e agora o campo aceita
+ * a URL inteira da task, não só a chave. Fora da linha, ele herda o
+ * width: 100% dos demais campos e fica alinhado com o de Agente.
+ */
+.cenario-page__jira-row--actions {
+  margin-top: var(--aq-space-2);
+  flex-wrap: wrap;
 }
 
 .cenario-page__helper {
