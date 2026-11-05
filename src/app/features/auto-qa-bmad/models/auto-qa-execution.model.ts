@@ -56,6 +56,27 @@ export interface AutoQaCreateExecutionRequest {
 
 export type ApplyOperation = 'CREATE' | 'UPDATE' | 'REUSE' | 'NONE';
 
+export interface AutoQaPublicPlanFileAction {
+  relativePath: string;
+  operation: ApplyOperation;
+  componentType: string;
+  reason: string | null;
+}
+
+export interface AutoQaPublicPlanWarning {
+  code: string;
+  description: string;
+  requiresHumanDecision: boolean;
+}
+
+/** Plano técnico exibido antes do portão de aprovação de geração. */
+export interface AutoQaPublicPlan {
+  title: string;
+  strategy: string | null;
+  fileActions: AutoQaPublicPlanFileAction[];
+  warnings: AutoQaPublicPlanWarning[];
+}
+
 export interface AutoQaApplyApprovalRequest {
   approvedBy: string;
   authorizedOperations: ApplyOperation[];
