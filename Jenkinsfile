@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'node-24'
+    }
+
     environment {
         APP_NAME = "gerar-cenario-teste-app"
         DIST_APP_NAME = "gerar-cenario-teste-app"
