@@ -1,0 +1,36 @@
+@if (plan(); as p) {
+  <section class="plan-panel" aria-label="Plano técnico">
+    <header class="plan-panel__header">
+      <h3 class="plan-panel__title">{{ p.title || 'Plano técnico' }}</h3>
+      @if (p.strategy) {
+        <p class="plan-panel__strategy">{{ p.strategy }}</p>
+      }
+    </header>
+
+    @if (p.warnings.length) {
+      <ul class="plan-panel__warnings">
+        @for (w of p.warnings; track w.code + w.description) {
+          <li
+            class="plan-panel__warning"
+            [class.plan-panel__warning--decision]="w.requiresHumanDecision"
+          >
+            <span class="plan-panel__warning-code">{{ w.code }}</span>
+            <span class="plan-panel__warning-text">{{ w.description }}</span>
+          </li>
+        }
+      </ul>
+    }
+
+    <ul class="plan-panel__actions">
+      @for (a of p.fileActions; track a.relativePath) {
+        <li class="plan-panel__action">
+          <span class="plan-panel__operation">{{ a.operation }}</span>
+          <span class="plan-panel__path">{{ a.relativePath }}</span>
+          @if (a.reason) {
+            <span class="plan-panel__reason">{{ a.reason }}</span>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+}
