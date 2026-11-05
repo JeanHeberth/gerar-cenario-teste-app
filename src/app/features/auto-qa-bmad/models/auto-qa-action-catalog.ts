@@ -15,7 +15,12 @@ import { AutoQaAvailableAction } from './auto-qa-enums.model';
 export const AUTO_QA_ACTION_LABELS: Record<AutoQaAvailableAction, string> = {
   START: 'Iniciar',
   CONTINUE: 'Continuar',
-  GENERATE: 'Gerar código',
+  // O estado é WAITING_GENERATION_APPROVAL e a tela diz "Aguardando aprovação",
+  // mas o rótulo antigo ("Gerar código") não mencionava aprovar — parecia faltar
+  // um botão. Não falta: aqui, ao contrário do APPLY, não existe endpoint de
+  // aprovação separado; o POST /generate É a aprovação. O rótulo passa a dizer
+  // isso, em vez de sugerir um passo que o backend não tem.
+  GENERATE: 'Aprovar e gerar código',
   APPROVE_FILE_UPDATE: 'Aprovar aplicação de arquivos',
   APPLY: 'Aplicar arquivos',
   APPROVE_EXECUTION: 'Aprovar execução',

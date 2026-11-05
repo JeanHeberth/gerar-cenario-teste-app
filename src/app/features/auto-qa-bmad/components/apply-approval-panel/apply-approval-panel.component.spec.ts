@@ -34,21 +34,44 @@ describe('ApplyApprovalPanelComponent', () => {
     }
   });
 
+  it('já vem com CREATE/UPDATE/REUSE marcados e avisos permitidos', () => {
+    // Começar tudo vazio obrigava a adivinhar o que marcar, e errar só aparecia
+    // como falha no apply, depois do pipeline inteiro.
+    expect(checkbox('CREATE').checked).toBeTrue();
+    expect(checkbox('UPDATE').checked).toBeTrue();
+    expect(checkbox('REUSE').checked).toBeTrue();
+    expect(checkbox('NONE').checked).toBeFalse();
+    expect(namedCheckbox('allowWarnings').checked).toBeTrue();
+    // Sobrescrever arquivo existente continua exigindo escolha explícita.
+    expect(namedCheckbox('allowFileUpdate').checked).toBeFalse();
+  });
+
   it('desabilita o envio quando approvedBy está vazio ou nenhuma operação foi selecionada', () => {
-    expect(submitButton().disabled).toBeTrue();
+    expect(submitButton().disabled).toBeTrue(); // approvedBy vazio
 
     approvedByField().value = 'jean';
     approvedByField().dispatchEvent(new Event('input'));
     fixture.detectChanges();
-    expect(submitButton().disabled).toBeTrue(); // ainda sem operação selecionada
+    expect(submitButton().disabled).toBeFalse();
+
+    for (const op of ['CREATE', 'UPDATE', 'REUSE']) {
+      checkbox(op).checked = false;
+      checkbox(op).dispatchEvent(new Event('change'));
+    }
+    fixture.detectChanges();
+    expect(submitButton().disabled).toBeTrue(); // nenhuma operação selecionada
   });
 
   it('emite approved com o payload correto quando válido', () => {
     approvedByField().value = '  jean  ';
     approvedByField().dispatchEvent(new Event('input'));
 
-    checkbox('CREATE').checked = true;
-    checkbox('CREATE').dispatchEvent(new Event('change'));
+    // Desmarca UPDATE/REUSE para checar que o toggle continua funcionando
+    // sobre a seleção padrão.
+    checkbox('UPDATE').checked = false;
+    checkbox('UPDATE').dispatchEvent(new Event('change'));
+    checkbox('REUSE').checked = false;
+    checkbox('REUSE').dispatchEvent(new Event('change'));
 
     namedCheckbox('allowFileUpdate').checked = true;
     namedCheckbox('allowFileUpdate').dispatchEvent(new Event('change'));
@@ -64,7 +87,7 @@ describe('ApplyApprovalPanelComponent', () => {
       approvedBy: 'jean',
       authorizedOperations: ['CREATE'],
       allowFileUpdate: true,
-      allowWarnings: false,
+      allowWarnings: true,
     });
   });
 

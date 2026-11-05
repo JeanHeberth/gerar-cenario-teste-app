@@ -28,8 +28,22 @@ export class AutoQaExecutionService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/api/auto-qa/executions`;
 
-  create(scenario: string, projectPath: string): Observable<AutoQaExecutionResponse> {
-    return this.withTimeout(this.http.post<AutoQaExecutionResponse>(this.baseUrl, { scenario, projectPath }));
+  /**
+   * @param origem `cenarioId` reaproveita um cenário já salvo (o da Lista de
+   * Cenários); `scenario` é o texto avulso. O backend aceita um ou outro.
+   */
+  create(
+    origem: { scenario?: string; cenarioId?: string },
+    projectPath: string,
+    automationType?: string,
+    automationFramework?: string,
+  ): Observable<AutoQaExecutionResponse> {
+    // Campo omitido quando não escolhido: o backend distingue "não informado"
+    // (deduz pelo projeto) de um valor vazio, que cairia como desconhecido.
+    const body: Record<string, unknown> = { ...origem, projectPath };
+    if (automationType) body['automationType'] = automationType;
+    if (automationFramework) body['automationFramework'] = automationFramework;
+    return this.withTimeout(this.http.post<AutoQaExecutionResponse>(this.baseUrl, body));
   }
 
   list(page: number, size: number): Observable<AutoQaExecutionListResponse> {
