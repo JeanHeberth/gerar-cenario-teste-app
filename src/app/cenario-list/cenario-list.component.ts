@@ -726,4 +726,16 @@ export class CenarioListComponent implements OnInit, OnDestroy {
       .replace(/[^\w\s]/gi, '')
       .replace(/\s+/g, '_');
   }
+
+  /**
+   * Leva o cenário salvo para o Auto QA gerar a automação dele. Vai só o id:
+   * o backend monta o texto a partir do documento (regra de negócio,
+   * critérios de aceitação e todos os casos), em vez de o front reenviar
+   * conteúdo que já está persistido.
+   */
+  automatizar(cenario: any): void {
+    this.router.navigate(['/auto-qa'], {
+      queryParams: { cenarioId: cenario?.id, cenarioTitulo: cenario?.titulo },
+    });
+  }
 }

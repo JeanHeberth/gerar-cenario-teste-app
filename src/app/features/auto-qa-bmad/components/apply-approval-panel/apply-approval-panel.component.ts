@@ -27,9 +27,27 @@ export class ApplyApprovalPanelComponent {
   protected readonly operations = OPERATIONS;
 
   protected readonly approvedBy = signal('');
-  protected readonly selectedOperations = signal<ReadonlySet<ApplyOperation>>(new Set());
+
+  /**
+   * CREATE/UPDATE/REUSE vêm marcados: são as operações que o plano produz, e
+   * começar tudo vazio obrigava a adivinhar quais marcar — errar uma fazia o
+   * apply falhar depois de todo o pipeline. NONE fica de fora por não aplicar
+   * nada. Sobrescrever arquivo continua exigindo opt-in explícito, mas em
+   * allowFileUpdate, que é o campo que de fato libera isso.
+   */
+  protected readonly selectedOperations = signal<ReadonlySet<ApplyOperation>>(
+    new Set<ApplyOperation>(['CREATE', 'UPDATE', 'REUSE'])
+  );
   protected readonly allowFileUpdate = signal(false);
-  protected readonly allowWarnings = signal(false);
+
+  /**
+   * Marcado por padrão porque APPROVED_WITH_WARNINGS é o desfecho comum de
+   * revisão (quase toda geração traz ao menos um aviso LOW), e sem isto o
+   * backend recusa com "exige ApplyApproval.allowWarnings=true" — um erro que
+   * só aparecia no fim, sem nada na tela indicando que faltava marcar.
+   * Não afrouxa nada: achado CRITICAL/HIGH bloqueia antes, marcado ou não.
+   */
+  protected readonly allowWarnings = signal(true);
 
   protected readonly canSubmit = computed(
     () => this.approvedBy().trim().length > 0 && this.selectedOperations().size > 0
@@ -37,6 +55,10 @@ export class ApplyApprovalPanelComponent {
 
   onApprovedByChange(value: string): void {
     this.approvedBy.set(value);
+  }
+
+  protected isOperationSelected(operation: ApplyOperation): boolean {
+    return this.selectedOperations().has(operation);
   }
 
   toggleOperation(operation: ApplyOperation, checked: boolean): void {

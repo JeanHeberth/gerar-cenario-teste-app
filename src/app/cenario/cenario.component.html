@@ -60,15 +60,17 @@
       <div class="cenario-page__section-title">Integração Jira</div>
 
       <div class="cenario-page__field">
-        <label class="cenario-page__label" for="cenario-jira-task-key">Task Jira</label>
-        <div class="cenario-page__jira-row">
-          <input
-            id="cenario-jira-task-key"
-            type="text"
-            formControlName="jiraTaskKey"
-            class="cenario-page__input"
-            placeholder="Ex.: OP-1122"
-            />
+        <label class="cenario-page__label" for="cenario-jira-task-key">Task</label>
+        <input
+          id="cenario-jira-task-key"
+          type="text"
+          formControlName="jiraTaskKey"
+          class="cenario-page__input"
+          placeholder="Cole a URL da task (ou informe a chave, ex.: OP-1122)"
+          (blur)="atualizarDestino()"
+          />
+
+        <div class="cenario-page__jira-row cenario-page__jira-row--actions">
           <aqb-button
             type="button"
             variant="secondary"
@@ -86,7 +88,24 @@
             {{ jiraDownloadLoading ? 'Baixando...' : 'Baixar anexos (.zip)' }}
           </aqb-button>
         </div>
-        <small class="cenario-page__helper cenario-page__helper--muted">Ao informar a task (ex.: OP-1122), o download sera salvo como OP-1122.zip e os PDFs podem ser importados.</small>
+        <small class="cenario-page__helper cenario-page__helper--muted">Os casos de teste gerados ficam vinculados a esta task. Os anexos PDF dela tambem podem ser importados abaixo.</small>
+
+        @if (destinoLoading) {
+          <small class="cenario-page__helper cenario-page__helper--muted">Resolvendo destino...</small>
+        } @else if (destino && !destino.valido) {
+          <div class="cenario-page__alert cenario-page__alert--danger" role="alert">
+            {{ destino.motivo }}
+          </div>
+        } @else if (destino && destino.identificador) {
+          <div class="cenario-page__alert cenario-page__alert--info" role="status">
+            Sera publicado em
+            <strong>{{ destino.projectKey || '(projeto padrao)' }}</strong>
+            @if (destino.pastaRaiz) {
+              / <strong>{{ destino.pastaRaiz }}</strong>
+            }
+            &mdash; vinculado a <strong>{{ destino.identificador }}</strong> ({{ destino.provedor }})
+          </div>
+        }
         @if (jiraMessage) {
           <div class="cenario-page__alert"
             [class.cenario-page__alert--success]="jiraMessageType === 'success'"

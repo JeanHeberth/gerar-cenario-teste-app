@@ -1,21 +1,72 @@
 <form class="new-execution-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-  <aqb-textarea
-    label="Cenário de teste"
-    [value]="form.controls.scenario.value"
-    [error]="scenarioError()"
-    placeholder="Descreva o cenário de teste em linguagem natural..."
-    (valueChange)="onScenarioChange($event)"
-  />
+  @if (usandoCenarioSalvo) {
+    <div class="new-execution-form__cenario-salvo">
+      <span class="new-execution-form__cenario-salvo-label">Cenário selecionado</span>
+      <strong class="new-execution-form__cenario-salvo-titulo">{{ cenarioSelecionadoTitulo() || cenarioSelecionadoId() }}</strong>
+      <small>Os casos de teste, a regra de negócio e os critérios de aceitação vêm do cenário salvo.</small>
+    </div>
+  } @else {
+    <aqb-textarea
+      label="Cenário de teste"
+      [value]="form.controls.scenario.value"
+      [error]="scenarioError()"
+      placeholder="Descreva o cenário de teste em linguagem natural..."
+      (valueChange)="onScenarioChange($event)"
+    />
+  }
 
-  <aqb-input
-    label="Caminho do projeto"
-    [value]="form.controls.projectPath.value"
-    [error]="projectPathError()"
-    placeholder="/caminho/para/o/projeto"
-    (valueChange)="onProjectPathChange($event)"
-  />
+  <div class="new-execution-form__path">
+    <span class="new-execution-form__path-input">
+      <aqb-input
+        label="Caminho do projeto"
+        [value]="form.controls.projectPath.value"
+        [error]="projectPathError()"
+        placeholder="/caminho/para/o/projeto"
+        (valueChange)="onProjectPathChange($event)"
+      />
+    </span>
+    <span class="new-execution-form__path-button">
+      <aqb-button type="button" variant="secondary" (clicked)="onAbrirSeletor()">Abrir</aqb-button>
+    </span>
+  </div>
 
-  <aqb-button type="submit" variant="primary" [loading]="submitting()" [disabled]="form.invalid">
+  <div class="new-execution-form__automation-type">
+    <label class="new-execution-form__automation-type-label" for="automationFramework">Framework</label>
+    <select
+      class="new-execution-form__automation-type-field"
+      id="automationFramework"
+      [value]="form.controls.automationFramework.value"
+      (change)="onAutomationFrameworkChange($event)"
+    >
+      @for (opcao of frameworkOptions(); track opcao.value) {
+        <option [value]="opcao.value">{{ opcao.label }}</option>
+      }
+    </select>
+    <small class="new-execution-form__automation-type-hint">
+      Informe quando o projeto ainda não tiver dependência de automação — sem ela não há o que detectar e a geração é
+      bloqueada. Em projeto que já usa um framework, o detectado prevalece.
+    </small>
+  </div>
+
+  <div class="new-execution-form__automation-type">
+    <label class="new-execution-form__automation-type-label" for="automationType">Canal da automação</label>
+    <select
+      class="new-execution-form__automation-type-field"
+      id="automationType"
+      [value]="form.controls.automationType.value"
+      (change)="onAutomationTypeChange($event)"
+    >
+      @for (opcao of automationTypeOptions(); track opcao.value) {
+        <option [value]="opcao.value">{{ opcao.label }}</option>
+      }
+    </select>
+    <small class="new-execution-form__automation-type-hint">
+      As opções acompanham o framework escolhido. O mesmo framework pode atender canais diferentes — no Playwright,
+      Web (UI) usa page/locators e API usa request/APIRequestContext.
+    </small>
+  </div>
+
+  <aqb-button type="submit" variant="primary" [loading]="submitting()" [disabled]="envioBloqueado">
     Executar Workflow
   </aqb-button>
 </form>

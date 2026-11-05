@@ -13,6 +13,7 @@
         <input
           type="checkbox"
           [value]="operation"
+          [checked]="isOperationSelected(operation)"
           (change)="toggleOperation(operation, $any($event.target).checked)"
         />
         {{ operation }}
@@ -21,13 +22,23 @@
   </fieldset>
 
   <label class="apply-approval-panel__checkbox">
-    <input type="checkbox" name="allowFileUpdate" (change)="allowFileUpdate.set($any($event.target).checked)" />
-    Permitir atualização de arquivos existentes
+    <input
+      type="checkbox"
+      name="allowFileUpdate"
+      [checked]="allowFileUpdate()"
+      (change)="allowFileUpdate.set($any($event.target).checked)"
+    />
+    Permitir sobrescrever arquivos que já existem
   </label>
 
   <label class="apply-approval-panel__checkbox">
-    <input type="checkbox" name="allowWarnings" (change)="allowWarnings.set($any($event.target).checked)" />
-    Permitir aplicar mesmo havendo avisos
+    <input
+      type="checkbox"
+      name="allowWarnings"
+      [checked]="allowWarnings()"
+      (change)="allowWarnings.set($any($event.target).checked)"
+    />
+    Aplicar mesmo com avisos da revisão (problemas graves continuam bloqueando)
   </label>
 
   <span class="apply-approval-panel__submit">

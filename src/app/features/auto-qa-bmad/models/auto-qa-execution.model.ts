@@ -35,6 +35,11 @@ export interface AutoQaExecutionResponse {
   finishedAt: string | null;
   cancelledAt: string | null;
   cancellationReason: string | null;
+  /**
+   * Framework informado na criação; null quando deduzido do projeto.
+   * Opcional no tipo para não obrigar todo fixture de teste a declará-lo.
+   */
+  automationFramework?: string | null;
 }
 
 export interface AutoQaExecutionListResponse {

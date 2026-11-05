@@ -87,6 +87,7 @@
       }
 
       <div class="cenario-card__actions">
+        <aqb-button class="cenario-card__automatizar" variant="primary" (clicked)="automatizar(cenario)" title="Gerar a automação destes cenários no Auto QA">🤖 Automatizar</aqb-button>
         <aqb-button class="cenario-card__export-doc" variant="secondary" (clicked)="exportar(cenario, 'doc')" title="Exportar para .doc">📄 .doc</aqb-button>
         <aqb-button class="cenario-card__export-xlsx" variant="secondary" (clicked)="exportar(cenario, 'xlsx')" title="Exportar para .xlsx">📊 .xlsx</aqb-button>
         <aqb-button class="cenario-card__export-pdf" variant="secondary" (clicked)="exportar(cenario, 'pdf')" title="Exportar para .pdf">📊 .pdf</aqb-button>

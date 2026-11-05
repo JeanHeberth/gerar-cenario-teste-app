@@ -44,7 +44,7 @@ describe('AutoQaExecutionService', () => {
   });
 
   it('create() faz POST em /executions com scenario e projectPath', () => {
-    service.create('Login com credenciais válidas', '/tmp/projeto').subscribe((resp) => {
+    service.create({ scenario: 'Login com credenciais válidas' }, '/tmp/projeto').subscribe((resp) => {
       expect(resp).toEqual(sampleResponse);
     });
 

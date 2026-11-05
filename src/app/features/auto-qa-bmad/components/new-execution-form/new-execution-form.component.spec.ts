@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NewExecutionFormComponent } from './new-execution-form.component';
+import { NewExecutionFormComponent, NewExecutionFormValue } from './new-execution-form.component';
 
 describe('NewExecutionFormComponent', () => {
   let fixture: ComponentFixture<NewExecutionFormComponent>;
@@ -51,7 +51,7 @@ describe('NewExecutionFormComponent', () => {
   });
 
   it('emite "created" com os valores (com trim) quando o formulário é válido', () => {
-    let emitted: { scenario: string; projectPath: string } | undefined;
+    let emitted: NewExecutionFormValue | undefined;
     fixture.componentInstance.created.subscribe((v) => (emitted = v));
 
     scenarioField().value = '  Dado que o usuário está logado, quando acessa o perfil  ';
@@ -64,7 +64,99 @@ describe('NewExecutionFormComponent', () => {
     expect(emitted).toEqual({
       scenario: 'Dado que o usuário está logado, quando acessa o perfil',
       projectPath: '/tmp/projeto',
+      cenarioId: undefined,
+      automationType: undefined,
+      automationFramework: undefined,
     });
+  });
+
+  it('emite o canal de automação escolhido', () => {
+    fixture.componentRef.setInput('frameworks', [
+      { framework: 'PLAYWRIGHT', automationTypes: ['WEB_UI', 'API'] },
+    ]);
+    fixture.detectChanges();
+
+    let emitted: NewExecutionFormValue | undefined;
+    fixture.componentInstance.created.subscribe((v) => (emitted = v));
+
+    scenarioField().value = 'Dado que o usuário está logado, quando acessa o perfil';
+    scenarioField().dispatchEvent(new Event('input'));
+    projectPathField().value = '/tmp/projeto';
+    projectPathField().dispatchEvent(new Event('input'));
+
+    const select = fixture.nativeElement.querySelector('#automationType') as HTMLSelectElement;
+    select.value = 'API';
+    select.dispatchEvent(new Event('change'));
+
+    submitForm();
+
+    expect(emitted?.automationType).toBe('API');
+  });
+
+  it('canais acompanham o framework escolhido (cascata)', () => {
+    fixture.componentRef.setInput('frameworks', [
+      { framework: 'PLAYWRIGHT', automationTypes: ['WEB_UI', 'API'] },
+      { framework: 'REST_ASSURED', automationTypes: ['API'] },
+    ]);
+    fixture.detectChanges();
+
+    const frameworkSelect = fixture.nativeElement.querySelector('#automationFramework') as HTMLSelectElement;
+    frameworkSelect.value = 'REST_ASSURED';
+    frameworkSelect.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    const canais = Array.from(
+      (fixture.nativeElement.querySelector('#automationType') as HTMLSelectElement).options,
+    ).map((o) => (o as HTMLOptionElement).value);
+
+    // REST Assured não abre navegador: WEB_UI não pode sequer ser oferecido.
+    expect(canais).toEqual(['', 'API']);
+  });
+
+  it('trocar de framework limpa um canal que o novo não atende', () => {
+    fixture.componentRef.setInput('frameworks', [
+      { framework: 'PLAYWRIGHT', automationTypes: ['WEB_UI', 'API'] },
+      { framework: 'REST_ASSURED', automationTypes: ['API'] },
+    ]);
+    fixture.detectChanges();
+
+    const frameworkSelect = fixture.nativeElement.querySelector('#automationFramework') as HTMLSelectElement;
+    frameworkSelect.value = 'PLAYWRIGHT';
+    frameworkSelect.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    const canalSelect = fixture.nativeElement.querySelector('#automationType') as HTMLSelectElement;
+    canalSelect.value = 'WEB_UI';
+    canalSelect.dispatchEvent(new Event('change'));
+
+    frameworkSelect.value = 'REST_ASSURED';
+    frameworkSelect.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    let emitted: NewExecutionFormValue | undefined;
+    fixture.componentInstance.created.subscribe((v) => (emitted = v));
+    scenarioField().value = 'Dado que o usuário está logado, quando acessa o perfil';
+    scenarioField().dispatchEvent(new Event('input'));
+    projectPathField().value = '/tmp/projeto';
+    projectPathField().dispatchEvent(new Event('input'));
+    submitForm();
+
+    expect(emitted?.automationFramework).toBe('REST_ASSURED');
+    expect(emitted?.automationType).toBeUndefined();
+  });
+
+  it('omite o canal quando o usuário deixa "Detectar pelo projeto"', () => {
+    let emitted: NewExecutionFormValue | undefined;
+    fixture.componentInstance.created.subscribe((v) => (emitted = v));
+
+    scenarioField().value = 'Dado que o usuário está logado, quando acessa o perfil';
+    scenarioField().dispatchEvent(new Event('input'));
+    projectPathField().value = '/tmp/projeto';
+    projectPathField().dispatchEvent(new Event('input'));
+
+    submitForm();
+
+    expect(emitted?.automationType).toBeUndefined();
   });
 
   it('desabilita o botão de envio quando submitting é verdadeiro', () => {

@@ -1,0 +1,62 @@
+<aqb-modal
+  [open]="open()"
+  [busy]="loading()"
+  title="Selecionar pasta do projeto"
+  describedBy="folder-picker-description"
+  (closed)="onDismiss()"
+>
+  <p id="folder-picker-description" class="folder-picker__current">
+    @if (nivel()?.caminhoAtual) {
+      <code class="folder-picker__path">{{ nivel()?.caminhoAtual }}</code>
+    } @else {
+      Escolha uma das pastas autorizadas.
+    }
+  </p>
+
+  @if (erro()) {
+    <div class="folder-picker__error" role="alert">{{ erro() }}</div>
+  }
+
+  @if (!erro() && !loading() && nivel() && nivel()!.pastas.length === 0) {
+    <div class="folder-picker__empty">
+      @if (nivel()!.caminhoAtual) {
+        Nenhuma subpasta aqui.
+      } @else {
+        Nenhuma pasta autorizada. Configure <code>auto-qa.allowed-roots</code> na API.
+      }
+    </div>
+  }
+
+  <ul class="folder-picker__list">
+    @if (podeVoltar) {
+      <li>
+        <button type="button" class="folder-picker__item folder-picker__item--up" (click)="onVoltar()">
+          <span class="folder-picker__icon" aria-hidden="true">↰</span> Voltar
+        </button>
+      </li>
+    }
+
+    @for (pasta of nivel()?.pastas ?? []; track pasta.caminho) {
+      <li>
+        <button type="button" class="folder-picker__item" (click)="onNavegar(pasta.caminho)">
+          <span class="folder-picker__icon" aria-hidden="true">📁</span> {{ pasta.nome }}
+        </button>
+      </li>
+    }
+  </ul>
+
+  <div class="folder-picker__actions">
+    <span>
+      <aqb-button variant="secondary" (clicked)="onDismiss()">Cancelar</aqb-button>
+    </span>
+    <span>
+      <aqb-button
+        variant="primary"
+        [disabled]="!nivel()?.selecionavel || loading()"
+        (clicked)="onSelecionar()"
+      >
+        Usar esta pasta
+      </aqb-button>
+    </span>
+  </div>
+</aqb-modal>
